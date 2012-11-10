@@ -1,0 +1,5 @@
+Dunkel: 70 kO
+Zimmerbeleuchtung: ca. 3 kO
+Schreibtischlampe 50cm Abstand: 500 O
+Schreibtischlampe 10cm Abstand: 90 O
+Schreibtischlampe 2cm Abstand: 30 O
