@@ -131,6 +131,8 @@ void init_timer2() {
 	TCNT2 = 0;
 	/* Compare Interrups erlauben */
 	TIMSK |= (1<<OCIE2);
+
+	data[0][0] = 0;
 }
 
 int main (void) { 
@@ -232,10 +234,13 @@ int main (void) {
 	char datestring[200];
 	ADCSRA |= (1<<ADSC);
 	
+	init_timer2();
+
 	while(1){
-		mainLoop();
+		//mainLoop();
 		
-		_delay_ms(10);
+		vertical_time();
+		_delay_ms(100);
 		/*
 		byte n=ADCH;
 		for(byte i = 0; i<7;i++){
@@ -961,7 +966,7 @@ ISR (TIMER2_COMP_vect) {
 	timer2_counter++;
 	if (timer2_counter == 100) {
 		timer2_counter = 0;
-		data[0][0] ^= 255;
+		tick();
 	}
 }
 
