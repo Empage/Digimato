@@ -971,7 +971,7 @@ ISR (TIMER2_COMP_vect) {
 }
 
 void tickSecondAnimation(void){
-	brightness = 255/splitSecCount;
+	brightness = 255/((splitSecCount+8)/8);
 	if(brightness<16){
 		brightness=16;
 	}
