@@ -14,9 +14,18 @@
 #define DBG_LED_ON  (PORTB |= 0b00000010)
 #define DBG_LED_OFF (PORTB &= 0b11111101)
 #define byte uint8_t
+#define boolean byte
+#define TRUE 1
+#define true TRUE
+#define FALSE 0
+#define false FALSE
 
 //void sr_out(uint16_t cData);
+
+void mainLoop(void);
+void pollSwichtes(void);
 /* Animations */
+void tickSecondAnimation(void);
 void clear_all(void);
 void set_all(byte value);
 void drawWithBrightness(void);
@@ -46,7 +55,8 @@ void running_letters(char* str, byte time);
 void running_letters_simple(char* str);
 
 /*If brightness!=0 the value in the dataarray is overitten by this brightness*/
-byte brightness; 
+byte brightness=0;
+boolean autoBrightness=false;
 
 volatile uint8_t cmp=0;		//Value to compare with for Softpwm
 
@@ -76,6 +86,7 @@ uint8_t data[7][17];//Stores the actual Data, one Byte per LED
 byte hour=10;
 byte min=15;
 byte sec=1;
+byte splitSecCount=0;
 
 /* Date variables */
 byte day_of_week = 1;
@@ -208,19 +219,13 @@ int main (void) {
 	//uint8_t offset = 0;
 	byte i = 0;
 	char datestring[200];
+	ADCSRA |= (1<<ADSC);
 	
 	while(1){
 		
-		//Messung starten
-		ADCSRA |= (1<<ADSC);
+		mainLoop();
 		
-		//Auf abgeschlossene Messung 
-		while((ADCSRA & (1<<ADSC)));
-		
-		printByteBinary(ADCH);
-		brightness= 255 - ADCH;
-		
-		_delay_ms(100);
+		_delay_ms(10);
 		/*
 		byte n=ADCH;
 		for(byte i = 0; i<7;i++){
@@ -946,7 +951,61 @@ ISR (TIMER0_OVF_vect){
 	}
 }
 
+void tickSecondAnimation(void){
+	brightness = 255/splitSecCount;
+	if(brightness<16){
+		brightness=16;
+	}
+}
 
+byte adcWait=false;
+//this fuction is called every 10 ms
+void mainLoop(void){
+
+	//Tick at every completed second
+	if(++splitSecCount==100){
+		splitSecCount=0;
+		//time++
+		tick();
+		//Display new Time
+		vertical_time();
+	}
+	if((splitSecCount%4)==0){
+		//New animation Frame! (25 fps)
+		tickSecondAnimation();
+	}
+
+	//ADC Helligkeitsensor
+	//wenn Messung fertig
+	if(autoBrightness){
+		if(!(ADCSRA & (1<<ADSC))){
+			brightness= 255 - ADCH;
+	//		printByteBinary(ADCH);
+
+		}else{
+			if(!adcWait){
+				//Messung starten
+				ADCSRA |= (1<<ADSC);
+				adcWait = true;
+			}else{
+				//adcWait um zwischen Messung 10ms wait einzubauen
+				adcWait=false;
+			}
+		}
+	}
+	//Every Second refresh temperature
+	if(splitSecCount==50){
+		//get teperatur
+	}
+
+	pollSwichtes();
+
+	// if
+}
+
+void pollSwichtes(void){
+	//Poll switches
+}
 
 //void sr_out(uint16_t cData)
 //{
