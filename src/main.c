@@ -851,7 +851,7 @@ void drawWithBrightness(void){
 		output=128;
 
 		/* Last Bit direct on microcontroller pin */
-		if(data[state][i]>cmp){
+		if(data[state][i]>0){
 			output=0;
 		}
 		while(!(SPSR & (1<<SPIF)));	
