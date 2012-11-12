@@ -1,0 +1,26 @@
+Bedienkonzept:
+
+wie viel Tasen?
+
+Korrekt .. keine Uhrzeit ...Um Uhrzeit einzustellen [+ / -]
+
+so... 4!
+
+Features!
+- Uhrzeit anzeigen
+- Uhrzeit empfangen
+- Datum anzeigen / empfangen
+- Laufschrift anzeigen koennen!
+
+- Farbabstufungen
+- Helligkeiteerkennung
+
+- Temperaturmessung
+
+- Wecker
+- 230V Steckdose
+
+
+- Infrarotempfanger
+- Pong
+- Snake

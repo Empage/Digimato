@@ -1,0 +1,36 @@
+#----------------------------------------------------------------------------
+# Makefile for Linux
+#
+# usage:
+#
+#        make -f makefile.lnx [irmp] [irsnd]
+#
+# Copyright (c) 2010 Frank Meyer - frank(at)fli4l.de
+#
+# $Id: makefile.lnx,v 1.6 2010/06/11 14:47:24 fm Exp $
+#----------------------------------------------------------------------------
+all:	irmp irmp-15kHz irmp-20kHz irsnd irsnd-15kHz irsnd-20kHz
+
+irmp: irmp.c irmp.h irmpconfig.h
+	cc -Wall -DF_INTERRUPTS=10000 irmp.c -o irmp
+
+irmp-15kHz: irmp.c irmp.h irmpconfig.h
+	cc -Wall -DF_INTERRUPTS=15000 irmp.c -o irmp-15kHz
+
+irmp-20kHz: irmp.c irmp.h irmpconfig.h
+	cc -Wall -DF_INTERRUPTS=20000 irmp.c -o irmp-20kHz
+
+irsnd: irsnd.c irsnd.h irmp.h irsndconfig.h
+	cc -Wall -DF_INTERRUPTS=10000 irsnd.c -o irsnd
+
+irsnd-15kHz: irsnd.c irsnd.h irmp.h irsndconfig.h
+	cc -Wall -DF_INTERRUPTS=15000 irsnd.c -o irsnd-15kHz
+
+irsnd-20kHz: irsnd.c irsnd.h irmp.h irsndconfig.h
+	cc -Wall -DF_INTERRUPTS=20000 irsnd.c -o irsnd-20kHz
+
+test: all
+	cd IR-Data && ./test-suite.sh
+
+clean:
+	rm -f irmp irmp-15kHz irmp-20kHz irsnd irsnd-15kHz irsnd-20kHz
