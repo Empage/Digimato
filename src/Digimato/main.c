@@ -73,9 +73,9 @@ uint8_t states[] ={	0b01111110,
 uint8_t data[7][17];//Stores the actual Data, one Byte per LED
 
 /*Time Variables */
-byte hour=10;
-byte min=15;
-byte sec=1;
+volatile byte hour=10;
+volatile byte min=15;
+volatile byte sec=1;
 
 /* Date variables */
 byte day_of_week = 1;
@@ -109,7 +109,18 @@ uint8_t numbers[]={
 	0,0,0,0,0,0,0
 	};
 	
-
+void init_timer2() {
+	/* Use prescaler 1024 */
+	TCCR2 |= (1 << CS22)|(1 << CS21)|(1 << CS20);
+	/* Enable CTC Mode */
+	TCCR2 |= (1 << WGM21)|(0 << WGM20);
+	/* CTC Wert: 147456 / 1024 / 100 = 144; -1 weil Intr erst 1 Timer Clock cycle später ausgelöst wird */
+	OCR2 = 144 - 1;
+	/* Initialize counter */
+	TCNT2 = 0;
+	/* Compare Interrups erlauben */
+	TIMSK |= (1<<OCIE2);
+}
 
 int main (void) { 
 
@@ -211,16 +222,21 @@ int main (void) {
 	
 	while(1){
 		
-		//Messung starten
-		ADCSRA |= (1<<ADSC);
+// Sir Tobis Helligkeitsstuff
+//		//Messung starten
+//		ADCSRA |= (1<<ADSC);
+//
+//		//Auf abgeschlossene Messung
+//		while((ADCSRA & (1<<ADSC)));
+//
+//		printByteBinary(ADCH);
+//		brightness= 255 - ADCH;
+//
+//		_delay_ms(100);
+
 		
-		//Auf abgeschlossene Messung 
-		while((ADCSRA & (1<<ADSC)));
 		
-		printByteBinary(ADCH);
-		brightness= 255 - ADCH;
 		
-		_delay_ms(100);
 		/*
 		byte n=ADCH;
 		for(byte i = 0; i<7;i++){
@@ -848,7 +864,6 @@ void drawWithBrightness(void){
 		/* output to SPI-Register */
 		SPDR = output;
 		
-		output=128;
 
 		/* Last Bit direct on microcontroller pin */
 		if(data[state][i]>0){
@@ -856,19 +871,15 @@ void drawWithBrightness(void){
 		}
 		while(!(SPSR & (1<<SPIF)));	
 	}else{
-		output=0;
 		/* output to SPI-Register */
 		SPDR = 0;
 		/* Wait for SPI transmission complete*/
 		while(!(SPSR & (1<<SPIF)));
 		SPDR = 0;
 		while(!(SPSR & (1<<SPIF)));	
+
+		output=128; //LED 16 aus!
 	}
-
-	
-
-	
-	
 	
 	/* RCK auf null ziehen */
 	PORTB &= 0b11101111; 
@@ -943,6 +954,15 @@ ISR (TIMER0_OVF_vect){
 		drawWithBrightness();
 	}else{
 		draw();
+	}
+}
+//TODO tmp
+volatile byte timer2_counter = 0;
+ISR (TIMER2_COMP_vect) {
+	timer2_counter++;
+	if (timer2_counter == 100) {
+		timer2_counter = 0;
+		data[0][0] ^= 255;
 	}
 }
 
