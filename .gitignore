@@ -8,3 +8,4 @@ latex/document.aux
 latex/document.pdf
 latex/.texlipse
 latex/tmp/document.*
+latex/tmp/*.aux
