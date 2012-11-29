@@ -5,11 +5,8 @@
  *      Author: matthis
  */
 
-
 #include "conrad_dcf.h"
 #include "main.h"
-#include "defines.h"
-#include "globals.h"
 
 //TODO auf Timer umstellen: entweder 10ms Timer oder Flankentimer des Signals
 byte conrad_get_dcf_data(byte* dcf_data) {

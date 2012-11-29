@@ -5,7 +5,7 @@
  *      Author: matthis
  */
 
-#include "defines.h"
+#include "globals.h"
 
 /*If brightness!=0 the value in the dataarray is overitten by this brightness*/
 byte brightness = 0;

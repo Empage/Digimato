@@ -8,7 +8,7 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
-#include "defines.h"
+#include "globals.h"
 
 void mainLoop(void);
 void pollSwichtes(void);

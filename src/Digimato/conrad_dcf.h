@@ -8,6 +8,6 @@
 #ifndef CONRAD_DCF_H_
 #define CONRAD_DCF_H_
 
-#include "defines.h"
+//TODO
 
 #endif /* CONRAD_DCF_H_ */

@@ -4,10 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 #include "fontMonoSpace.h"
 #include "main.h"
-#include "globals.h"
 	
 void init_timer2() {
 	/* Use prescaler 1024 */
