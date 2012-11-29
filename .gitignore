@@ -2,7 +2,10 @@
 .project
 Debug
 .settings
-latex/stud.synctex.gz
-latex/stud.log
-latex/stud.aux
-latex/stud.pdf
+latex/document.synctex.gz
+latex/document.log
+latex/document.aux
+latex/document.pdf
+latex/.texlipse
+latex/tmp/document.*
+latex/tmp/*.aux
