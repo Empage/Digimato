@@ -6,6 +6,7 @@
 
 #include "fontMonoSpace.h"
 #include "main.h"
+#include "thermometer.h"
 
 void init_timer2() {
 	/* Use prescaler 1024 */
@@ -123,11 +124,13 @@ int main (void) {
 	
 	init_timer2();
 
+	char temperature[13];
+
 	while(1){
 		//mainLoop();
 		
-		vertical_time();
-		_delay_ms(100);
+//		vertical_time();
+//		_delay_ms(100);
 		/*
 		byte n=ADCH;
 		for(byte i = 0; i<7;i++){
@@ -137,6 +140,11 @@ int main (void) {
 		}	
 		*/
 
+		cli();
+		therm_read_temperature(temperature);
+		sei();
+		running_letters_simple(temperature);
+		_delay_ms(100);
 		
 		
 		//Matthis Code
