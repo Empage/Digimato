@@ -14,10 +14,10 @@
 #define us(num) (num/(LOOP_CYCLES*(1/(F_CPU/1000000.0))))
 
 /* Thermometer Connections (At your choice) */
-#define THERM_PORT PORTC
-#define THERM_DDR DDRC
-#define THERM_PIN PINC
-#define THERM_DQ PC0
+#define THERM_PORT PORTA
+#define THERM_DDR DDRA
+#define THERM_PIN PINA
+#define THERM_DQ PA6
 /* Utils */
 #define THERM_INPUT_MODE() THERM_DDR&=~(1<<THERM_DQ)
 #define THERM_OUTPUT_MODE() THERM_DDR|=(1<<THERM_DQ)
@@ -121,7 +121,7 @@ void therm_read_temperature(char *buffer) {
 	therm_write_byte(THERM_CMD_CONVERTTEMP);
 	//Wait until conversion is complete
 	while (!therm_read_bit())
-		;
+		buffer[20]++;
 	//Reset, skip ROM and send command to read Scratchpad
 	therm_reset();
 	therm_write_byte(THERM_CMD_SKIPROM);

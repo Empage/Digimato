@@ -124,7 +124,7 @@ int main (void) {
 	
 	init_timer2();
 
-	char temperature[13];
+	char temperature[30];
 
 	while(1){
 		//mainLoop();
@@ -141,9 +141,22 @@ int main (void) {
 		*/
 
 		cli();
+		temperature[20] = 0;
 		therm_read_temperature(temperature);
 		sei();
 		running_letters_simple(temperature);
+		printByte(temperature[20]);
+		_delay_ms(100);
+		_delay_ms(100);
+		_delay_ms(100);
+		_delay_ms(100);
+		_delay_ms(100);
+		_delay_ms(100);
+		_delay_ms(100);
+		_delay_ms(100);
+		_delay_ms(100);
+		_delay_ms(100);
+		_delay_ms(100);
 		_delay_ms(100);
 		
 		
