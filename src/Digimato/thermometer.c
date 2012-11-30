@@ -121,7 +121,7 @@ void therm_read_temperature(char *buffer) {
 	therm_write_byte(THERM_CMD_CONVERTTEMP);
 	//Wait until conversion is complete
 	while (!therm_read_bit())
-		buffer[20]++;
+		;
 	//Reset, skip ROM and send command to read Scratchpad
 	therm_reset();
 	therm_write_byte(THERM_CMD_SKIPROM);
