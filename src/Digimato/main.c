@@ -124,10 +124,9 @@ int main (void) {
 	
 	init_timer2();
 
-	char temperature[30];
+	char temperature[9];
 
 
-	cli();
 	while(1){
 		//mainLoop();
 		
@@ -142,10 +141,10 @@ int main (void) {
 		}	
 		*/
 
-//		cli();
+		cli();
 		therm_read_temperature(temperature);
-//		sei();
-//		running_letters_simple(temperature);
+		sei();
+		running_letters_simple(temperature);
 		
 
 

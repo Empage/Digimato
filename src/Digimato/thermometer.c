@@ -36,10 +36,10 @@
 #define THERM_CMD_SKIPROM 0xcc
 #define THERM_CMD_ALARMSEARCH 0xec
 
-inline __attribute__((gnu_inline)) void therm_delay(uint16_t delay) {
-	while (delay--)
-		asm volatile("nop");
-}
+//inline __attribute__((gnu_inline)) void therm_delay(uint16_t delay) {
+//	while (delay--)
+//		asm volatile("nop");
+//}
 
 static byte therm_reset() {
 	byte i;
@@ -118,42 +118,35 @@ static void therm_write_byte(byte out) {
 	}
 }
 
-#define THERM_DECIMAL_STEPS_12BIT 625 //.0625
+// TODO negative temperaturen verifizieren
 void therm_read_temperature(char *buffer) {
-	THERM_OUTPUT_MODE();
-	while (1) {
-		THERM_HIGH();
-		_delay_us(500);
-		THERM_LOW();
-		_delay_us(500);
-	}
+	// Buffer length must be at least 9bytes long! ["+XXX.X C"]
+	byte temperature[2];
+	int8_t digit;
+	//Reset, skip ROM and start temperature conversion
 	therm_reset();
-	_delay_ms(1000);
-//	// Buffer length must be at least 12bytes long! ["+XXX.XXXX C"]
-//	byte temperature[2];
-//	int8_t digit;
-//	uint16_t decimal;
-//	//Reset, skip ROM and start temperature conversion
-//	therm_reset();
-//	therm_write_byte(THERM_CMD_SKIPROM);
-//	therm_write_byte(THERM_CMD_CONVERTTEMP);
-//	//Wait until conversion is complete
-//	while (!therm_read_bit())
-//		;
-//	//Reset, skip ROM and send command to read Scratchpad
-//	therm_reset();
-//	therm_write_byte(THERM_CMD_SKIPROM);
-//	therm_write_byte(THERM_CMD_RSCRATCHPAD);
-//	//Read Scratchpad (only 2 first bytes)
-//	temperature[0] = therm_read_byte();
-//	temperature[1] = therm_read_byte();
-//	therm_reset();
-//	//Store temperature integer digits and decimal digits
-//	digit = temperature[0] >> 4;
-//	digit |= (temperature[1] & 0x7) << 4;
-//	//Store decimal digits
-//	decimal = temperature[0] & 0xf;
-//	decimal *= THERM_DECIMAL_STEPS_12BIT;
-//	//Format temperature into a string [+XXX.XXXX C]
-//	snprintf(buffer, 12, "%+d.%04u C", digit, decimal);
+	therm_write_byte(THERM_CMD_SKIPROM);
+	therm_write_byte(THERM_CMD_CONVERTTEMP);
+	//Wait until conversion is complete
+	while (!therm_read_bit())
+		;
+	//Reset, skip ROM and send command to read Scratchpad
+	therm_reset();
+	therm_write_byte(THERM_CMD_SKIPROM);
+	therm_write_byte(THERM_CMD_RSCRATCHPAD);
+	//Read Scratchpad (only 2 first bytes)
+	temperature[0] = therm_read_byte();
+	temperature[1] = therm_read_byte();
+	therm_reset();
+	//Store temperature integer digits and decimal digits
+	digit = temperature[0] >> 1;
+	digit |= temperature[1] << 7;
+	//Store decimal digits
+	//Format temperature into a string [+XXX.X C]
+	/* If first bit is set, its .5 */
+	if (temperature[0] & 1) {
+		snprintf(buffer, 12, "%+d.5 C", digit);
+	} else {
+		snprintf(buffer, 12, "%+d.0 C", digit);
+	}
 }
