@@ -126,6 +126,8 @@ int main (void) {
 
 	char temperature[30];
 
+
+	cli();
 	while(1){
 		//mainLoop();
 		
@@ -140,25 +142,13 @@ int main (void) {
 		}	
 		*/
 
-		cli();
-		temperature[20] = 0;
+//		cli();
 		therm_read_temperature(temperature);
-		sei();
-		running_letters_simple(temperature);
-		printByte(temperature[20]);
-		_delay_ms(100);
-		_delay_ms(100);
-		_delay_ms(100);
-		_delay_ms(100);
-		_delay_ms(100);
-		_delay_ms(100);
-		_delay_ms(100);
-		_delay_ms(100);
-		_delay_ms(100);
-		_delay_ms(100);
-		_delay_ms(100);
-		_delay_ms(100);
+//		sei();
+//		running_letters_simple(temperature);
 		
+
+
 		
 		//Matthis Code
 		/*
