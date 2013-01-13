@@ -90,9 +90,9 @@ int main (void) {
 	
 	byte dcf_data[60];
 	
-	while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
-	conrad_calculate_time(dcf_data);
-	conrad_calculate_date(dcf_data);
+//	while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
+//	conrad_calculate_time(dcf_data);
+//	conrad_calculate_date(dcf_data);
 
 	
 
@@ -121,7 +121,7 @@ int main (void) {
 	char datestring[200];
 	ADCSRA |= (1<<ADSC);
 	
-//	init_timer2();
+	init_timer2();
 
 //	char temperature[9];
 
@@ -150,19 +150,19 @@ int main (void) {
 		
 		//Matthis Code
 
-		vertical_time();
-		tick();
-		//vertical_time();
-		//running_letters_simple("Dies ist ein seeeeehr langer String, den unsere kewle Funktion trotzdem anzeigen kann! :-)");
-		_delay_ms(900);
-		i++;
-		if (i == 60) {
-			i = 0;
-			snprintf(datestring, 199, "%s, der %02d.%02d.%02d", weekdays[day_of_week], day, month, year);
-			running_letters_simple(datestring);
-			// TODO ungefaehre Zeitkorrektur ;)
-			min++;
-		}
+//		vertical_time();
+//		tick();
+//		//vertical_time();
+//		//running_letters_simple("Dies ist ein seeeeehr langer String, den unsere kewle Funktion trotzdem anzeigen kann! :-)");
+//		_delay_ms(900);
+//		i++;
+//		if (i == 60) {
+//			i = 0;
+//			snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
+//			running_letters_simple(datestring);
+//			// TODO ungefaehre Zeitkorrektur ;)
+//			min++;
+//		}
 		
 
 		
@@ -170,8 +170,6 @@ int main (void) {
 	return 0;
 
 }
-
-
 
 void vertical_time(void){
 	clear_all();
@@ -207,6 +205,7 @@ void vertical_num(byte posx, byte posy, byte number){
 
 /* Clears the whole display */
 void clear_all(void){
+	//TODO memset
 	for(byte j = 0; j< 7; j++){
 		for(byte k = 0; k<17; k++){
 			data[j][k]=0;
@@ -495,20 +494,21 @@ void draw(void){
 }
 
 ISR (TIMER0_OVF_vect){
-	if(brightness!=0){
-		drawWithBrightness();
-	}else{
+//	if(brightness!=0){
+//		drawWithBrightness();
+//	}else{
 		draw();
-	}
+//	}
 }
 //TODO tmp
-volatile byte timer2_counter = 0;
+//volatile byte timer2_counter = 0;
 ISR (TIMER2_COMP_vect) {
-	timer2_counter++;
-	if (timer2_counter == 100) {
-		timer2_counter = 0;
-		tick();
-	}
+//	timer2_counter++;
+//	if (timer2_counter == 100) {
+//		timer2_counter = 0;
+//		tick();
+//	}
+	mainLoop();
 }
 
 void tickSecondAnimation(void){
@@ -530,10 +530,10 @@ void mainLoop(void){
 		//Display new Time
 		vertical_time();
 	}
-	if((splitSecCount%4)==0){
-		//New animation Frame! (25 fps)
-		tickSecondAnimation();
-	}
+//	if((splitSecCount%4)==0){
+//		//New animation Frame! (25 fps)
+//		tickSecondAnimation();
+//	}
 
 	//ADC Helligkeitsensor
 	//wenn Messung fertig

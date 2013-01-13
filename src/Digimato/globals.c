@@ -8,7 +8,7 @@
 #include "globals.h"
 
 /*If brightness!=0 the value in the dataarray is overitten by this brightness*/
-byte brightness = 0;
+byte brightness = 255;
 boolean autoBrightness=false;
 
 volatile byte cmp=0;		//Value to compare with for Softpwm
