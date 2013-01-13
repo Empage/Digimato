@@ -90,12 +90,6 @@ int main (void) {
 	
 	byte dcf_data[60];
 	
-//	while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
-//	conrad_calculate_time(dcf_data);
-//	conrad_calculate_date(dcf_data);
-
-	
-
 //	data[0][16] = 255;
 //	vertical_num(0,0,hour/10);
 //	vertical_num(4,0,hour%10);
@@ -125,6 +119,9 @@ int main (void) {
 
 //	char temperature[9];
 
+	while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
+	conrad_calculate_time(dcf_data);
+	conrad_calculate_date(dcf_data);
 
 	while(1){
 //		mainLoop();
