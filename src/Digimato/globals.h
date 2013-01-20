@@ -8,10 +8,13 @@
 #ifndef GLOBALS_H_
 #define GLOBALS_H_
 
-/* defines */
+#include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+
+/* Nullt das gesamte data-Array */
+#define clearAll() memset(data, 0, 7*17)
 
 #define DCF_VALUE   (PINB & 0b00000001)
 #define DBG_LED_ON  (PORTB |= 0b00000010)

@@ -79,7 +79,7 @@ error:
 	sei();
 	// TODO tmp
 	running_letters_simple("EMPFANG FAIL");
-	clear_all();
+	clearAll();
 	return 1;
 }
 
@@ -125,7 +125,7 @@ byte conrad_check_parity(byte* dcf_data) {
 error:
 	// TODO tmp
 	running_letters_simple("PARITY FAIL");
-	clear_all();
+	clearAll();
 	return ERROR;
 }
 
