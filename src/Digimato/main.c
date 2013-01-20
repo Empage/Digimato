@@ -115,13 +115,17 @@ int main (void) {
 	char datestring[200];
 	ADCSRA |= (1<<ADSC);
 	
-	init_timer2();
+//	init_timer2();
 
-//	char temperature[9];
+	char temperature[9];
 
-	while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
-	conrad_calculate_time(dcf_data);
-	conrad_calculate_date(dcf_data);
+//	while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
+//	conrad_calculate_time(dcf_data);
+//	conrad_calculate_date(dcf_data);
+
+//	place_mono_char_checked(0, 'U');
+//	place_mono_char_checked(6, 'H');
+//	place_mono_char_checked(12, 'R');
 
 	while(1){
 //		mainLoop();
@@ -137,10 +141,10 @@ int main (void) {
 		}	
 		*/
 
-//		cli();
-//		therm_read_temperature(temperature);
-//		sei();
-//		running_letters_simple(temperature);
+		cli();
+		therm_read_temperature(temperature);
+		sei();
+		running_letters_simple(temperature);
 		
 
 
