@@ -16,7 +16,7 @@
 /* Nullt das gesamte data-Array */
 #define clearAll() memset(data, 0, 7*17)
 
-#define DCF_VALUE   (PINB & 0b00000001)
+#define DCF_VALUE   (PINB & 0b00000100)
 #define DBG_LED_ON  (PORTB |= 0b00000010)
 #define DBG_LED_OFF (PORTB &= 0b11111101)
 #define DBG_LED_TOGGLE (PORTB ^= 0b00000010)
@@ -37,7 +37,7 @@ extern volatile byte cmp;		//Value to compare with for Softpwm
 extern char* weekdays[];
 extern byte state; 	// Count the states 0 to 6
 extern byte states[];
-extern byte data[7][17]; //Stores the actual Data, one Byte per LED
+extern volatile byte data[7][17]; //Stores the actual Data, one Byte per LED
 
 /*Time Variables */
 extern volatile byte hour;

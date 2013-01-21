@@ -1,4 +1,6 @@
 #include <stdlib.h>
+// TODO doppelt (global.h), wird aber zur Codevervollstaendigung gebraucht
+#include <avr/io.h>
 
 #include "main.h"
 #include "thermometer.h"
@@ -6,38 +8,58 @@
 
 static void initPorts();
 static void initTimer0();
+static void initTimer1();
 static void initSPI();
 static void initADC();
+
+/* TODO Hardware
+ * - neuen Stecker löten für Datenkabel
+ * - Rueckwand verschraubbar machen
+ * - evtl. IR-Diode einbauen
+ */
+
+/* TODO Software
+ * - Prioritaeten der ISR Routinen (evtl timer0 deaktiveren, wenn t1 data-array setzt wegen Flackern)
+ * - erstmal DCF wieder zum Laufen bringen
+ * - versuchen mit State Machine und Timer2 DCF-Funktionen abbilden, sodass sie asynchron ablaufen
+ */
 
 int main(void) {
 	initPorts();
 	initSPI();
 	initTimer0();
 	initADC();
+	initTimer1();
 
-	// TODO rausfinden warum lila under voltage sein muss
-//	PORTD = 0b11111110;
 	/* setze das data-Array auf Null am Anfang */
 	clearAll();
 	/* Set global interupts enabled*/
 	sei();
 	running_letters("On!",100);
 
-	char temperature[9];
+	// TODO rausfinden warum lila under voltage sein muss
+//	PORTD = 0b11111110;
+//	char temperature[9];
+
+//		byte dcf_data[60];
+//		while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
+//		conrad_calculate_time(dcf_data);
+//		conrad_calculate_date(dcf_data);
+//		char datestring[200];
+//		snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
 
 	while (1) {
-		//	while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
-		//	conrad_calculate_time(dcf_data);
-		//	conrad_calculate_date(dcf_data);
-		// snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
+//		running_letters_simple(datestring);
+//		_delay_ms(500);
 //		mainLoop();
 
-		cli();
-		therm_read_temperature(temperature);
-		sei();
-		running_letters_simple(temperature);
+//		cli();
+//		therm_read_temperature(temperature);
+//		sei();
+//		running_letters(temperature, 100);
 
-		//TODO was macht das?
+
+		//TODO was macht das? (ich glaub den gemessenen Helligkeitswert setzen, muss noch verifiziert werden)
 		/*
 				byte n=ADCH;
 				for(byte i = 0; i<7;i++){
@@ -100,6 +122,69 @@ static void initTimer0() {
 	TCCR0 =(1<<CS01);
 	/* Interrupt bei Overflow */
 	TIMSK |= (1<<TOIE0);
+}
+
+ISR (TIMER0_OVF_vect){
+//	if(brightness!=0){
+//		drawWithBrightness();
+//	}else{
+		draw();
+//	}
+}
+
+/* Der 16-bit Timer zur Generierung eines Interrupts alle 100 ms fuer die main-Routine */
+static void initTimer1() {
+	/* Prescaler 1024 benutzen */
+	TCCR1B |= (1<<CS12) | (1<<CS10);
+	/* CTC Modus aktivieren */
+	TCCR1B |= (1<<WGM12);
+	/*
+	 * CTC Wert: 14745600 (Takt) / 1024 (Prescaler) / 10 (CTCs pro Sekunde)
+	 * -1 weil Interrupt erst 1 Timer Clock Cycle spaeter ausgefuehrt wird
+	 */
+	//TODO mit dem Oszi verifizieren
+	OCR1A = 1440 - 1;
+	/* Compare Interrupts erlauben */
+	TIMSK |= (1<<OCIE1A);
+}
+
+ISR (TIMER1_COMPA_vect) {
+	//Tick at every completed second
+	if(++splitSecCount == 10){
+		splitSecCount = 0;
+		tick();
+		//Display new Time
+		vertical_time();
+	}
+//	if((splitSecCount%4)==0){
+//		//New animation Frame! (25 fps)
+//		tickSecondAnimation();
+//	}
+
+//	//ADC Helligkeitsensor
+//	//wenn Messung fertig
+//	if(autoBrightness){
+//		if(!(ADCSRA & (1<<ADSC))){
+//			brightness= 255 - ADCH;
+//	//		printByteBinary(ADCH);
+//
+//		}else{
+//			if(!adcWait){
+//				//Messung starten
+//				ADCSRA |= (1<<ADSC);
+//				adcWait = true;
+//			}else{
+//				//adcWait um zwischen Messung 10ms wait einzubauen
+//				adcWait=false;
+//			}
+//		}
+//	}
+//	//Every Second refresh temperature
+//	if(splitSecCount==50){
+//		//get teperatur
+//	}
+//
+//	pollSwichtes();
 }
 
 /* Initialisierung des Seriellen Peripheren Interfaces */
@@ -182,14 +267,6 @@ void draw(void){
 
 }
 
-ISR (TIMER0_OVF_vect){
-//	if(brightness!=0){
-//		drawWithBrightness();
-//	}else{
-		draw();
-//	}
-}
-
 /* Displays Laufschrift */
 void running_letters_simple(char* str) {
 	running_letters(str,200);
@@ -243,7 +320,48 @@ void place_mono_char_checked(int16_t pos,byte zeichen){
 	}
 }
 
+void vertical_time(void) {
+	clearAll();
+	vertical_num(0,  0, hour / 10);
+	vertical_num(4,  0, hour % 10);
+	vertical_num(0,  6,  min / 10);
+	vertical_num(4,  6,  min % 10);
+	vertical_num(0, 12,  sec / 10);
+	vertical_num(4, 12,  sec % 10);
+}
 
+void vertical_num(byte posx, byte posy, byte number){
+	byte help=0;
+	for(byte k = 0; k<5;k++){
+		if(k==2){help++;}
+		if(k==4){help++;}
+		byte bitdata = numbers[number*7+help];  //gets 1 line(k) of the number from memory
+		if(bitdata&0b00001000)					//when dot is set as "1" the Pixel is set high
+			data[6-posx][posy+k]=255;
+		else
+			data[6-posx][posy+k]=0;
+		if(bitdata&0b00000100)
+			data[6-(posx+1)][posy+k]=255;
+		else
+			data[6-(posx+1)][posy+k]=0;
+		if(bitdata&0b00000010)
+			data[6-(posx+2)][posy+k]=255;
+		else
+			data[6-(posx+2)][posy+k]=0;
+		help++;
+	}
+}
+
+void tick(void) {
+	if(++sec == 60){
+		sec = 0;
+		if(++min == 60){
+			min = 0;
+			if(++hour == 24)
+			hour = 0;
+		}
+	}
+}
 
 /****************************************************************************/
 //

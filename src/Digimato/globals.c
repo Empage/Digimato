@@ -35,7 +35,7 @@ byte states[] = {
 	0b00111111
 };
 
-byte data[7][17];//Stores the actual Data, one Byte per LED
+volatile byte data[7][17];//Stores the actual Data, one Byte per LED
 
 /*Time Variables */
 volatile byte hour=10;

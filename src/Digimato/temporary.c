@@ -19,6 +19,21 @@
 //	}
 //}
 //
+//void init_timer2() {
+//	/* Use prescaler 1024 */
+//	TCCR2 |= (1 << CS22)|(1 << CS21)|(1 << CS20);
+//	/* Enable CTC Mode */
+//	TCCR2 |= (1 << WGM21)|(0 << WGM20);
+//	/* CTC Wert: 14745600 / 1024 / 100 = 144; -1 weil Intr erst 1 Timer Clock cycle sp�ter ausgel�st wird */
+//	OCR2 = 144 - 1;
+//	/* Initialize counter */
+//	TCNT2 = 0;
+//	/* Compare Interrups erlauben */
+//	TIMSK |= (1<<OCIE2);
+//
+//	data[0][0] = 0;
+//}
+//
 ///* 1/4 of LEDs glowing randomly */
 //void wild_noise(void){
 //	for(byte j = 0; j< 7; j++){
