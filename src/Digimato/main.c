@@ -148,7 +148,6 @@ static void initTimer1() {
 }
 
 ISR (TIMER1_COMPA_vect) {
-	sei();
 	/* folgendes jede volle Sekunde tun */
 	if(++splitSecCount == 10){
 		splitSecCount = 0;
@@ -165,6 +164,8 @@ ISR (TIMER1_COMPA_vect) {
 			T0_ENABLE_INTR();
 		}
 		/* Temperaturmessung */
+		// TODO Idee: Temperatur nur messen, wenn sie auch angezeigt werden soll ;)
+		// würde auch das flackern vermindern
 		if (sec % 2 == 0) {
 			therm_initiate_temperature_read();
 		} else {
