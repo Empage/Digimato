@@ -11,6 +11,9 @@
 byte brightness = 255;
 boolean autoBrightness=false;
 
+/* bestimmt, ob ISR von Timer1 die Zeit auch ins data-Array schreiben soll */
+volatile boolean setTime = true;
+
 volatile byte cmp=0;		//Value to compare with for Softpwm
 
 char* weekdays[] = {

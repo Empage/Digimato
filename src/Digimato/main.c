@@ -39,7 +39,7 @@ int main(void) {
 
 	// TODO rausfinden warum lila under voltage sein muss
 //	PORTD = 0b11111110;
-//	char temperature[9];
+	char temperature[9];
 
 //		byte dcf_data[60];
 //		while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
@@ -53,10 +53,10 @@ int main(void) {
 //		_delay_ms(500);
 //		mainLoop();
 
-//		cli();
-//		therm_read_temperature(temperature);
-//		sei();
-//		running_letters(temperature, 100);
+		cli();
+		therm_read_temperature(temperature);
+		sei();
+		running_letters(temperature, 100);
 
 
 		//TODO was macht das? (ich glaub den gemessenen Helligkeitswert setzen, muss noch verifiziert werden)
@@ -118,10 +118,10 @@ static void initPorts() {
 }
 
 static void initTimer0() {
-	/* Prescaler 8 */
-	TCCR0 =(1<<CS01);
 	/* Interrupt bei Overflow */
-	TIMSK |= (1<<TOIE0);
+	T0_ENABLE_INTR();
+	/* Timer aktivieren */
+	T0_ACTIVATE();
 }
 
 ISR (TIMER0_OVF_vect){
@@ -149,12 +149,23 @@ static void initTimer1() {
 }
 
 ISR (TIMER1_COMPA_vect) {
-	//Tick at every completed second
+	/* folgendes jede volle Sekunde tun */
 	if(++splitSecCount == 10){
 		splitSecCount = 0;
+		/* Uhrzeit um eins erhoehen */
 		tick();
-		//Display new Time
-		vertical_time();
+
+		if (setTime) {
+			/*
+			 * Timer 0 Interrupts verbieten, damit es kein Flackern gibt
+			 * dann Zeit im data-Array aktualisieren und T0 intrs reaktiveren
+			 */
+			T0_DISABLE_INTR();
+			vertical_time();
+			T0_ENABLE_INTR();
+		}
+		/* Temperaturmessung */
+
 	}
 //	if((splitSecCount%4)==0){
 //		//New animation Frame! (25 fps)
@@ -274,6 +285,8 @@ void running_letters_simple(char* str) {
 
 /* Displays Laufschrift */
 void running_letters(char* str, byte time) {
+	/* Waehrend der Laufschrift darf die Zeit nicht ins data-Array geschrieben werden */
+	setTime = false;
 	for (int16_t i = 16; i >= (-6) * (int16_t)strlen(str); i--) {
 		clearAll();
 		for (byte k = 0; k < strlen(str); k++) {
@@ -281,6 +294,7 @@ void running_letters(char* str, byte time) {
 		}
 		_delay_ms(time);
 	}
+	setTime = true;
 }
 
 /* places a character from ASCII 32-127 with verifying correct pos value */
@@ -379,50 +393,6 @@ void tick(void) {
 //
 //	data[0][0] = 0;
 //}
-
-
-//
-//void vertical_time(void){
-//	clear_all();
-//	vertical_num(0,0,hour/10);
-//	vertical_num(4,0,hour%10);
-//	vertical_num(0,6,min/10);
-//	vertical_num(4,6,min%10);
-//	vertical_num(0,12,sec/10);
-//	vertical_num(4,12,sec%10);
-//}
-//
-//void vertical_num(byte posx, byte posy, byte number){
-//	byte help=0;
-//	for(byte k = 0; k<5;k++){
-//		if(k==2){help++;}
-//		if(k==4){help++;}
-//		byte bitdata = numbers[number*7+help];  //gets 1 line(k) of the number from memory
-//		if(bitdata&0b00001000)					//when dot is set as "1" the Pixel is set high
-//			data[6-posx][posy+k]=255;
-//		else
-//			data[6-posx][posy+k]=0;
-//		if(bitdata&0b00000100)
-//			data[6-(posx+1)][posy+k]=255;
-//		else
-//			data[6-(posx+1)][posy+k]=0;
-//		if(bitdata&0b00000010)
-//			data[6-(posx+2)][posy+k]=255;
-//		else
-//			data[6-(posx+2)][posy+k]=0;
-//		help++;
-//	}
-//}
-//
-///* Clears the whole display */
-//void clear_all(void){
-//	//TODO memset
-//	for(byte j = 0; j< 7; j++){
-//		for(byte k = 0; k<17; k++){
-//			data[j][k]=0;
-//		}
-//	}
-//}
 ///* Set brightness for the whole display */
 //void set_all(byte value){
 //	for(byte j = 0; j< 7; j++){
@@ -432,22 +402,7 @@ void tick(void) {
 //	}
 //}
 //
-///* Displays Laufschrift */
-//void running_letters_simple(char* str) {
-//	running_letters(str,200);
-//}
-//
-///* Displays Laufschrift */
-//void running_letters(char* str, byte time) {
-//	for (int16_t i = 16; i >= (-6) * (int16_t)strlen(str); i--) {
-//		clear_all();
-//		for (byte k = 0; k < strlen(str); k++) {
-//			place_mono_char_checked(i+k*6, str[k]);
-//		}
-//		_delay_ms(time);
-//	}
-//}
-//
+
 //// TODO do we need that?
 ///* Displays the Time */
 //void time(void){
@@ -472,17 +427,6 @@ void tick(void) {
 //	else{
 //		data[2][8]=0;
 //		data[4][8]=0;}
-//}
-//
-//void tick(void){
-//	if(++sec==60){
-//		sec=0;
-//		if(++min==60){
-//			min=0;
-//			if(++hour==24)
-//			hour=0;
-//		}
-//	}
 //}
 //
 ////TODO do we need that?
@@ -552,45 +496,6 @@ void tick(void) {
 //	}
 //}
 //
-///* places a character from ASCII 32-127 with verifying correct pos value */
-//void place_mono_char_checked(int16_t pos,byte zeichen){
-//	for(byte k = 0; k<7;k++){
-//		byte bitdata = font5x7[(zeichen-32)*7+k]; 	//gets 1 line(k) of the character from memory
-//		if (pos >= 0 && pos < 17) {
-//			if(bitdata&0b00000001)							//when dot is set as "1" the Pixel is set as on
-//				data[k][pos]=255;
-//			else
-//				data[k][pos]=0;							//else Pixel is set as off
-//		}
-//		if (pos + 1 >= 0 && pos + 1 < 17) {
-//			if(bitdata&0b00000010)
-//				data[k][pos+1]=255;
-//			else
-//				data[k][pos+1]=0;
-//		}
-//		if (pos + 2 >= 0 && pos + 2 < 17) {
-//			if(bitdata&0b00000100)
-//				data[k][pos+2]=255;
-//			else
-//				data[k][pos+2]=0;
-//		}
-//		if (pos + 3 >= 0 && pos + 3 < 17) {
-//			if(bitdata&0b00001000)
-//				data[k][pos+3]=255;
-//			else
-//				data[k][pos+3]=0;
-//		}
-//		if (pos + 4 >= 0 && pos + 4 < 17) {
-//			if(bitdata&0b00010000)
-//				data[k][pos+4]=255;
-//			else
-//				data[k][pos+4]=0;
-//		}
-//	}
-//}
-//
-//
-//
 ///*Draws all the pixel with the brigtness of the global brightness variable*/
 //void drawWithBrightness(void){
 //	byte output=0;
@@ -653,69 +558,9 @@ void tick(void) {
 
 //
 
-////TODO tmp
-////volatile byte timer2_counter = 0;
-//ISR (TIMER2_COMP_vect) {
-////	timer2_counter++;
-////	if (timer2_counter == 100) {
-////		timer2_counter = 0;
-////		tick();
-////	}
-//	mainLoop();
-//}
-//
 //void tickSecondAnimation(void){
 //	brightness = 255/((splitSecCount+8)/8);
 //	if(brightness<16){
 //		brightness=16;
 //	}
-//}
-//
-//byte adcWait=false;
-////this fuction is called every 10 ms
-//void mainLoop(void){
-//
-//	//Tick at every completed second
-//	if(++splitSecCount==100){
-//		splitSecCount=0;
-//		//time++
-//		tick();
-//		//Display new Time
-//		vertical_time();
-//	}
-////	if((splitSecCount%4)==0){
-////		//New animation Frame! (25 fps)
-////		tickSecondAnimation();
-////	}
-//
-//	//ADC Helligkeitsensor
-//	//wenn Messung fertig
-//	if(autoBrightness){
-//		if(!(ADCSRA & (1<<ADSC))){
-//			brightness= 255 - ADCH;
-//	//		printByteBinary(ADCH);
-//
-//		}else{
-//			if(!adcWait){
-//				//Messung starten
-//				ADCSRA |= (1<<ADSC);
-//				adcWait = true;
-//			}else{
-//				//adcWait um zwischen Messung 10ms wait einzubauen
-//				adcWait=false;
-//			}
-//		}
-//	}
-//	//Every Second refresh temperature
-//	if(splitSecCount==50){
-//		//get teperatur
-//	}
-//
-//	pollSwichtes();
-//
-//	// if
-//}
-//
-//void pollSwichtes(void){
-//	//Poll switches
 //}
