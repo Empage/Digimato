@@ -9,5 +9,7 @@
 #define THERMOMETER_H_
 
 void therm_read_temperature(char *buffer);
+void therm_initiate_temperature_read();
+void therm_get_temperature(char *buffer);
 
 #endif /* THERMOMETER_H_ */

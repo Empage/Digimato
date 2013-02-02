@@ -45,6 +45,7 @@ static byte therm_reset() {
 	byte i;
 
 	//Pull line low and wait for 480uS
+	cli();
 	THERM_LOW();
 	THERM_OUTPUT_MODE();
 //	therm_delay(us(480));
@@ -57,13 +58,14 @@ static byte therm_reset() {
 	i = (THERM_PIN & (1 << THERM_DQ));
 //	therm_delay(us(420));
 	_delay_us(420);
+	sei();
 	//Return the value read from the presence pulse (0=OK, 1=WRONG)
-	DBG_LED_TOGGLE;
 	return i;
 }
 
 static void therm_write_bit(byte bit) {
 	//Pull line low for 1uS
+	cli();
 	THERM_LOW();
 	THERM_OUTPUT_MODE();
 //	therm_delay(us(1));
@@ -75,11 +77,13 @@ static void therm_write_bit(byte bit) {
 //	therm_delay(us(60));
 	_delay_us(60);
 	THERM_INPUT_MODE();
+	sei();
 }
 
 static byte therm_read_bit(void) {
 	byte bit = 0;
 	//Pull line low for 1uS
+	cli();
 	THERM_LOW();
 	THERM_OUTPUT_MODE();
 //	therm_delay(us(1));
@@ -94,6 +98,7 @@ static byte therm_read_bit(void) {
 	//Wait for 45uS to end and return read value
 //	therm_delay(us(45));
 	_delay_us(45);
+	sei();
 	return bit;
 }
 
@@ -119,6 +124,7 @@ static void therm_write_byte(byte out) {
 }
 
 // TODO negative temperaturen verifizieren
+/* deprecated, use initiate_temperature_read and get_temperature instead */
 void therm_read_temperature(char *buffer) {
 	// Buffer length must be at least 9bytes long! ["+XXX.X C"]
 	byte temperature[2];
@@ -131,6 +137,47 @@ void therm_read_temperature(char *buffer) {
 	while (!therm_read_bit())
 		;
 	//Reset, skip ROM and send command to read Scratchpad
+	therm_reset();
+	therm_write_byte(THERM_CMD_SKIPROM);
+	therm_write_byte(THERM_CMD_RSCRATCHPAD);
+	//Read Scratchpad (only 2 first bytes)
+	temperature[0] = therm_read_byte();
+	temperature[1] = therm_read_byte();
+	therm_reset();
+	//Store temperature integer digits and decimal digits
+	digit = temperature[0] >> 1;
+	digit |= temperature[1] << 7;
+	//Store decimal digits
+	//Format temperature into a string [+XXX.X C]
+	/* If first bit is set, its .5 */
+	if (temperature[0] & 1) {
+		snprintf(buffer, 12, "%+d.5 C", digit);
+	} else {
+		snprintf(buffer, 12, "%+d.0 C", digit);
+	}
+}
+
+void therm_initiate_temperature_read() {
+
+	/* Reset, skip ROM and start temperature conversion */
+	therm_reset();
+	therm_write_byte(THERM_CMD_SKIPROM);
+	therm_write_byte(THERM_CMD_CONVERTTEMP);
+}
+
+/*
+ * Der DS18S20 braucht 750 ms fuer die Umwandlung, so lange sollte man warten
+ * nach dem Call an initiate_temperature_read, sonst wartet man hier in der
+ * while-Schleife
+ * Buffer length must be at least 9 Bytes! ["+XXX.X C"]
+ */
+void therm_get_temperature(char *buffer) {
+	byte temperature[2];
+	int8_t digit;
+	/* Wait until conversion is complete */
+	while (!therm_read_bit())
+		;
+	/* Reset, skip ROM and send command to read Scratchpad */
 	therm_reset();
 	therm_write_byte(THERM_CMD_SKIPROM);
 	therm_write_byte(THERM_CMD_RSCRATCHPAD);

@@ -39,7 +39,6 @@ int main(void) {
 
 	// TODO rausfinden warum lila under voltage sein muss
 //	PORTD = 0b11111110;
-	char temperature[9];
 
 //		byte dcf_data[60];
 //		while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
@@ -48,15 +47,15 @@ int main(void) {
 //		char datestring[200];
 //		snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
 
+
 	while (1) {
 //		running_letters_simple(datestring);
 //		_delay_ms(500);
 //		mainLoop();
+		if (sec == 0) {
+			running_letters(temperature, 100);
+		}
 
-		cli();
-		therm_read_temperature(temperature);
-		sei();
-		running_letters(temperature, 100);
 
 
 		//TODO was macht das? (ich glaub den gemessenen Helligkeitswert setzen, muss noch verifiziert werden)
@@ -149,6 +148,7 @@ static void initTimer1() {
 }
 
 ISR (TIMER1_COMPA_vect) {
+	sei();
 	/* folgendes jede volle Sekunde tun */
 	if(++splitSecCount == 10){
 		splitSecCount = 0;
@@ -165,7 +165,11 @@ ISR (TIMER1_COMPA_vect) {
 			T0_ENABLE_INTR();
 		}
 		/* Temperaturmessung */
-
+		if (sec % 2 == 0) {
+			therm_initiate_temperature_read();
+		} else {
+			therm_get_temperature(temperature);
+		}
 	}
 //	if((splitSecCount%4)==0){
 //		//New animation Frame! (25 fps)
@@ -225,7 +229,7 @@ static void initADC() {
 }
 
 /*Draws all the pixel with the brigtness given in the data Array*/
-void draw(void){
+inline void draw(void){
 	byte output=0;
 	byte i=0;
 	/* The first output Byte */
@@ -288,10 +292,12 @@ void running_letters(char* str, byte time) {
 	/* Waehrend der Laufschrift darf die Zeit nicht ins data-Array geschrieben werden */
 	setTime = false;
 	for (int16_t i = 16; i >= (-6) * (int16_t)strlen(str); i--) {
+		T0_DISABLE_INTR();
 		clearAll();
 		for (byte k = 0; k < strlen(str); k++) {
 			place_mono_char_checked(i+k*6, str[k]);
 		}
+		T0_ENABLE_INTR();
 		_delay_ms(time);
 	}
 	setTime = true;

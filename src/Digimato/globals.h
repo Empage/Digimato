@@ -59,6 +59,8 @@ extern byte day;
 extern byte month;
 extern byte year;
 
+extern volatile char temperature[9];
+
 /* Tabele for Clock Numbers used in the time Funktion */
 extern byte numbers[];
 

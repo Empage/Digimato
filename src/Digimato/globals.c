@@ -52,6 +52,8 @@ byte day = 12;
 byte month = 5;
 byte year = 91;
 
+volatile char temperature[9] = "undef";
+
 /* Tabele for Clock Numbers used in the time Funktion */
 byte numbers[] = {
 	/* 0: */
