@@ -38,7 +38,7 @@ int main(void) {
 	running_letters("On!",100);
 
 	// TODO rausfinden warum lila under voltage sein muss
-//	PORTD = 0b11111110;
+	PORTD = 0b11111110;
 
 //		byte dcf_data[60];
 //		while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
@@ -47,14 +47,45 @@ int main(void) {
 //		char datestring[200];
 //		snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
 
-
+	autoBrightness = false;
 	while (1) {
 //		running_letters_simple(datestring);
 //		_delay_ms(500);
-//		mainLoop();
-		if (sec == 0) {
+		if (showTemperature) {
+			therm_initiate_temperature_read();
+			_delay_ms(1000);
+			therm_get_temperature(temperature);
 			running_letters(temperature, 100);
+			showTemperature = false;
 		}
+
+		//ADC Helligkeitsensor
+		//wenn Messung fertig
+		if(getBrightness){
+			//Messung starten
+			ADCSRA |= (1<<ADSC);
+			/* warte bis die Konvertierung abgeschlossen ist */
+			while (ADCSRA & (1<<ADSC))
+				;
+			brightness = 255 - ADCH;
+			getBrightness = false;
+		}
+
+//			if(!(ADCSRA & (1<<ADSC))){
+//				brightness= 255 - ADCH;
+//		//		printByteBinary(ADCH);
+//
+//			}else{
+//				if(!adcWait){
+//					//Messung starten
+//					ADCSRA |= (1<<ADSC);
+//					adcWait = true;
+//				}else{
+//					//adcWait um zwischen Messung 10ms wait einzubauen
+//					adcWait=false;
+//				}
+//			}
+
 
 
 
@@ -125,9 +156,9 @@ static void initTimer0() {
 
 ISR (TIMER0_OVF_vect){
 //	if(brightness!=0){
-//		drawWithBrightness();
+		drawWithBrightness();
 //	}else{
-		draw();
+//		draw();
 //	}
 }
 
@@ -151,6 +182,7 @@ ISR (TIMER1_COMPA_vect) {
 	/* folgendes jede volle Sekunde tun */
 	if(++splitSecCount == 10){
 		splitSecCount = 0;
+		getBrightness = true;
 		/* Uhrzeit um eins erhoehen */
 		tick();
 
@@ -166,11 +198,11 @@ ISR (TIMER1_COMPA_vect) {
 		/* Temperaturmessung */
 		// TODO Idee: Temperatur nur messen, wenn sie auch angezeigt werden soll ;)
 		// würde auch das flackern vermindern
-		if (sec % 2 == 0) {
-			therm_initiate_temperature_read();
-		} else {
-			therm_get_temperature(temperature);
-		}
+//		if (sec % 2 == 0) {
+//			therm_initiate_temperature_read();
+//		} else {
+//			therm_get_temperature(temperature);
+//		}
 	}
 //	if((splitSecCount%4)==0){
 //		//New animation Frame! (25 fps)
@@ -224,7 +256,7 @@ static void initADC() {
 	 * 0   -->  Freerunning off (automatisches neustart)
 	 * 0   -->  Interupt flag
 	 * 0   -->  Interupt off
-	 * 100 -->  Prescale 16 (125kHz bei20MHz Takt)
+	 * 100 -->  Prescale 16 (125kHz bei 20MHz Takt)
 	 */
 	ADCSRA=0b11000100;
 }
@@ -281,6 +313,67 @@ inline void draw(void){
 		cmp+=16;
 	}
 
+}
+
+/*Draws all the pixel with the brigtness of the global brightness variable*/
+void drawWithBrightness(void){
+	byte output=0;
+
+	if(brightness>cmp){
+		byte i=0;
+		/* The first output Byte */
+		for(i=0;i<8;i++){
+			output = output<<1;
+			if(data[state][i]>0){
+				output++;
+			}
+		}
+		/* output to SPI-Register */
+		SPDR = output;
+		output = 0;
+		/* Second output Byte */
+		for(;i<16;i++){
+			output = output<<1;
+			if(data[state][i]>0){
+				output++;
+			}
+		}
+		/* Wait for SPI transmission complete*/
+		while(!(SPSR & (1<<SPIF)));
+		/* output to SPI-Register */
+		SPDR = output;
+
+		output = 128;
+
+		/* Last Bit direct on microcontroller pin */
+		if(data[state][i]>0){
+			output=0;
+		}
+		while(!(SPSR & (1<<SPIF)));
+	}else{
+		/* output to SPI-Register */
+		SPDR = 0;
+		/* Wait for SPI transmission complete*/
+		while(!(SPSR & (1<<SPIF)));
+		SPDR = 0;
+		while(!(SPSR & (1<<SPIF)));
+
+		output=128; //LED 16 aus!
+	}
+
+	/* RCK auf null ziehen */
+	PORTB &= 0b11101111;
+	/* Alle Mosfets aus, PD7 unbelegt */
+	PORTD = 0;//
+	/* RCK auf high */
+	PORTB |= 0b00010000;
+	/* Mosfet wieder an */
+	PORTD = states[state++]+output;
+	if(state==7){
+		state=0;
+		/* Increment cmp-variable */
+		cmp+=16;
+	}
 }
 
 /* Displays Laufschrift */
@@ -375,6 +468,7 @@ void vertical_num(byte posx, byte posy, byte number){
 
 void tick(void) {
 	if(++sec == 60){
+		showTemperature = true;
 		sec = 0;
 		if(++min == 60){
 			min = 0;

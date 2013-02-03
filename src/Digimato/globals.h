@@ -41,6 +41,8 @@
 extern byte brightness;
 extern boolean autoBrightness;
 extern volatile boolean setTime;
+extern volatile boolean showTemperature;
+extern volatile boolean getBrightness;
 extern volatile byte cmp;		//Value to compare with for Softpwm
 extern char* weekdays[];
 extern byte state; 	// Count the states 0 to 6
