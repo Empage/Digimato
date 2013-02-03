@@ -78,7 +78,7 @@ error:
 	// Globale Interrupts wieder anschalten und mit Fehlerfall returnen
 	sei();
 	// TODO tmp
-	running_letters_simple("EMPFANG FAIL");
+	running_letters("EF", 100);
 	clearAll();
 	return 1;
 }
@@ -124,12 +124,13 @@ byte conrad_check_parity(byte* dcf_data) {
 
 error:
 	// TODO tmp
-	running_letters_simple("PARITY FAIL");
+	running_letters("PARITY", 100);
 	clearAll();
 	return ERROR;
 }
 
 void conrad_calculate_time(byte* dcf_data) {
+	//TODO isr1 interrupt wahrscheinlich besser aussetzen
 	hour =  dcf_data[29] +
 			dcf_data[30] * 2 +
 			dcf_data[31] * 4 +
@@ -145,7 +146,7 @@ void conrad_calculate_time(byte* dcf_data) {
 			dcf_data[26] * 20 +
 			dcf_data[27] * 40;
 	// TODO geringfuegig falsch ;)
-	sec = 3;
+	sec = 2;
 }
 
 void conrad_calculate_date(byte* dcf_data) {

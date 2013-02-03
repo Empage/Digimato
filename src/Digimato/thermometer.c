@@ -123,40 +123,6 @@ static void therm_write_byte(byte out) {
 	}
 }
 
-// TODO negative temperaturen verifizieren
-/* deprecated, use initiate_temperature_read and get_temperature instead */
-void therm_read_temperature(char *buffer) {
-	// Buffer length must be at least 9bytes long! ["+XXX.X C"]
-	byte temperature[2];
-	int8_t digit;
-	//Reset, skip ROM and start temperature conversion
-	therm_reset();
-	therm_write_byte(THERM_CMD_SKIPROM);
-	therm_write_byte(THERM_CMD_CONVERTTEMP);
-	//Wait until conversion is complete
-	while (!therm_read_bit())
-		;
-	//Reset, skip ROM and send command to read Scratchpad
-	therm_reset();
-	therm_write_byte(THERM_CMD_SKIPROM);
-	therm_write_byte(THERM_CMD_RSCRATCHPAD);
-	//Read Scratchpad (only 2 first bytes)
-	temperature[0] = therm_read_byte();
-	temperature[1] = therm_read_byte();
-	therm_reset();
-	//Store temperature integer digits and decimal digits
-	digit = temperature[0] >> 1;
-	digit |= temperature[1] << 7;
-	//Store decimal digits
-	//Format temperature into a string [+XXX.X C]
-	/* If first bit is set, its .5 */
-	if (temperature[0] & 1) {
-		snprintf(buffer, 12, "%+d.5 C", digit);
-	} else {
-		snprintf(buffer, 12, "%+d.0 C", digit);
-	}
-}
-
 void therm_initiate_temperature_read() {
 
 	/* Reset, skip ROM and start temperature conversion */
@@ -169,7 +135,7 @@ void therm_initiate_temperature_read() {
  * Der DS18S20 braucht 750 ms fuer die Umwandlung, so lange sollte man warten
  * nach dem Call an initiate_temperature_read, sonst wartet man hier in der
  * while-Schleife
- * Buffer length must be at least 9 Bytes! ["+XXX.X C"]
+ * Buffer length must be at least 9 Bytes! ["+YYY.X C"]
  */
 void therm_get_temperature(char *buffer) {
 	byte temperature[2];
@@ -189,7 +155,7 @@ void therm_get_temperature(char *buffer) {
 	digit = temperature[0] >> 1;
 	digit |= temperature[1] << 7;
 	//Store decimal digits
-	//Format temperature into a string [+XXX.X C]
+	//Format temperature into a string [+YYY.X C]
 	/* If first bit is set, its .5 */
 	if (temperature[0] & 1) {
 		snprintf(buffer, 12, "%+d.5 C", digit);
@@ -197,3 +163,37 @@ void therm_get_temperature(char *buffer) {
 		snprintf(buffer, 12, "%+d.0 C", digit);
 	}
 }
+
+// TODO negative temperaturen verifizieren
+/* deprecated, use initiate_temperature_read and get_temperature instead */
+//void therm_read_temperature(char *buffer) {
+//	// Buffer length must be at least 9bytes long! ["+YYY.X C"]
+//	byte temperature[2];
+//	int8_t digit;
+//	//Reset, skip ROM and start temperature conversion
+//	therm_reset();
+//	therm_write_byte(THERM_CMD_SKIPROM);
+//	therm_write_byte(THERM_CMD_CONVERTTEMP);
+//	//Wait until conversion is complete
+//	while (!therm_read_bit())
+//		;
+//	//Reset, skip ROM and send command to read Scratchpad
+//	therm_reset();
+//	therm_write_byte(THERM_CMD_SKIPROM);
+//	therm_write_byte(THERM_CMD_RSCRATCHPAD);
+//	//Read Scratchpad (only 2 first bytes)
+//	temperature[0] = therm_read_byte();
+//	temperature[1] = therm_read_byte();
+//	therm_reset();
+//	//Store temperature integer digits and decimal digits
+//	digit = temperature[0] >> 1;
+//	digit |= temperature[1] << 7;
+//	//Store decimal digits
+//	//Format temperature into a string [+YYY.X C]
+//	/* If first bit is set, its .5 */
+//	if (temperature[0] & 1) {
+//		snprintf(buffer, 12, "%+d.5 C", digit);
+//	} else {
+//		snprintf(buffer, 12, "%+d.0 C", digit);
+//	}
+//}

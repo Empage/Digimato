@@ -54,7 +54,6 @@
 //
 ///* Displays a cool thing!*/
 //void plasma(void){
-////TODO!
 //}
 //
 ///*Places the value of one byte on the screen*/

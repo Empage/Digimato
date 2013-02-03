@@ -1,9 +1,9 @@
 #include <stdlib.h>
-// TODO doppelt (global.h), wird aber zur Codevervollstaendigung gebraucht
-#include <avr/io.h>
+#include <stdio.h>
 
 #include "main.h"
 #include "thermometer.h"
+#include "conrad_dcf.h"
 #include "fontMonoSpace.h"
 
 static void initPorts();
@@ -19,9 +19,10 @@ static void initADC();
  */
 
 /* TODO Software
- * - Prioritaeten der ISR Routinen (evtl timer0 deaktiveren, wenn t1 data-array setzt wegen Flackern)
  * - erstmal DCF wieder zum Laufen bringen
  * - versuchen mit State Machine und Timer2 DCF-Funktionen abbilden, sodass sie asynchron ablaufen
+ * - irgendwann hängt sich das komplette Ding auf, kA wieso
+ * - Tasterunterstützung
  */
 
 int main(void) {
@@ -37,32 +38,25 @@ int main(void) {
 	sei();
 	running_letters("On!",100);
 
-	// TODO rausfinden warum lila under voltage sein muss
-	PORTD = 0b11111110;
+	byte dcf_data[60];
+	while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
+	conrad_calculate_time(dcf_data);
+	conrad_calculate_date(dcf_data);
+	char datestring[200];
+	snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
 
-//		byte dcf_data[60];
-//		while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
-//		conrad_calculate_time(dcf_data);
-//		conrad_calculate_date(dcf_data);
-//		char datestring[200];
-//		snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
-
-	autoBrightness = false;
 	while (1) {
-//		running_letters_simple(datestring);
-//		_delay_ms(500);
 		if (showTemperature) {
 			therm_initiate_temperature_read();
 			_delay_ms(1000);
-			therm_get_temperature(temperature);
-			running_letters(temperature, 100);
+			therm_get_temperature((char*)temperature);
+			running_letters((char*)temperature, 100);
 			showTemperature = false;
 		}
 
-		//ADC Helligkeitsensor
-		//wenn Messung fertig
+		/* Helligkeitsmessung nur einmal die Sekunde, wird von ISR1 gesetzt */
 		if(getBrightness){
-			//Messung starten
+			/* ADC Helligkeitsmessung starten */
 			ADCSRA |= (1<<ADSC);
 			/* warte bis die Konvertierung abgeschlossen ist */
 			while (ADCSRA & (1<<ADSC))
@@ -70,35 +64,6 @@ int main(void) {
 			brightness = 255 - ADCH;
 			getBrightness = false;
 		}
-
-//			if(!(ADCSRA & (1<<ADSC))){
-//				brightness= 255 - ADCH;
-//		//		printByteBinary(ADCH);
-//
-//			}else{
-//				if(!adcWait){
-//					//Messung starten
-//					ADCSRA |= (1<<ADSC);
-//					adcWait = true;
-//				}else{
-//					//adcWait um zwischen Messung 10ms wait einzubauen
-//					adcWait=false;
-//				}
-//			}
-
-
-
-
-		//TODO was macht das? (ich glaub den gemessenen Helligkeitswert setzen, muss noch verifiziert werden)
-		/*
-				byte n=ADCH;
-				for(byte i = 0; i<7;i++){
-					for(byte j = 0; j<17; j++){
-						data[i][j]=n;
-					}
-				}
-			*/
-
 	}
 
 	return 0;
@@ -129,7 +94,7 @@ static void initPorts() {
 	 */
 	DDRB = 0b11110010;
 	// Pullup von PB2 aktiveren
-	PORTB |=0b00000100;
+	PORTB |= 0b00000101;
 	/*
 	 * TODO Lagesensor
 	 */
@@ -195,44 +160,7 @@ ISR (TIMER1_COMPA_vect) {
 			vertical_time();
 			T0_ENABLE_INTR();
 		}
-		/* Temperaturmessung */
-		// TODO Idee: Temperatur nur messen, wenn sie auch angezeigt werden soll ;)
-		// würde auch das flackern vermindern
-//		if (sec % 2 == 0) {
-//			therm_initiate_temperature_read();
-//		} else {
-//			therm_get_temperature(temperature);
-//		}
 	}
-//	if((splitSecCount%4)==0){
-//		//New animation Frame! (25 fps)
-//		tickSecondAnimation();
-//	}
-
-//	//ADC Helligkeitsensor
-//	//wenn Messung fertig
-//	if(autoBrightness){
-//		if(!(ADCSRA & (1<<ADSC))){
-//			brightness= 255 - ADCH;
-//	//		printByteBinary(ADCH);
-//
-//		}else{
-//			if(!adcWait){
-//				//Messung starten
-//				ADCSRA |= (1<<ADSC);
-//				adcWait = true;
-//			}else{
-//				//adcWait um zwischen Messung 10ms wait einzubauen
-//				adcWait=false;
-//			}
-//		}
-//	}
-//	//Every Second refresh temperature
-//	if(splitSecCount==50){
-//		//get teperatur
-//	}
-//
-//	pollSwichtes();
 }
 
 /* Initialisierung des Seriellen Peripheren Interfaces */
@@ -386,6 +314,7 @@ void running_letters(char* str, byte time) {
 	/* Waehrend der Laufschrift darf die Zeit nicht ins data-Array geschrieben werden */
 	setTime = false;
 	for (int16_t i = 16; i >= (-6) * (int16_t)strlen(str); i--) {
+		/* Während Beschreiben vom data-Array darf es nicht angezeigt werden */
 		T0_DISABLE_INTR();
 		clearAll();
 		for (byte k = 0; k < strlen(str); k++) {
@@ -468,6 +397,7 @@ void vertical_num(byte posx, byte posy, byte number){
 
 void tick(void) {
 	if(++sec == 60){
+		/* Einmal die Minute die Temperatur anzeigen */
 		showTemperature = true;
 		sec = 0;
 		if(++min == 60){
@@ -494,16 +424,6 @@ void tick(void) {
 //
 //	data[0][0] = 0;
 //}
-///* Set brightness for the whole display */
-//void set_all(byte value){
-//	for(byte j = 0; j< 7; j++){
-//		for(byte k = 0; k<17; k++){
-//			data[j][k]=value;
-//		}
-//	}
-//}
-//
-
 //// TODO do we need that?
 ///* Displays the Time */
 //void time(void){
@@ -597,71 +517,3 @@ void tick(void) {
 //	}
 //}
 //
-///*Draws all the pixel with the brigtness of the global brightness variable*/
-//void drawWithBrightness(void){
-//	byte output=0;
-//
-//	if(brightness>cmp){
-//		byte i=0;
-//		/* The first output Byte */
-//		for(i=0;i<8;i++){
-//			output = output<<1;
-//			if(data[state][i]>0){
-//				output++;
-//			}
-//		}
-//		/* output to SPI-Register */
-//		SPDR = output;
-//		output = 0;
-//		/* Second output Byte */
-//		for(;i<16;i++){
-//			output = output<<1;
-//			if(data[state][i]>0){
-//				output++;
-//			}
-//		}
-//		/* Wait for SPI transmission complete*/
-//		while(!(SPSR & (1<<SPIF)));
-//		/* output to SPI-Register */
-//		SPDR = output;
-//
-//
-//		/* Last Bit direct on microcontroller pin */
-//		if(data[state][i]>0){
-//			output=0;
-//		}
-//		while(!(SPSR & (1<<SPIF)));
-//	}else{
-//		/* output to SPI-Register */
-//		SPDR = 0;
-//		/* Wait for SPI transmission complete*/
-//		while(!(SPSR & (1<<SPIF)));
-//		SPDR = 0;
-//		while(!(SPSR & (1<<SPIF)));
-//
-//		output=128; //LED 16 aus!
-//	}
-//
-//	/* RCK auf null ziehen */
-//	PORTB &= 0b11101111;
-//	/* Alle Mosfets aus, PD7 unbelegt */
-//	PORTD = 0;//
-//	/* RCK auf high */
-//	PORTB |= 0b00010000;
-//	/* Mosfet wieder an */
-//	PORTD = states[state++]+output;
-//	if(state==7){
-//		state=0;
-//		/* Increment cmp-variable */
-//		cmp+=16;
-//	}
-//}
-
-//
-
-//void tickSecondAnimation(void){
-//	brightness = 255/((splitSecCount+8)/8);
-//	if(brightness<16){
-//		brightness=16;
-//	}
-//}

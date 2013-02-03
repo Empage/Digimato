@@ -16,7 +16,7 @@
 /* Nullt das gesamte data-Array */
 #define clearAll() memset(data, 0, 7*17)
 
-#define DCF_VALUE   (PINB & 0b00000100)
+#define DCF_VALUE   (PINB & 0b00000001)
 #define DBG_LED_ON  (PORTB |= 0b00000010)
 #define DBG_LED_OFF (PORTB &= 0b11111101)
 #define DBG_LED_TOGGLE (PORTB ^= 0b00000010)

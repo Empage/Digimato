@@ -1,7 +1,7 @@
 //--------------------------------------------------------------
 // Group Name: 5x7
-// Designer: Tobias Schöneberger
-// Date: 15 Sep 2011
+// Designer: Tobias Schï¿½neberger
+// Date: 15 Sep 2012
 // Description: Small 5x7 Pixel Font
 // Byteorientation: horizontalLeft
 // Font Height: 7 Pixel
