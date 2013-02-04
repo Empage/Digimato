@@ -23,6 +23,7 @@ static void initADC();
  * - versuchen mit State Machine und Timer2 DCF-Funktionen abbilden, sodass sie asynchron ablaufen
  * - irgendwann hängt sich das komplette Ding auf, kA wieso
  * - Tasterunterstützung
+ * - bei Helligkeit nen Mittelwert nehmen oder so um leichtes Schwanken zu vermeiden
  */
 
 int main(void) {
@@ -48,6 +49,7 @@ int main(void) {
 	while (1) {
 		if (showTemperature) {
 			therm_initiate_temperature_read();
+			//TODO evtl. umändern um reaktiver auf Buttons zu sein
 			_delay_ms(1000);
 			therm_get_temperature((char*)temperature);
 			running_letters((char*)temperature, 100);
@@ -64,6 +66,9 @@ int main(void) {
 			brightness = 255 - ADCH;
 			getBrightness = false;
 		}
+
+		/* Tasterevents verarbeiten */
+		handleButtons();
 	}
 
 	return 0;
@@ -82,6 +87,8 @@ static void initPorts() {
 	 * Alle sind Input, deshalb 0.
 	 */
 	DDRA = 0;
+	/* Pullup für die Taster aktivieren */
+	PORTA |= 0b00111111;
 	/*
 	 * PB0: nc
 	 * PB1: rote Debug LED
@@ -93,7 +100,7 @@ static void initPorts() {
 	 * PB7: SRCK (p13)
 	 */
 	DDRB = 0b11110010;
-	// Pullup von PB2 aktiveren
+	/* Pullup von PB2 aktiveren */
 	PORTB |= 0b00000100;
 	/*
 	 * TODO Lagesensor
@@ -120,11 +127,7 @@ static void initTimer0() {
 }
 
 ISR (TIMER0_OVF_vect){
-//	if(brightness!=0){
-		drawWithBrightness();
-//	}else{
-//		draw();
-//	}
+	drawWithBrightness();
 }
 
 /* Der 16-bit Timer zur Generierung eines Interrupts alle 100 ms fuer die main-Routine */
@@ -147,20 +150,24 @@ ISR (TIMER1_COMPA_vect) {
 	/* folgendes jede volle Sekunde tun */
 	if(++splitSecCount == 10){
 		splitSecCount = 0;
-		getBrightness = true;
+		if (autoBrightness) {
+			getBrightness = true;
+		}
 		/* Uhrzeit um eins erhoehen */
 		tick();
 
+		//TODO bei horizontal_time muss nur einmal pro Minute neu geschrieben werden, wenn die Punkte nicht blinken sollen
 		if (setTime) {
 			/*
 			 * Timer 0 Interrupts verbieten, damit es kein Flackern gibt
 			 * dann Zeit im data-Array aktualisieren und T0 intrs reaktiveren
 			 */
 			T0_DISABLE_INTR();
-			vertical_time();
+			horizontal_time();
 			T0_ENABLE_INTR();
 		}
 	}
+	getButtonStates();
 }
 
 /* Initialisierung des Seriellen Peripheren Interfaces */
@@ -244,7 +251,7 @@ inline void draw(void){
 }
 
 /*Draws all the pixel with the brigtness of the global brightness variable*/
-void drawWithBrightness(void){
+inline void drawWithBrightness(void){
 	byte output=0;
 
 	if(brightness>cmp){
@@ -314,6 +321,10 @@ void running_letters(char* str, byte time) {
 	/* Waehrend der Laufschrift darf die Zeit nicht ins data-Array geschrieben werden */
 	setTime = false;
 	for (int16_t i = 16; i >= (-6) * (int16_t)strlen(str); i--) {
+		/* check for an interruption */
+		if (interrupt) {
+			handleButtons();
+		}
 		/* Während Beschreiben vom data-Array darf es nicht angezeigt werden */
 		T0_DISABLE_INTR();
 		clearAll();
@@ -363,6 +374,38 @@ void place_mono_char_checked(int16_t pos,byte zeichen){
 	}
 }
 
+void horizontal_time(void) {
+	byte tens = hour / 10;
+	clearAll();
+	if (tens) {
+		horizontal_num(0, tens);
+	}
+	horizontal_num(4, hour % 10);
+	horizontal_num(10, min / 10);
+	horizontal_num(14, min % 10);
+
+	data[2][8] = 255;
+	data[4][8] = 255;
+}
+
+void horizontal_num(byte pos, byte number) {
+	for(byte k = 0; k<7;k++){
+		byte bitdata = numbers[number*7+k];  //gets 1 line(k) of the number from memory
+		if(bitdata&0b00001000)					//when dot is set as "1" the Pixel is set high
+			data[k][pos]=255;
+		else
+			data[k][pos]=0;
+		if(bitdata&0b00000100)
+			data[k][pos+1]=255;
+		else
+			data[k][pos+1]=0;
+		if(bitdata&0b00000010)
+			data[k][pos+2]=255;
+		else
+			data[k][pos+2]=0;
+	}
+}
+
 void vertical_time(void) {
 	clearAll();
 	vertical_num(0,  0, hour / 10);
@@ -408,6 +451,86 @@ void tick(void) {
 	}
 }
 
+//TODO es muss wohl gar nicht zwei Zyklen lang sein, Entprellung ist ja 'fjeden schneller als 100 ms
+inline void getButtonStates(void) {
+	if (buttonsLocked) {
+		buttonsLocked--;
+		return;
+	}
+	for (byte button = BUT_BLACK_1; button <= BUT_BLUE_2; button++) {
+		if (pressed(button)) {
+			/* Taster muss zwei Zyklen (atm 100 ms) aktiv sein */
+			if (buttonState[button] != BUT_OFF) {
+				buttonState[button] = BUT_ON;
+				interrupt = true;
+			} else {
+				buttonState[button] = BUT_PENDING;
+			}
+		} else {
+			/* Wenn er nur ein Zyklus gedrückt wurde, deaktivere ihn wieder */
+			if (buttonState[button] == BUT_PENDING) {
+				buttonState[button] = BUT_OFF;
+			}
+		}
+	}
+}
+
+void handleButtons(void) {
+	interrupt = false;
+
+	if (buttonState[BUT_BLACK_1] == BUT_ON) {
+		buttonState[BUT_BLACK_1] = BUT_OFF;
+		if (autoBrightness == false) {
+			buttonsLocked = 15; /* Dezisekunden */
+			autoBrightness = true;
+			running_letters("AB ON", 100);
+		} else {
+			buttonsLocked = 10; /* Dezisekunden */
+			autoBrightness = false;
+			running_letters("AB OFF", 100);
+		}
+	}
+	if (buttonState[BUT_BLACK_2] == BUT_ON) {
+		buttonState[BUT_BLACK_2] = BUT_OFF;
+		buttonsLocked = 3; /* Dezisekunden */
+		if (autoBrightness == false) {
+			brightness += 16;
+		}
+	}
+	if (buttonState[BUT_RED_1] == BUT_ON) {
+		buttonState[BUT_RED_1] = BUT_OFF;
+		buttonsLocked = 10; /* Dezisekunden */
+		sec = 0;
+		if(++min == 60){
+			min = 0;
+		}
+	}
+	if (buttonState[BUT_RED_2] == BUT_ON) {
+		buttonState[BUT_RED_2] = BUT_OFF;
+		buttonsLocked = 10; /* Dezisekunden */
+		sec = 0;
+		if (min-- == 0) {
+			min = 59;
+		}
+	}
+	if (buttonState[BUT_BLUE_1] == BUT_ON) {
+		buttonState[BUT_BLUE_1] = BUT_OFF;
+		buttonsLocked = 10; /* Dezisekunden */
+		sec = 0;
+		if(++hour == 24){
+			hour = 0;
+		}
+	}
+	if (buttonState[BUT_BLUE_2] == BUT_ON) {
+		buttonState[BUT_BLUE_2] = BUT_OFF;
+		buttonsLocked = 10; /* Dezisekunden */
+		sec = 0;
+		if (hour-- == 0) {
+			hour = 23;
+		}
+	}
+}
+
 /****************************************************************************/
 //
 //void init_timer2() {
@@ -424,72 +547,6 @@ void tick(void) {
 //
 //	data[0][0] = 0;
 //}
-//// TODO do we need that?
-///* Displays the Time */
-//void time(void){
-//	if(++sec==60){
-//		sec=0;
-//		if(++min==60){
-//			min=0;
-//			if(++hour==24)
-//			hour=0;
-//			placeNumber(0,10);
-//		}
-//	}
-//	byte r=hour/10;
-//	if(r)
-//		placeNumber(0,r);
-//	placeNumber(4,hour%10);
-//	placeNumber(10,min/10);
-//	placeNumber(14,min%10);
-//	if(sec%2){
-//		data[2][8]=255;
-//		data[4][8]=255;}
-//	else{
-//		data[2][8]=0;
-//		data[4][8]=0;}
-//}
-//
-////TODO do we need that?
-//void time_new(void){
-//	if(++min==60){
-//		min=0;
-//		if(++hour==24)
-//		hour=0;
-//		placeNumber(0,10);
-//	}
-//
-//	byte r=hour/10;
-//	if(r)
-//		placeNumber(0,r);
-//	placeNumber(4,hour%10);
-//	placeNumber(10,min/10);
-//	placeNumber(14,min%10);
-//
-//		data[2][8]=255;
-//		data[4][8]=255;
-//
-//}
-//
-//void placeNumber(byte pos,byte number){
-//	for(byte k = 0; k<7;k++){
-//		byte bitdata = numbers[number*7+k];  //gets 1 line(k) of the number from memory
-//		if(bitdata&0b00001000)					//when dot is set as "1" the Pixel is set high
-//			data[k][pos]=255;
-//		else
-//			data[k][pos]=0;
-//		if(bitdata&0b00000100)
-//			data[k][pos+1]=255;
-//		else
-//			data[k][pos+1]=0;
-//		if(bitdata&0b00000010)
-//			data[k][pos+2]=255;
-//		else
-//			data[k][pos+2]=0;
-//	}
-//}
-//
-////TODO do we need this?
 ///* places a character from ASCII 32-127 */
 //void place_mono_char(byte pos,byte zeichen){
 //	for(byte k = 0; k<7;k++){

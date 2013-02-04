@@ -7,9 +7,10 @@
 
 #include "globals.h"
 
+//TODO ordnen und kommentieren
 /*If brightness!=0 the value in the dataarray is overitten by this brightness*/
 byte brightness = 255;
-boolean autoBrightness=false;
+boolean autoBrightness = true;
 
 /* bestimmt, ob ISR von Timer1 die Zeit auch ins data-Array schreiben soll */
 volatile boolean setTime = true;
@@ -18,6 +19,16 @@ volatile boolean showTemperature = false;
 volatile boolean getBrightness = false;
 
 volatile byte cmp=0;		//Value to compare with for Softpwm
+
+/* Zum Taster entprellen, merken, ob er vorherige "Runde" schon gedrückt war */
+volatile byte buttonState[6];
+/* Eine Tastersperre, dass nicht zu schnell hintereinander gedrückt wird */
+volatile byte buttonsLocked = 0;
+/*
+ * To interrupt lengthy functions (like running_letters)
+ * Currently used for button events
+ */
+volatile boolean interrupt = false;
 
 char* weekdays[] = {
 	"",

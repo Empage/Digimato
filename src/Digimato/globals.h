@@ -13,6 +13,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
+//TODO ordnen und kommentieren
 /* Nullt das gesamte data-Array */
 #define clearAll() memset(data, 0, 7*17)
 
@@ -20,6 +21,21 @@
 #define DBG_LED_ON  (PORTB |= 0b00000010)
 #define DBG_LED_OFF (PORTB &= 0b11111101)
 #define DBG_LED_TOGGLE (PORTB ^= 0b00000010)
+
+/* Defines für die 6 Taster */
+enum {
+	BUT_BLACK_1 = 0,
+	BUT_BLACK_2,
+	BUT_RED_1,
+	BUT_RED_2,
+	BUT_BLUE_1,
+	BUT_BLUE_2
+};
+
+#define BUT_OFF 0
+#define BUT_PENDING 1
+#define BUT_ON 2
+#define pressed(x) ((PINA & (1 << x)) == 0)
 
 /* Prescaler 8 */
 #define T0_PRESCALER (1<<CS01)
@@ -44,6 +60,9 @@ extern volatile boolean setTime;
 extern volatile boolean showTemperature;
 extern volatile boolean getBrightness;
 extern volatile byte cmp;		//Value to compare with for Softpwm
+extern volatile byte buttonState[6];
+extern volatile byte buttonsLocked;
+extern volatile boolean interrupt;
 extern char* weekdays[];
 extern byte state; 	// Count the states 0 to 6
 extern byte states[];
