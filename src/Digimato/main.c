@@ -11,8 +11,18 @@ static void initTimer0();
 static void initTimer1();
 static void initSPI();
 static void initADC();
+static void drawWithBrightness(void);
+static void place_mono_char_checked(int16_t pos,uint8_t zeichen);
+static void horizontal_time(void);
+static void horizontal_num(byte pos, byte number);
+static void vertical_time(void);
+static void vertical_num(uint8_t posx, uint8_t posy, uint8_t number);
+static void tick(void);
+static void getButtonStates(void);
+static void handleButtons(void);
 
 /* TODO Hardware
+ * - DCF77-Empfänger scheint kaputt zu sein
  * - neuen Stecker löten für Datenkabel
  * - Rueckwand verschraubbar machen
  * - evtl. IR-Diode einbauen
@@ -21,8 +31,6 @@ static void initADC();
 /* TODO Software
  * - erstmal DCF wieder zum Laufen bringen
  * - versuchen mit State Machine und Timer2 DCF-Funktionen abbilden, sodass sie asynchron ablaufen
- * - irgendwann hängt sich das komplette Ding auf, kA wieso
- * - Tasterunterstützung
  * - bei Helligkeit nen Mittelwert nehmen oder so um leichtes Schwanken zu vermeiden
  */
 
@@ -101,7 +109,7 @@ static void initPorts() {
 	 */
 	DDRB = 0b11110010;
 	/* Pullup von PB2 aktiveren */
-	PORTB |= 0b00000100;
+	PORTB |= 0b00000101;
 	/*
 	 * TODO Lagesensor
 	 */
@@ -196,62 +204,8 @@ static void initADC() {
 	ADCSRA=0b11000100;
 }
 
-/*Draws all the pixel with the brigtness given in the data Array*/
-inline void draw(void){
-	byte output=0;
-	byte i=0;
-	/* The first output Byte */
-	for(i=0; i<8; i++){
-		output = output<<1;
-		if(data[state][i]>cmp){
-			output++;
-		}
-	}
-	/* output to SPI-Register */
-	SPDR = output;
-	output = 0;
-	/* Second output Byte */
-	for(;i<16;i++){
-		output = output<<1;
-		if(data[state][i]>cmp){
-			output++;
-		}
-	}
-	/* Wait for SPI transmission complete*/
-	while(!(SPSR & (1<<SPIF)));
-	/* output to SPI-Register */
-	SPDR = output;
-
-	output=128;
-
-	/* Last Bit direct on microcontroller pin */
-	if(data[state][i]>cmp){
-		output=0;
-	}
-	/* Increment cmp-variable */
-
-
-	while(!(SPSR & (1<<SPIF)));
-
-
-
-	/* RCK auf null ziehen */
-	PORTB &= 0b11101111;
-	/* Alle Mosfets aus, PD7 unbelegt */
-	PORTD = 0;//
-	/* RCK auf high */
-	PORTB |= 0b00010000;
-	/* Mosfet wieder an */
-	PORTD = states[state++]+output;
-	if(state==7){
-		state=0;
-		cmp+=16;
-	}
-
-}
-
 /*Draws all the pixel with the brigtness of the global brightness variable*/
-inline void drawWithBrightness(void){
+static inline void drawWithBrightness(void){
 	byte output=0;
 
 	if(brightness>cmp){
@@ -338,7 +292,7 @@ void running_letters(char* str, byte time) {
 }
 
 /* places a character from ASCII 32-127 with verifying correct pos value */
-void place_mono_char_checked(int16_t pos,byte zeichen){
+static void place_mono_char_checked(int16_t pos,byte zeichen){
 	for(byte k = 0; k<7;k++){
 		byte bitdata = font5x7[(zeichen-32)*7+k]; 	//gets 1 line(k) of the character from memory
 		if (pos >= 0 && pos < 17) {
@@ -374,7 +328,7 @@ void place_mono_char_checked(int16_t pos,byte zeichen){
 	}
 }
 
-void horizontal_time(void) {
+static void horizontal_time(void) {
 	byte tens = hour / 10;
 	clearAll();
 	if (tens) {
@@ -388,7 +342,7 @@ void horizontal_time(void) {
 	data[4][8] = 255;
 }
 
-void horizontal_num(byte pos, byte number) {
+static void horizontal_num(byte pos, byte number) {
 	for(byte k = 0; k<7;k++){
 		byte bitdata = numbers[number*7+k];  //gets 1 line(k) of the number from memory
 		if(bitdata&0b00001000)					//when dot is set as "1" the Pixel is set high
@@ -406,7 +360,7 @@ void horizontal_num(byte pos, byte number) {
 	}
 }
 
-void vertical_time(void) {
+static void vertical_time(void) {
 	clearAll();
 	vertical_num(0,  0, hour / 10);
 	vertical_num(4,  0, hour % 10);
@@ -416,7 +370,7 @@ void vertical_time(void) {
 	vertical_num(4, 12,  sec % 10);
 }
 
-void vertical_num(byte posx, byte posy, byte number){
+static void vertical_num(byte posx, byte posy, byte number){
 	byte help=0;
 	for(byte k = 0; k<5;k++){
 		if(k==2){help++;}
@@ -438,7 +392,7 @@ void vertical_num(byte posx, byte posy, byte number){
 	}
 }
 
-void tick(void) {
+static void tick(void) {
 	if(++sec == 60){
 		/* Einmal die Minute die Temperatur anzeigen */
 		showTemperature = true;
@@ -452,7 +406,7 @@ void tick(void) {
 }
 
 //TODO es muss wohl gar nicht zwei Zyklen lang sein, Entprellung ist ja 'fjeden schneller als 100 ms
-inline void getButtonStates(void) {
+static inline void getButtonStates(void) {
 	if (buttonsLocked) {
 		buttonsLocked--;
 		return;
@@ -475,7 +429,7 @@ inline void getButtonStates(void) {
 	}
 }
 
-void handleButtons(void) {
+static void handleButtons(void) {
 	interrupt = false;
 
 	if (buttonState[BUT_BLACK_1] == BUT_ON) {

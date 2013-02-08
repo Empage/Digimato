@@ -17,7 +17,9 @@
 /* Nullt das gesamte data-Array */
 #define clearAll() memset(data, 0, 7*17)
 
-#define DCF_VALUE   (PINB & 0b00000100)
+#define DCF_VALUE   (PINB & 0b00000001)
+
+/* rote Debug LED */
 #define DBG_LED_ON  (PORTB |= 0b00000010)
 #define DBG_LED_OFF (PORTB &= 0b11111101)
 #define DBG_LED_TOGGLE (PORTB ^= 0b00000010)
@@ -31,14 +33,13 @@ enum {
 	BUT_BLUE_1,
 	BUT_BLUE_2
 };
-
 #define BUT_OFF 0
 #define BUT_PENDING 1
 #define BUT_ON 2
 #define pressed(x) ((PINA & (1 << x)) == 0)
 
-/* Prescaler 8 */
-#define T0_PRESCALER (1<<CS01)
+/* Timer0 defines */
+#define T0_PRESCALER (1<<CS01) /* Prescaler 8 */
 #define T0_ACTIVATE() TCCR0 |= T0_PRESCALER
 #define T0_DEACTIVATE() TCCR0 &= ~T0_PRESCALER
 #define T0_ENABLE_INTR() TIMSK |= (1<<TOIE0)
