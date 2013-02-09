@@ -7,18 +7,28 @@
 
 #include "globals.h"
 
-//TODO ordnen und kommentieren
-/*If brightness!=0 the value in the dataarray is overitten by this brightness*/
+/* bestimmt wie hell (alle) LEDs sein sollen (255: max, 0: aus) in 16er Schritten */
 byte brightness = 255;
+/* bestimmt, ob der Helligkeitswert gemessen werden soll oder von Hand eingestellt */
 boolean autoBrightness = true;
+
+/* Alarm gerade zu hören */
+boolean alarmOn = false;
+/* bestimmt die Dauer eines Tons (atm in Sekunden) */
+volatile byte alarmSecs = 0;
+/* bestimmt, bei welchem Ton die Routine playAlarm ist */
+byte alarmStep = 0;
 
 /* bestimmt, ob ISR von Timer1 die Zeit auch ins data-Array schreiben soll */
 volatile boolean setTime = true;
 
+/* wenn true: Temperatur messen und anzeigen (atm 1mal die Minute) */
 volatile boolean showTemperature = false;
+/* wenn true: Helligkeit messen und umsetzen (atm 1mal die Sekunde) */
 volatile boolean getBrightness = false;
 
-volatile byte cmp=0;		//Value to compare with for Softpwm
+/* Vergleichswert für die Soft-PWM */
+volatile byte cmp = 0;
 
 /* Zum Taster entprellen, merken, ob er vorherige "Runde" schon gedrückt war */
 volatile byte buttonState[6];
@@ -30,6 +40,7 @@ volatile byte buttonsLocked = 0;
  */
 volatile boolean interrupt = false;
 
+/* Um den richtigen Wochentag im Datumsstring anzeigen zu können */
 char* weekdays[] = {
 	"",
 	"Montag",
@@ -41,7 +52,9 @@ char* weekdays[] = {
 	"Sonntag"
 };
 
-byte state=0; 	// Count the states 0 to 6
+/* Bestimmt, welche Reihe gerade gezeichnet werden soll */
+byte row = 0;
+/* Hilfskonstrukt, um die richtige Reihe anzusteuern */
 byte states[] = {
 	0b01111110,
 	0b01111101,
@@ -52,13 +65,14 @@ byte states[] = {
 	0b00111111
 };
 
-volatile byte data[7][17];//Stores the actual Data, one Byte per LED
+/* Bestimmt, welche LEDs leuchten sollen */
+volatile byte data[7][17];
 
 /*Time Variables */
 volatile byte hour=10;
 volatile byte min=15;
 volatile byte sec=1;
-volatile byte splitSecCount=0;
+volatile byte decisec=0;
 
 /* Date variables */
 byte day_of_week = 1;
@@ -66,9 +80,10 @@ byte day = 12;
 byte month = 5;
 byte year = 91;
 
+/* Temperature-String der Form "YYY.X C" */
 volatile char temperature[9] = "undef";
 
-/* Tabele for Clock Numbers used in the time Funktion */
+/* Definiert, wie die Zahlen in den time-Funktionen (horizontal, vertical) gezeichnet werden sollen */
 byte numbers[] = {
 	/* 0: */
 	0x0E,0x0A,0x0A,0x0A,0x0A,0x0A,0x0E,

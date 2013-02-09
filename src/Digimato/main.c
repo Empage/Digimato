@@ -9,6 +9,7 @@
 static void initPorts();
 static void initTimer0();
 static void initTimer1();
+static void initTimer2();
 static void initSPI();
 static void initADC();
 static void drawWithBrightness(void);
@@ -20,6 +21,7 @@ static void vertical_num(uint8_t posx, uint8_t posy, uint8_t number);
 static void tick(void);
 static void getButtonStates(void);
 static void handleButtons(void);
+static void playAlarm(void);
 
 /* TODO Hardware
  * - DCF77-Empfänger scheint kaputt zu sein
@@ -40,6 +42,7 @@ int main(void) {
 	initTimer0();
 	initADC();
 	initTimer1();
+	initTimer2();
 
 	/* setze das data-Array auf Null am Anfang */
 	clearAll();
@@ -47,6 +50,7 @@ int main(void) {
 	sei();
 	running_letters("On!",100);
 
+	//TODO dcf
 //	byte dcf_data[60];
 //	while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
 //	conrad_calculate_time(dcf_data);
@@ -77,6 +81,10 @@ int main(void) {
 
 		/* Tasterevents verarbeiten */
 		handleButtons();
+
+		if (alarmOn) {
+			playAlarm();
+		}
 	}
 
 	return 0;
@@ -98,7 +106,7 @@ static void initPorts() {
 	/* Pullup für die Taster aktivieren */
 	PORTA |= 0b00111111;
 	/*
-	 * PB0: nc
+	 * PB0: Lautsprecher
 	 * PB1: rote Debug LED
 	 * PB2: Conrad DC7 Eingang invers
 	 * PB3: nc
@@ -107,9 +115,9 @@ static void initPorts() {
 	 * PB6: IR-Empfaenger
 	 * PB7: SRCK (p13)
 	 */
-	DDRB = 0b11110010;
+	DDRB = 0b11110011;
 	/* Pullup von PB2 aktiveren */
-	PORTB |= 0b00000101;
+	PORTB |= 0b00000100;
 	/*
 	 * TODO Lagesensor
 	 */
@@ -156,8 +164,8 @@ static void initTimer1() {
 
 ISR (TIMER1_COMPA_vect) {
 	/* folgendes jede volle Sekunde tun */
-	if(++splitSecCount == 10){
-		splitSecCount = 0;
+	if(++decisec == 10){
+		decisec = 0;
 		if (autoBrightness) {
 			getBrightness = true;
 		}
@@ -174,8 +182,27 @@ ISR (TIMER1_COMPA_vect) {
 			horizontal_time();
 			T0_ENABLE_INTR();
 		}
+		/* Alarmcounter verringern */
+		if (alarmSecs) {
+			alarmSecs--;
+		}
 	}
 	getButtonStates();
+}
+
+void initTimer2() {
+	/* Use prescaler 1024 */
+	TCCR2 |= (1 << CS22)|(1 << CS21)|(1 << CS20);
+	/* Enable CTC Mode */
+	TCCR2 |= (1 << WGM21)|(0 << WGM20);
+	/* CTC Wert: 147456 / 1024 / 100 = 144; -1 weil Intr erst 1 Timer Clock cycle sp�ter ausgel�st wird */
+	OCR2 = 144 - 1;
+	/* Initialize counter */
+	TCNT2 = 0;
+}
+
+ISR (TIMER2_COMP_vect) {
+	SPEAKER_TOGGLE();
 }
 
 /* Initialisierung des Seriellen Peripheren Interfaces */
@@ -213,7 +240,7 @@ static inline void drawWithBrightness(void){
 		/* The first output Byte */
 		for(i=0;i<8;i++){
 			output = output<<1;
-			if(data[state][i]>0){
+			if(data[row][i]>0){
 				output++;
 			}
 		}
@@ -223,7 +250,7 @@ static inline void drawWithBrightness(void){
 		/* Second output Byte */
 		for(;i<16;i++){
 			output = output<<1;
-			if(data[state][i]>0){
+			if(data[row][i]>0){
 				output++;
 			}
 		}
@@ -235,7 +262,7 @@ static inline void drawWithBrightness(void){
 		output = 128;
 
 		/* Last Bit direct on microcontroller pin */
-		if(data[state][i]>0){
+		if(data[row][i]>0){
 			output=0;
 		}
 		while(!(SPSR & (1<<SPIF)));
@@ -257,9 +284,9 @@ static inline void drawWithBrightness(void){
 	/* RCK auf high */
 	PORTB |= 0b00010000;
 	/* Mosfet wieder an */
-	PORTD = states[state++]+output;
-	if(state==7){
-		state=0;
+	PORTD = states[row++] + output;
+	if(row == 7){
+		row = 0;
 		/* Increment cmp-variable */
 		cmp+=16;
 	}
@@ -485,22 +512,58 @@ static void handleButtons(void) {
 	}
 }
 
-/****************************************************************************/
-//
-//void init_timer2() {
-//	/* Use prescaler 1024 */
-//	TCCR2 |= (1 << CS22)|(1 << CS21)|(1 << CS20);
-//	/* Enable CTC Mode */
-//	TCCR2 |= (1 << WGM21)|(0 << WGM20);
-//	/* CTC Wert: 147456 / 1024 / 100 = 144; -1 weil Intr erst 1 Timer Clock cycle sp�ter ausgel�st wird */
-//	OCR2 = 144 - 1;
-//	/* Initialize counter */
-//	TCNT2 = 0;
-//	/* Compare Interrups erlauben */
-//	TIMSK |= (1<<OCIE2);
-//
-//	data[0][0] = 0;
-//}
+inline void playAlarm() {
+	if (alarmSecs) {
+		return;
+	}
+
+	switch (++alarmStep) {
+	case 1:
+		OCR2 = 9 - 1;
+		TCNT2 = 0;
+		alarmSecs = 2;
+		return;
+	case 2:
+		OCR2 = 4 - 1;
+		TCNT2 = 0;
+		alarmSecs = 2;
+		return;
+	case 3:
+		OCR2 = 9 - 1;
+		TCNT2 = 0;
+		alarmSecs = 2;
+		return;
+	case 4:
+		OCR2 = 50 - 1;
+		TCNT2 = 0;
+		alarmSecs = 2;
+		return;
+	case 5:
+		OCR2 = 9 - 1;
+		TCNT2 = 0;
+		alarmSecs = 2;
+		return;
+	case 6:
+		OCR2 = 4 - 1;
+		TCNT2 = 0;
+		alarmSecs = 2;
+		return;
+	case 7:
+		OCR2 = 18 - 1;
+		TCNT2 = 0;
+		alarmSecs = 4;
+		return;
+	case 8:
+		OCR2 = 9 - 1;
+		TCNT2 = 0;
+		alarmSecs = 4;
+		alarmStep = 0;
+		return;
+	default:
+		return;
+	}
+}
+
 ///* places a character from ASCII 32-127 */
 //void place_mono_char(byte pos,byte zeichen){
 //	for(byte k = 0; k<7;k++){
