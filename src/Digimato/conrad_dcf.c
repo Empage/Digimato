@@ -37,7 +37,7 @@ byte conrad_get_dcf_data(byte* dcf_data) {
 		_delay_ms(10);
 	}
 	// Minutenanfang erkannt
-	data[0][0] = 255;
+	data[0][8] = 255;
 	// Funkdaten auslesen
 	for (secs = 0; secs < 60; secs++) {
 		unmodulated = 0;

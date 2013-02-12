@@ -51,12 +51,12 @@ int main(void) {
 	running_letters("On!",100);
 
 	//TODO dcf
-//	byte dcf_data[60];
-//	while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
-//	conrad_calculate_time(dcf_data);
-//	conrad_calculate_date(dcf_data);
-//	char datestring[200];
-//	snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
+	byte dcf_data[60];
+	while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
+	conrad_calculate_time(dcf_data);
+	conrad_calculate_date(dcf_data);
+	char datestring[200];
+	snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
 
 	while (1) {
 		if (showTemperature) {
@@ -115,9 +115,9 @@ static void initPorts() {
 	 * PB6: IR-Empfaenger
 	 * PB7: SRCK (p13)
 	 */
-	DDRB = 0b11110011;
+	DDRB = 0b11110010;
 	/* Pullup von PB2 aktiveren */
-	PORTB |= 0b00000100;
+	PORTB |= 0b00000101;
 	/*
 	 * TODO Lagesensor
 	 */
