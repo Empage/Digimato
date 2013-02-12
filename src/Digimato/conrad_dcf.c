@@ -20,7 +20,7 @@ byte conrad_get_dcf_data(byte* dcf_data) {
 	// Minutenstart erkennen
 	while (i < 155) {
 		// DCF Signal unmoduliert
-		if (DCF_VALUE == 1) {
+		if (DCF_VALUE != 0) {
 			i++;
 			j = 0;
 			DBG_LED_OFF;
@@ -43,10 +43,10 @@ byte conrad_get_dcf_data(byte* dcf_data) {
 		unmodulated = 0;
 		modulated = 0;
 		// Pausiere bis zum modulierten Signal
-		while (DCF_VALUE == 1) ;
+		while (DCF_VALUE != 0) ;
 		// Gehe 90% der Sekunde durch (Rest ist Toleranz) und zaehle modulierte und unmodulierte Signale
 		for (j = 0; j < 90; j++) {
-			if (DCF_VALUE == 1) {
+			if (DCF_VALUE != 0) {
 				unmodulated++;
 			} else {
 				if (j < 40) {

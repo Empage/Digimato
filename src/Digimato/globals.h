@@ -58,7 +58,7 @@ enum {
 /* Timer2 (Lautsprecher) defines */
 #define T2_ENABLE_INTR() TIMSK |= (1<<OCIE2)
 #define T2_DISABLE_INTR() TIMSK &= ~(1<<OCIE2)
-#define SPEAKER_TOGGLE() (PORTB ^= 1)
+#define SPEAKER_TOGGLE() (PORTC ^= (1 << PC0))
 
 /*
  * global variables

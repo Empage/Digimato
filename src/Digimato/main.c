@@ -24,14 +24,11 @@ static void handleButtons(void);
 static void playAlarm(void);
 
 /* TODO Hardware
- * - DCF77-Empfänger scheint kaputt zu sein
- * - neuen Stecker löten für Datenkabel
- * - Rueckwand verschraubbar machen
  * - evtl. IR-Diode einbauen
+ * - Acrylglas
  */
 
 /* TODO Software
- * - erstmal DCF wieder zum Laufen bringen
  * - versuchen mit State Machine und Timer2 DCF-Funktionen abbilden, sodass sie asynchron ablaufen
  * - bei Helligkeit nen Mittelwert nehmen oder so um leichtes Schwanken zu vermeiden
  */
@@ -50,13 +47,15 @@ int main(void) {
 	sei();
 	running_letters("On!",100);
 
-	//TODO dcf
-	byte dcf_data[60];
-	while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
-	conrad_calculate_time(dcf_data);
-	conrad_calculate_date(dcf_data);
-	char datestring[200];
-	snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
+//	//TODO dcf
+//	byte dcf_data[60];
+//	while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
+//	conrad_calculate_time(dcf_data);
+//	conrad_calculate_date(dcf_data);
+//	char datestring[200];
+//	snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
+
+
 
 	while (1) {
 		if (showTemperature) {
@@ -82,9 +81,12 @@ int main(void) {
 		/* Tasterevents verarbeiten */
 		handleButtons();
 
-		if (alarmOn) {
-			playAlarm();
-		}
+//		if (alarmOn) {
+//			TIMSK |= OCIE2;
+//			playAlarm();
+//		} else {
+//			TIMSK &= ~OCIE2;
+//		}
 	}
 
 	return 0;
@@ -106,7 +108,7 @@ static void initPorts() {
 	/* Pullup für die Taster aktivieren */
 	PORTA |= 0b00111111;
 	/*
-	 * PB0: Lautsprecher
+	 * PB0: nc
 	 * PB1: rote Debug LED
 	 * PB2: Conrad DC7 Eingang invers
 	 * PB3: nc
@@ -115,13 +117,14 @@ static void initPorts() {
 	 * PB6: IR-Empfaenger
 	 * PB7: SRCK (p13)
 	 */
-	DDRB = 0b11110010;
+	DDRB = 0b11110011;
 	/* Pullup von PB2 aktiveren */
-	PORTB |= 0b00000101;
+	PORTB |= 0b00000100;
 	/*
+	 * 	PC0: Lautsprecher
 	 * TODO Lagesensor
 	 */
-	//DDRC = 0;
+	DDRC = 0b00000001;
 	/*
 	 * PD0: Mosfet lila
 	 * PD1: Mosfet dunkelblau
@@ -156,7 +159,6 @@ static void initTimer1() {
 	 * CTC Wert: 14745600 (Takt) / 1024 (Prescaler) / 10 (CTCs pro Sekunde)
 	 * -1 weil Interrupt erst 1 Timer Clock Cycle spaeter ausgefuehrt wird
 	 */
-	//TODO mit dem Oszi verifizieren
 	OCR1A = 1440 - 1;
 	/* Compare Interrupts erlauben */
 	TIMSK |= (1<<OCIE1A);
@@ -203,6 +205,7 @@ void initTimer2() {
 
 ISR (TIMER2_COMP_vect) {
 	SPEAKER_TOGGLE();
+	DBG_LED_TOGGLE;
 }
 
 /* Initialisierung des Seriellen Peripheren Interfaces */
@@ -280,7 +283,7 @@ static inline void drawWithBrightness(void){
 	/* RCK auf null ziehen */
 	PORTB &= 0b11101111;
 	/* Alle Mosfets aus, PD7 unbelegt */
-	PORTD = 0;//
+	PORTD = 0xFF;//
 	/* RCK auf high */
 	PORTB |= 0b00010000;
 	/* Mosfet wieder an */
