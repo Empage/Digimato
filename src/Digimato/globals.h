@@ -30,9 +30,9 @@
 #define DCF_VALUE (PINB & 0b00000100)
 
 /* rote Debug LED */
-#define DBG_LED_ON  (PORTB |= 0b00000010)
-#define DBG_LED_OFF (PORTB &= 0b11111101)
-#define DBG_LED_TOGGLE (PORTB ^= 0b00000010)
+#define DBG_LED_ON()  (PORTB |= 0b00000010)
+#define DBG_LED_OFF() (PORTB &= 0b11111101)
+#define DBG_LED_TOGGLE() (PORTB ^= 0b00000010)
 
 /* Defines für die 6 Taster */
 enum {
@@ -55,10 +55,14 @@ enum {
 #define T0_ENABLE_INTR() TIMSK |= (1<<TOIE0)
 #define T0_DISABLE_INTR() TIMSK &= ~(1<<TOIE0)
 
-/* Timer2 (Lautsprecher) defines */
+/* Timer2 (Lautsprecher & DCF) defines */
 #define T2_ENABLE_INTR() TIMSK |= (1<<OCIE2)
 #define T2_DISABLE_INTR() TIMSK &= ~(1<<OCIE2)
 #define SPEAKER_TOGGLE() (PORTC ^= (1 << PC0))
+#define T2_WAIT 2
+typedef enum {
+	DCF, ALARM
+} t2_purpose_t;
 
 /*
  * global variables
@@ -72,6 +76,8 @@ extern byte alarmStep;
 extern volatile boolean setTime;
 extern volatile boolean showTemperature;
 extern volatile boolean getBrightness;
+extern volatile t2_purpose_t t2_purpose;
+extern volatile boolean got_time;
 extern volatile byte cmp;
 extern volatile byte buttonState[6];
 extern volatile byte buttonsLocked;

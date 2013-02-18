@@ -26,6 +26,10 @@ volatile boolean setTime = true;
 volatile boolean showTemperature = false;
 /* wenn true: Helligkeit messen und umsetzen (atm 1mal die Sekunde) */
 volatile boolean getBrightness = false;
+/* bestimmt, ob Timer 2 Alarm oder DCF machen soll */
+volatile t2_purpose_t t2_purpose = DCF;
+/* true, wenn die Zeit gerade gemessen wurde und übernommen werden kann */
+volatile boolean got_time = false;
 
 /* Vergleichswert für die Soft-PWM */
 volatile byte cmp = 0;

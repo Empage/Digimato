@@ -24,8 +24,9 @@ static void handleButtons(void);
 static void playAlarm(void);
 
 /* TODO Hardware
- * - evtl. IR-Diode einbauen
+ * - 12. Spalte neu verlöten
  * - Acrylglas
+ * - evtl. IR-Diode einbauen
  */
 
 /* TODO Software
@@ -55,7 +56,8 @@ int main(void) {
 //	char datestring[200];
 //	snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
 
-
+	t2_purpose = DCF;
+	T2_ENABLE_INTR();
 
 	while (1) {
 		if (showTemperature) {
@@ -87,6 +89,15 @@ int main(void) {
 //		} else {
 //			TIMSK &= ~OCIE2;
 //		}
+
+		if (got_time) {
+			if (conrad_check_parity() == SUCCESS) {
+				conrad_calculate_time();
+				conrad_calculate_date();
+			} else {
+				T2_ENABLE_INTR();
+			}
+		}
 	}
 
 	return 0;
@@ -203,9 +214,37 @@ void initTimer2() {
 	TCNT2 = 0;
 }
 
+//TODO
+void initTimer2_DCF() {
+	/* Use prescaler 1024 */
+	TCCR2 |= (1 << CS22)|(1 << CS21)|(1 << CS20);
+	/* Enable CTC Mode */
+	TCCR2 |= (1 << WGM21)|(0 << WGM20);
+	/* CTC Wert: 147456 / 1024 / 100 = 144; -1 weil Intr erst 1 Timer Clock cycle sp�ter ausgel�st wird */
+	OCR2 = 144 - 1;
+	/* Initialize counter */
+	TCNT2 = 0;
+}
+
 ISR (TIMER2_COMP_vect) {
-	SPEAKER_TOGGLE();
-	DBG_LED_TOGGLE;
+	byte ret;
+
+	if (t2_purpose == ALARM) {
+		SPEAKER_TOGGLE();
+		DBG_LED_TOGGLE();
+	} else {
+		ret = conrad_state_get_dcf_data();
+		if (ret == T2_WAIT) {
+			/* reset counter to wait exactly 10 ms */
+			TCNT2 = 0;
+		} else if (ret == SUCCESS) {
+			got_time = true;
+			T2_DISABLE_INTR();
+		} else {
+			/* wenn was schief gegangen ist, resette und fange neu an beim nächsten Interrupt */
+			conrad_state_init_dcf();
+		}
+	}
 }
 
 /* Initialisierung des Seriellen Peripheren Interfaces */
