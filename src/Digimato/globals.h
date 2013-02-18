@@ -55,6 +55,10 @@ enum {
 #define T0_ENABLE_INTR() TIMSK |= (1<<TOIE0)
 #define T0_DISABLE_INTR() TIMSK &= ~(1<<TOIE0)
 
+/* Timer1 defines */
+#define T1_ENABLE_INTR() TIMSK |= (1<<OCIE1A)
+#define T1_DISABLE_INTR() TIMSK &= ~(1<<OCIE1A)
+
 /* Timer2 (Lautsprecher & DCF) defines */
 #define T2_ENABLE_INTR() TIMSK |= (1<<OCIE2)
 #define T2_DISABLE_INTR() TIMSK &= ~(1<<OCIE2)

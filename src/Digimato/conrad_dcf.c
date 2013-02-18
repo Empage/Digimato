@@ -11,6 +11,7 @@
 /* globale Variablen nur für die conrad Funktionen */
 byte i, j, k, secs, unmodulated, modulated;
 byte dcf_data[60];
+boolean is_start_of_sec;
 
 void conrad_state_init_dcf() {
 	i = 0;
@@ -20,6 +21,8 @@ void conrad_state_init_dcf() {
 	unmodulated = 0;
 	modulated = 0;
 	memset(dcf_data, 0, 60);
+	/* true, wenn eine neue Sekunde beginnt, damit auf moduliertes Signal nur dann gewartet wird */
+	is_start_of_sec = true;
 }
 
 byte conrad_state_get_dcf_data() {
@@ -33,8 +36,8 @@ byte conrad_state_get_dcf_data() {
 		if (DCF_VALUE != 0) {
 			i++;
 			j = 0;
-//			DBG_LED_OFF();
-			data[0][8] = 0;
+			DBG_LED_OFF();
+//			data[0][8] = 0;
 		/* Wenn es moduliert ist (logisch 0) */
 		} else {
 			j++;
@@ -42,10 +45,11 @@ byte conrad_state_get_dcf_data() {
 			 * Wenn mehr als 80ms moduliert ist, erkenne es als moduliert an (eig 100 oder 200 ms)
 			 * damit beginnt die Minute hier noch nicht, also von vorne messen
 			 */
-			if (j > 8) {
+			if (j > 7) {
 				i = 0;
 				j = 0;
-				data[0][8] = 255;
+				DBG_LED_ON();
+//				data[0][8] = 255;
 			}
 		}
 		/*
@@ -60,10 +64,15 @@ byte conrad_state_get_dcf_data() {
 	 * Jetzt die Daten in jeder Sekunde auslesen.
 	 * entweder 100ms (logisch 0) oder 200ms (logisch 1) moduliert.
 	 */
+	//XXX
+	data[3][8] = 255;
 	while (secs < 60) {
-		/* Pausiere bis zum modulierten Signal */
-		if (DCF_VALUE != 0) {
-			return T2_WAIT;
+		if (is_start_of_sec) {
+			/* Pausiere bis zum modulierten Signal */
+			if (DCF_VALUE != 0) {
+				return T2_WAIT;
+			}
+			is_start_of_sec = false;
 		}
 		/*
 		 * Gehe 90 % der Sekunde durch
@@ -111,6 +120,7 @@ byte conrad_state_get_dcf_data() {
 		}
 		/* Bereite die nächste Sekunde vor */
 		secs++;
+		is_start_of_sec = true;
 		k = 0;
 		modulated = 0;
 		unmodulated = 0;

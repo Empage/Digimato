@@ -56,8 +56,12 @@ int main(void) {
 //	char datestring[200];
 //	snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
 
+	conrad_state_init_dcf();
 	t2_purpose = DCF;
 	T2_ENABLE_INTR();
+//	T0_DISABLE_INTR();
+//	T1_DISABLE_INTR();
+
 
 	while (1) {
 		if (showTemperature) {
@@ -94,6 +98,11 @@ int main(void) {
 			if (conrad_check_parity() == SUCCESS) {
 				conrad_calculate_time();
 				conrad_calculate_date();
+				got_time = false;
+//				initTimer0();
+//				initTimer1();
+//				T0_ENABLE_INTR();
+//				T1_ENABLE_INTR();
 			} else {
 				T2_ENABLE_INTR();
 			}
@@ -150,10 +159,13 @@ static void initPorts() {
 }
 
 static void initTimer0() {
+	//XXX tbr
+	TCCR0 |= (1<<CS00);
 	/* Interrupt bei Overflow */
 	T0_ENABLE_INTR();
 	/* Timer aktivieren */
 	T0_ACTIVATE();
+
 }
 
 ISR (TIMER0_OVF_vect){
@@ -233,6 +245,7 @@ ISR (TIMER2_COMP_vect) {
 		SPEAKER_TOGGLE();
 		DBG_LED_TOGGLE();
 	} else {
+		PORTB ^= 1;
 		ret = conrad_state_get_dcf_data();
 		if (ret == T2_WAIT) {
 			/* reset counter to wait exactly 10 ms */
