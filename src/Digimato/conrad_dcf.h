@@ -10,6 +10,7 @@
 
 #include "globals.h"
 
+void conrad_init_time_measure();
 void conrad_state_init_dcf();
 byte conrad_state_get_dcf_data();
 byte conrad_get_dcf_data(byte* dcf_data);

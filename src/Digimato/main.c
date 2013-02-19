@@ -48,20 +48,10 @@ int main(void) {
 	sei();
 	running_letters("On!",100);
 
-//	//TODO dcf
-//	byte dcf_data[60];
-//	while (conrad_get_dcf_data(dcf_data) || conrad_check_parity(dcf_data)) ;
-//	conrad_calculate_time(dcf_data);
-//	conrad_calculate_date(dcf_data);
 //	char datestring[200];
 //	snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
 
-	conrad_state_init_dcf();
-	t2_purpose = DCF;
-	T2_ENABLE_INTR();
-//	T0_DISABLE_INTR();
-//	T1_DISABLE_INTR();
-
+	conrad_init_time_measure();
 
 	while (1) {
 		if (showTemperature) {
@@ -87,6 +77,7 @@ int main(void) {
 		/* Tasterevents verarbeiten */
 		handleButtons();
 
+		//TODO alarm
 //		if (alarmOn) {
 //			TIMSK |= OCIE2;
 //			playAlarm();
@@ -99,12 +90,8 @@ int main(void) {
 				conrad_calculate_time();
 				conrad_calculate_date();
 				got_time = false;
-//				initTimer0();
-//				initTimer1();
-//				T0_ENABLE_INTR();
-//				T1_ENABLE_INTR();
 			} else {
-				T2_ENABLE_INTR();
+				conrad_init_time_measure();
 			}
 		}
 	}
@@ -159,8 +146,6 @@ static void initPorts() {
 }
 
 static void initTimer0() {
-	//XXX tbr
-	TCCR0 |= (1<<CS00);
 	/* Interrupt bei Overflow */
 	T0_ENABLE_INTR();
 	/* Timer aktivieren */
@@ -197,7 +182,6 @@ ISR (TIMER1_COMPA_vect) {
 		/* Uhrzeit um eins erhoehen */
 		tick();
 
-		//TODO bei horizontal_time muss nur einmal pro Minute neu geschrieben werden, wenn die Punkte nicht blinken sollen
 		if (setTime) {
 			/*
 			 * Timer 0 Interrupts verbieten, damit es kein Flackern gibt
@@ -226,18 +210,6 @@ void initTimer2() {
 	TCNT2 = 0;
 }
 
-//TODO
-void initTimer2_DCF() {
-	/* Use prescaler 1024 */
-	TCCR2 |= (1 << CS22)|(1 << CS21)|(1 << CS20);
-	/* Enable CTC Mode */
-	TCCR2 |= (1 << WGM21)|(0 << WGM20);
-	/* CTC Wert: 147456 / 1024 / 100 = 144; -1 weil Intr erst 1 Timer Clock cycle sp�ter ausgel�st wird */
-	OCR2 = 144 - 1;
-	/* Initialize counter */
-	TCNT2 = 0;
-}
-
 ISR (TIMER2_COMP_vect) {
 	byte ret;
 
@@ -253,9 +225,11 @@ ISR (TIMER2_COMP_vect) {
 		} else if (ret == SUCCESS) {
 			got_time = true;
 			T2_DISABLE_INTR();
+			t2_purpose = ALARM;
 		} else {
 			/* wenn was schief gegangen ist, resette und fange neu an beim nächsten Interrupt */
 			conrad_state_init_dcf();
+			search_time = true;
 		}
 	}
 }
@@ -412,6 +386,10 @@ static void place_mono_char_checked(int16_t pos,byte zeichen){
 
 static void horizontal_time(void) {
 	byte tens = hour / 10;
+	/* speichere den Wert der beiden Punkte, um zu blinken, weil clearAll alles löscht */
+	byte p1 = data[2][8];
+	byte p2 = data[4][8];
+
 	clearAll();
 	if (tens) {
 		horizontal_num(0, tens);
@@ -420,8 +398,14 @@ static void horizontal_time(void) {
 	horizontal_num(10, min / 10);
 	horizontal_num(14, min % 10);
 
-	data[2][8] = 255;
-	data[4][8] = 255;
+	/* Wenn nach Minutenanfang gesucht wird, lasse die Punkte blinken */
+	if (search_time) {
+		data[2][8] = p1 ^ 255;
+		data[4][8] = p2 ^ 255;
+	} else {
+		data[2][8] = 255;
+		data[4][8] = 255;
+	}
 }
 
 static void horizontal_num(byte pos, byte number) {
@@ -475,15 +459,18 @@ static void vertical_num(byte posx, byte posy, byte number){
 }
 
 static void tick(void) {
-	if(++sec == 60){
+	if (++sec == 60) {
+		sec = 0;
+		if (++min == 60) {
+			min = 0;
+			if (++hour == 24) {
+				hour = 0;
+			}
+			/* einmal die Stunde die Zeit neu messen */
+			conrad_init_time_measure();
+		}
 		/* Einmal die Minute die Temperatur anzeigen */
 		showTemperature = true;
-		sec = 0;
-		if(++min == 60){
-			min = 0;
-			if(++hour == 24)
-			hour = 0;
-		}
 	}
 }
 

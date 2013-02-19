@@ -164,7 +164,6 @@ void therm_get_temperature(char *buffer) {
 	}
 }
 
-// TODO negative temperaturen verifizieren
 /* deprecated, use initiate_temperature_read and get_temperature instead */
 //void therm_read_temperature(char *buffer) {
 //	// Buffer length must be at least 9bytes long! ["+YYY.X C"]

@@ -13,6 +13,14 @@ byte i, j, k, secs, unmodulated, modulated;
 byte dcf_data[60];
 boolean is_start_of_sec;
 
+void conrad_init_time_measure() {
+	conrad_state_init_dcf();
+	t2_purpose = DCF;
+	T2_ENABLE_INTR();
+	search_time = true;
+	got_time = false;
+}
+
 void conrad_state_init_dcf() {
 	i = 0;
 	j = 0;
@@ -37,19 +45,17 @@ byte conrad_state_get_dcf_data() {
 			i++;
 			j = 0;
 			DBG_LED_OFF();
-//			data[0][8] = 0;
 		/* Wenn es moduliert ist (logisch 0) */
 		} else {
 			j++;
 			/*
-			 * Wenn mehr als 80ms moduliert ist, erkenne es als moduliert an (eig 100 oder 200 ms)
+			 * Wenn mehr als 70 ms moduliert ist, erkenne es als moduliert an (eig 100 oder 200 ms)
 			 * damit beginnt die Minute hier noch nicht, also von vorne messen
 			 */
 			if (j > 7) {
 				i = 0;
 				j = 0;
 				DBG_LED_ON();
-//				data[0][8] = 255;
 			}
 		}
 		/*
@@ -64,8 +70,7 @@ byte conrad_state_get_dcf_data() {
 	 * Jetzt die Daten in jeder Sekunde auslesen.
 	 * entweder 100ms (logisch 0) oder 200ms (logisch 1) moduliert.
 	 */
-	//XXX
-	data[3][8] = 255;
+	search_time = false;
 	while (secs < 60) {
 		if (is_start_of_sec) {
 			/* Pausiere bis zum modulierten Signal */
@@ -75,19 +80,18 @@ byte conrad_state_get_dcf_data() {
 			is_start_of_sec = false;
 		}
 		/*
-		 * Gehe 90 % der Sekunde durch
+		 * Gehe 95 % der Sekunde durch
 		 * (Rest ist Zeittoleranz, damit nächstes modulierte Signal nicht verpasst wird)
 		 * Zähle dabei modulierte und unmodulierte Messungen
 		 */
-		if (k < 90) {
+		if (k < 95) {
 			if (DCF_VALUE != 0) {
 				unmodulated++;
 			} else {
 				/*
 				 * moduliertes Signal tritt nur am Anfang der Sekunde auf in den ersten 200 ms.
-				 * 300 für Toleranz
+				 * 400 für Toleranz (300 war nicht genug, kA warum)
 				 */
-				//TODO 30
 				if (k < 40) {
 					modulated++;
 				}
@@ -102,14 +106,14 @@ byte conrad_state_get_dcf_data() {
 		}
 		/*
 		 * Werte vergangene Sekunde aus:
-		 * mindestens 600 ms und kleiner 1,3 s unmoduliert: Signal gültig, sonst ungültig und abbrechen
+		 * mindestens 500 ms und kleiner 1,4 s unmoduliert: Signal gültig, sonst ungültig und abbrechen
 		 */
-		if (unmodulated > 60 && unmodulated < 130) {
-			/* Wenn moduliert zwischen 60 und 130 ms, liegt logisch 0 an */
-			if (modulated > 6 && modulated < 13) {
+		if (unmodulated > 50 && unmodulated < 140) {
+			/* Wenn moduliert zwischen 50 und 140 ms, liegt logisch 0 an */
+			if (modulated > 5 && modulated < 14) {
 				dcf_data[secs] = 0;
-			/* Zwischen 160 ms und 230 ms, liegt logisch 1 an */
-			} else if (modulated > 16 && modulated < 23) {
+			/* Zwischen 150 ms und 240 ms, liegt logisch 1 an */
+			} else if (modulated > 15 && modulated < 24) {
 				dcf_data[secs] = 1;
 			/* sonst ist es ungültig */
 			} else {
@@ -128,7 +132,6 @@ byte conrad_state_get_dcf_data() {
 	return SUCCESS;
 }
 
-//TODO auf Timer umstellen: entweder 10ms Timer oder Flankentimer des Signals
 byte conrad_get_dcf_data(byte* dcf_data) {
 	byte i = 0;
 	byte j = 0;
@@ -196,8 +199,6 @@ byte conrad_get_dcf_data(byte* dcf_data) {
 error:
 	// Globale Interrupts wieder anschalten und mit Fehlerfall returnen
 	sei();
-	// TODO tmp
-	running_letters("EF", 100);
 	clearAll();
 	return 1;
 }
@@ -242,14 +243,11 @@ byte conrad_check_parity() {
 	return SUCCESS;
 
 error:
-	// TODO tmp
-	running_letters("PARITY", 100);
 	clearAll();
 	return ERROR;
 }
 
 void conrad_calculate_time() {
-	//TODO isr1 interrupt wahrscheinlich besser aussetzen
 	hour =  dcf_data[29] +
 			dcf_data[30] * 2 +
 			dcf_data[31] * 4 +
@@ -264,7 +262,6 @@ void conrad_calculate_time() {
 			dcf_data[25] * 10 +
 			dcf_data[26] * 20 +
 			dcf_data[27] * 40;
-	// TODO geringfuegig falsch ;)
 	sec = 0;
 }
 

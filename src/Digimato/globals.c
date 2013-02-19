@@ -30,6 +30,8 @@ volatile boolean getBrightness = false;
 volatile t2_purpose_t t2_purpose = DCF;
 /* true, wenn die Zeit gerade gemessen wurde und übernommen werden kann */
 volatile boolean got_time = false;
+/* true, wenn gerade Minutenanfang gesucht wird */
+volatile boolean search_time = false;
 
 /* Vergleichswert für die Soft-PWM */
 volatile byte cmp = 0;

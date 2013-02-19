@@ -82,6 +82,7 @@ extern volatile boolean showTemperature;
 extern volatile boolean getBrightness;
 extern volatile t2_purpose_t t2_purpose;
 extern volatile boolean got_time;
+extern volatile boolean search_time;
 extern volatile byte cmp;
 extern volatile byte buttonState[6];
 extern volatile byte buttonsLocked;
