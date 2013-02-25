@@ -18,22 +18,31 @@ TODO
 \subsection{Infrarotsensor}
 TODO
 
-\subsection{Gehaeuse}
-TODO
+\subsection{Gehäuse}
+%TODO
+%
+Ziel war es ein optisch ansprechendes, sowie funktionales Gehäuse zu kreieren. 
 
-Ziel war es ein optisch ansprechendes, sowie funktionales Gehaeuse zu kreieren. 
+Als problematisch stellte sich die Zielsetzung der flachen Bauart hrraus. Denn um eine gleichmässige Lichtverteilung innerhalb eines Pixels zu erreichen, muss ein relativ großer Abstand zur LED gegeben sein. Durch praktisches Testen ergab sich für die verwendeten LEDs ein idealer Abstand von .%TODO eventuell wirklich probieren 
+Auserdem muss verhindert werden, dass die offenliegende Verdrahtung der LED-Matrix zu Kurzschlüssen führt. Im Besonderen ist hier das Netzteil zu nennen, da hier ein Spannung von 230 Volt anliegt und das Netzteil von allen Komponenten mit 15 mm %TODO 
+über die höchste Bauhöhe verfügt. 
+Die Bauhöhe der Verdrahtung der LED-Matrix wurde an den kritischen Stellen von 5-6 mm auf ca. 2 mm verringert. Um Kurzschlüsse innerhalb der LED-Matrix zu verhindern, wurden die Kreuzungspunkte zum Teil isoliert.
+%TODO [MH] evtl Bild davon?
 
-Als problematisch stellte sich die Zielsetzung der flachen Bauart herraus. Denn um eine gleichmaessige Lichtverteilung innerhalb eines Pixels zu erreichen muss ein relativ grosser Abstand zur LED gegeben sein. Durch praktisches Test ergaben sich fuer die verwendeteten LEDs ein idealer Abstand von [TODO eventuell wirklich probieren]. Auserdem muss verhindert werden dass die offenliegende Verdrahtung der LED-Matrix zu Kurzschluessen fuehrt. Im Besondern ist hier das Netzteil zu nennen, da hier ein Spannung von 230 Volt anliegt und das Netzteil von allen Komponenten mit 15 mm[TODO] ueber die hoechste Bauhoehe verfuegt. 
-Die Bauhoehe der Verdrahtung der LED-Matrix wurde an den kritsichen stellen von 5-6mm auf ca 2 mm veringert, um Kurzschluesse innerhalb der LED-Matrix zu verhindern wurden die Kreuzungspunkte zum Teil isoliert.
+Während der Entwicklung war ein einfacher Zugang von großer Bedeutung, deshalb wurde das Gehäuse in zwei Teile aufgeteilt. Die LED-Matrix bildet zusammen mit ihrer Abdeckung und drei Seitenwänden den vorderen Teil des Gehäuses. Auf der Rückwand wurde die Hauptplatine, das Netzteil und der DCF77-Empfänger platziert. An der vierten Seitenwand sind die Sensoren für Helligkeit und Temperatur, die Stromversorgung, die 6 Taster sowie der Debuganschluss (ISP) %TODO ISP als Fachwort
+befestigt. Diese Seitenwand wurde an der Rückwand befestigt. Dies ermöglicht ein Öffnen des Gehäuses, indem nur die Schrauben an der Rückwand entfernt werden und die 3 Steckverbinder zur LED-Matrix gelöst werden, die komplette Sensorik und die Taster aber nicht entfernt werden müssen.
+%TODO Fotos von dem ganzen Kram
 
-
-Waehrend der Entwicklung war ein einfacher Zugang von grosser Bedeutung, deshalb wurde das Gehause in zwei Teile aufgeteilt. Die LED-Matrix bildet zusammen mit ihrer Abdeckung und drei Seitenwaenden den vorderen Teil des Gehaeuses. Auf der Rueckwand wurde die Hauptplatine, das Netzteil und der DCF77-Empfaenger platziert. An der vierten Seitewand sind die Sensoren fuer Helligkeit und Temperatur, die Stromversorgung, die 6 Taster sowie der Debuganschluss (ISP) befestigt. Diese Seitenwand wurde an der Rueckwand befestigt. Dies ermoeglicht ein offenen des Gehauses indem nur die Schrauben an der Rueckwand entfernt werden und die 3 Steckverbinder zur LED-Matrix geloest werden, die komplette Sensorik und die Taster aber nicht entfernt werden muessen.
-
-Als Schrauben kamen Metallschrauben mit M5[TODO] Gewinde zum Einsatz. Die Muttern wurde in einem Holzblock befestigt, der anschliesend mit der Rueckwand verleimt wurde.[TODO: Abbilgung?] Diese Loesung zeichnet sich im Gegensatz zu Holzschrauben durch minimalen verschleis aus und kann oft geoeffnet und wieder verschlossen werden.
-
+Als Schrauben kamen Metallschrauben mit M5 %TODO 
+Gewinde zum Einsatz. Die Muttern wurden in einem Holzblock befestigt, der anschließend mit der Rückwand verleimt wurde.%TODO: Abbildung? 
+Diese Lösung zeichnet sich im Gegensatz zu Holzschrauben durch minimalen Verschleis aus und kann oft geöffnet und wieder verschlossen werden ohne Auszufransen.
 
 \subsubsection{Energieversorgung und Verbrauch}
-[TODO: Tabelle mit Alle AN/ Alle Aus/ HAlb an. (eventuell mit neuen und alten Widerstaenden] 
-Als Netzteil wurde ein CE geprueftes 5V/2A Netzteil gewaehlt. Das kompakte verwendete Schaltnetzteil ist ausreichend dimensioniert um den, mit einem Labornetzteil, ermittelten maximalen Bedarf von ca. 1.8A[TODO](Alle LEDs an bei maximaler Helligkeit) bereitzustellen. 
-Als Stromkabel kommt ein zweipoliges Kabel mit Schalter zum Einsatz. Dieses wurde im inneren des Gehauses mit Schmelzklebestoff verklebt und in eine Luesterklemme gefuehrt, so dass bei eventuell auftreten Zugkraften auf keinen Fall Kraefte auf das Netzteil wirken.
-Mittels des Temperatursensors wurde auserdem in einem Testlauf sichergestellt das die Temperatur im inneren der Uhr 50�C (Bei einer Raumtemperatur von 22�C) nicht ueberschreitet.
+%TODO: Tabelle mit Alle AN/ Alle Aus/ HAlb an. (eventuell mit neuen und alten Widerständen 
+Als Netzteil wurde ein CE geprüftes 5V/2A Netzteil gewählt. Das kompakte verwendete Schaltnetzteil ist ausreichend dimensioniert um den, mit einem Labornetzteil, ermittelten maximalen Bedarf von ca. 1.8A%TODO
+(alle LEDs an bei maximaler Helligkeit) bereitzustellen.
+ 
+Als Stromkabel kommt ein zweipoliges Kabel mit Schalter zum Einsatz. Dieses wurde im Inneren des Gehäuses mit Schmelzklebestoff verklebt und in eine Lüsterklemme geführt, so dass bei eventuell auftretenden Zugkräften auf keinen Fall Kräfte auf das Netzteil wirken.
+
+Mittels des Temperatursensors wurde außerdem in einem Testlauf sichergestellt, dass die Temperatur im Inneren der Uhr 50\degree C (bei einer Raumtemperatur von 22\degree C) nicht überschreitet.
+%eof
