@@ -3,9 +3,6 @@
 Debug
 .settings
 latex/document.synctex.gz
-latex/document.log
-latex/document.aux
 latex/document.pdf
 latex/.texlipse
-latex/tmp/document.*
-latex/tmp/*.aux
+latex/tmp/*
