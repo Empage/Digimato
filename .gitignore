@@ -6,3 +6,4 @@ latex/document.synctex.gz
 latex/document.pdf
 latex/.texlipse
 latex/tmp/*
+*.autosave
