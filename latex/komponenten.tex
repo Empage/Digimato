@@ -44,18 +44,35 @@ Um den Widerstandsverlauf besser abschätzen zu können wurden Messungen vorgeno
 \caption{Widerstandmessung des LDR}
 \end{table}
   
-
-  \begin{displaymath}
-  V = 5V
-  U_{PA.7} = /frac{5V}{U_
-  R = \frac{R}{U}
-  \end{displaymath}
-
 \subsection{Temperatursensor}
-TODO
+Als Temperatursensor wurde der DS18S20\footnote{\url{http://www.maximintegrated.com/datasheet/index.mvp/id/2815}} von Maxim Integrated verwendet. Dieser verwendet das 1-Wire\textsuperscript{\textregistered}-Protokoll\footnote{\url{http://www.maximintegrated.com/products/1-wire/flash/overview/index.cfm}}, sodass nur ein Datenpin vonnöten ist, worüber Befehle gesendet sowie Daten empfangen werden.
+
+\begin{figure}[htp]
+\centering
+\includegraphics{skizzen/temperatursensor_schematic.png}
+\caption{Schaltung für den 1-Wire Temperatursensor}\label{fig_tempsensor}
+\end{figure}
 
 \subsection{Infrarotsensor}
-TODO
+%TODO to be removed
+\begin{table}[htp]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{||l|l||}
+\hline \hline
+Bezeichnung&ATMEGA32 16PU 0926D\\ \hline
+Hersteller&Atmel\\ \hline
+Architektur&AVR 8-bit\\ \hline
+Geschwindigkeit&bis 16Mhz \\ \hline
+Programmspeicher&32 KiB Flash \\ \hline
+Arbeitsspeicher&2 KiB SRAM \\ \hline
+EEPROM&1 KiB \\ \hline
+AD-Wandler&8 Kanal / 10 Bit \\ \hline
+Bauform&40-pin DIP Gehäuse\\
+\hline\hline
+\end{tabular}
+\caption{Eckdaten des ATmega 32}
+\end{table}
 
 \subsection{Gehäuse}
 %TODO

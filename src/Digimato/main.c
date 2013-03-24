@@ -107,8 +107,8 @@ static void initPorts() {
 	 * PA3: Taster rot 2
 	 * PA4: Taster blau 1
 	 * PA5: Taster blau 2
-	 * PA6: nc
-	 * PA7: Licht-Sensor
+	 * PA6: Temperatursensor
+	 * PA7: Lichtsensor
 	 * Alle sind Input, deshalb 0.
 	 */
 	DDRA = 0;
