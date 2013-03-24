@@ -464,6 +464,7 @@ static void tick(void) {
 		if (++min == 60) {
 			min = 0;
 			if (++hour == 24) {
+				//TODO Datumserhöhung
 				hour = 0;
 			}
 			/* einmal die Stunde die Zeit neu messen */
