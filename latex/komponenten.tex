@@ -1,8 +1,26 @@
 \section{Betrachtung der Komponenten}
 \subsection{Mikrocontroller}
-TODO
+Die zentrale Komponente der Digitaluhr ist der Mikrocontroller ATmega32. Der von Atmel hergestellte 8-bit Kontroller ist im 40-pin DIP Format verfügbar. Dies ermöglicht die einfache Verwendung auf einer Lochrasterplatine mit 2,54mm Lochabstand. Programmiert wird der ATMega entweder in C oder in AVR-Assembler, die Wahl fiel hier auf die konfortablere Sprache C.
+Viele der integrierten Komponenten wurden genutzt: Das zur Verfügung gestellte SPI-Interface \footnote{Serial Peripheral Interface Bus}zur Kommunitkation mit den Schieberegistern, der integrierte AD-Wandler zur Auswertung des Helligkeitssensors, das ISP-Interface zur Programmierung. TODO: Gibts hier noch mehr?
+\begin{table}[htp]
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{||l | l||}
+  \hline\hline
+  Bezeichnung&ATMEGA32 16PU 0926D\\\hline
+  Hersteller&Atmel\\\hline
+  Architektur&AVR 8-bit \\\hline
+  Geschwindigkeit&bis 16Mhz \\\hline
+  Programmspeicher&32 KiB Flash \\\hline
+  Arbeitsspeicher&2 KiB SRAM \\\hline
+  EEPROM&1 KiB \\\hline
+  AD-Wandler&8 Kanal / 10 Bit \\\hline
+  Bauform&40-pin DIP Gehäuse \\
+  \hline\hline    
+\end{tabular}
+\caption{Eckdaten des ATmega 32}
+\end{table}
 
-\subsection{DCF77 Empfangsmodul}
+\subsection{DCF77 Empfangsmodul}\label{sec_dcf77modul}
 TODO
 
 \subsection{LED Matrix}
@@ -10,7 +28,28 @@ TODO
 LEDs: Weiter winkel um gute ausleuchtung zu erhalen
 
 \subsection{Helligkeitssensor}
-TODO
+Ein Fotoresitor (Lichtabhaengier Widerstand) bildet einen Teil eines Spannugteilers. Die innerhalb des Spanungsteilers anliegende Spannung wird dann vom Mikrocontroller mit Hilfe des AD-Wandlers ausgewertet.
+Der verwendete Fotoresisor besitzt nominal einen Dunkelwiderstand von $100 k\Omega$ .
+Um den Widerstandsverlauf besser abschätzen zu können wurden Messungen vorgenommen.
+\begin{table}[htp]
+\begin{tabular}{||l | l||}
+  \hline \hline
+  Dunkelheit& $70 k\Omega$ \\ \hline
+  Zimmerhelligkeit & $3 k\Omega$ \\ \hline
+  Schreibtischlampe 50cm Abstand& $500 \Omega$ \\ \hline
+  Schreibtischlampe 10cm Abstand& $90 \Omega$ \\ \hline
+  Schreibtischlampe 2cm Abstand& $30 \Omega$  \\
+  \hline\hline
+\end{tabular}
+\caption{Widerstandmessung des LDR}
+\end{table}
+  
+
+  \begin{displaymath}
+  V = 5V
+  U_{PA.7} = /frac{5V}{U_
+  R = \frac{R}{U}
+  \end{displaymath}
 
 \subsection{Temperatursensor}
 TODO
@@ -38,7 +77,7 @@ Gewinde zum Einsatz. Die Muttern wurden in einem Holzblock befestigt, der anschl
 Diese Lösung zeichnet sich im Gegensatz zu Holzschrauben durch minimalen Verschleis aus und kann oft geöffnet und wieder verschlossen werden ohne Auszufransen.
 
 \subsubsection{Energieversorgung und Verbrauch}
-%TODO: Tabelle mit Alle AN/ Alle Aus/ HAlb an. (eventuell mit neuen und alten Widerständen 
+%TODO: Tabelle mit Alle AN/ Alle Aus/ Halb an. (eventuell mit neuen und alten Widerständen 
 Als Netzteil wurde ein CE geprüftes 5V/2A Netzteil gewählt. Das kompakte verwendete Schaltnetzteil ist ausreichend dimensioniert um den, mit einem Labornetzteil, ermittelten maximalen Bedarf von ca. 1.8A%TODO
 (alle LEDs an bei maximaler Helligkeit) bereitzustellen.
  
