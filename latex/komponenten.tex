@@ -56,12 +56,27 @@ Um den Widerstandsverlauf besser abschätzen zu können wurden Messungen vorgeno
 \subsection{Temperatursensor}
 Als Temperatursensor wurde der DS18S20\footnote{\url{http://www.maximintegrated.com/datasheet/index.mvp/id/2815}} von Maxim Integrated verwendet. Dieser verwendet das 1-Wire\textsuperscript{\textregistered}-Protokoll\footnote{\url{http://www.maximintegrated.com/products/1-wire/flash/overview/index.cfm}}, sodass nur ein Datenpin vonnöten ist, worüber Befehle gesendet sowie Daten empfangen werden.
 
-Der 1-Wire-Bus ermöglicht die Verwendung mehrerer Geräte an der Datenleitung, wobei jedes Gerät über seine eindeutige 64-Bit ID angesprochen wird. Da bei diesem Projekt lediglich ein DS18S20 verwendet wird, 
+Der 1-Wire-Bus ermöglicht die Verwendung mehrerer Geräte an der Datenleitung, wobei jedes Gerät über seine eindeutige 64-Bit ID angesprochen wird. Da bei diesem Projekt lediglich ein DS18S20 verwendet wird, kann die Ansteuerung der eindeutigen ID weggelassen werden und alle Geräte auf dem Bus angesprochen werden, da keine Kollision entstehen kann.
 
+Der Temperatursensor wird wie in Grafik \ref{fig_tempsensor} angeschlossen. Die Datenleitung wird über einen $4,7 k\Omega$ Pullup-Widerstand mit der Spannungsquelle verbunden, sowie an Pin PA6 des Microcontrollers angeschlossen.
+%
 \begin{figure}[htp]
 \centering
 \includegraphics{skizzen/temperatursensor_schematic.png}
 \caption{Schaltung für den 1-Wire Temperatursensor}\label{fig_tempsensor}
+\end{figure}
+%
+Für das 1-Wire-Protokoll ist ein genaues Timing unabdingbar, deshalb müssen bei jeglicher Kommunikation mit dem DS18S20 alle Interrupts ausgeschaltet werden. Da die längste Kommunikation am Stück der Reset-Pulse mit $960 \mu s$ ist, ist das Auschalten der Interrupts für die Funktionalität der Uhr nicht beeinträchtigend.
+
+Das Protokoll sieht vor, dass jede Kommunikation mit einem Reset-Pulse startet. In Abbildung \ref{fig_resettiming} 
+ist das genaue Timing des Reset-Pulses zu erkennen. Zunächst muss der Master, also hier der Microcontroller den Bus für mindestens $480 \mu s$ auf Low ziehen. Nach Freigabe des Busses sorgt der Pullup-Widerstand dafür, dass der Bus wieder auf High gesetzt wird. Anschließend zieht der Sensor den Bus nach $15 \mu s$ bis $60 \mu s$ nach der ansteigenden Flanke für $60 \mu s$ bis $240 \mu s$ auf Low. Dies signalisiert dem Master, dass ein Gerät am Bus hängt und einsatzbereit ist.\footnote{\cite{ds18s20}, Seite 13}
+
+In der weiteren Kommunikation wird nun das \texttt{SKIP ROM} Kommando benutzt, welches bedeutet, dass die 64-Bit ID weggelassen werden kann und alle Geräte (hier nur eins) angesprochen werden. Nun kann der DS18S20 mit dem \texttt{CONVERT TEMP} Kommando dazu aufgefordert werden, die Temperatur zu messen und digital zu konvertieren. Dies macht er nicht permament um Strom zu sparen. Nach einer Konvertierungszeit von mindestens $700 ms$ kann die Temperatur ausgelesen werden. Dazu muss erneut ein Reset- sowie ein Skiprom-Kommando gesendet werden, um dann mit \texttt{READ SCRATCHPAD} die eigentliche Temperatur zu erhalten.\footnote{Genaue Beschreibung der Kommandos siehe \cite{ds18s20} Seite 10ff}
+%
+\begin{figure}[htp]
+\centering
+\centerline{\includegraphics[width=1.2\linewidth]{skizzen/temperatur_reset.png}}
+\caption{Reset-Pulse Timing Diagramm\footnote{\cite{ds18s20}, Seite 13}}\label{fig_resettiming}
 \end{figure}
 
 \subsection{Infrarotsensor}
