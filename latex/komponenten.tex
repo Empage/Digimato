@@ -31,19 +31,28 @@ LEDs: Weiter winkel um gute ausleuchtung zu erhalen
 Ein Fotoresitor (Lichtabhaengier Widerstand) bildet einen Teil eines Spannugteilers. Die innerhalb des Spanungsteilers anliegende Spannung wird dann vom Mikrocontroller mit Hilfe des AD-Wandlers ausgewertet.
 Der verwendete Fotoresisor besitzt nominal einen Dunkelwiderstand von $100 k\Omega$ .
 Um den Widerstandsverlauf besser abschätzen zu können wurden Messungen vorgenommen.
-\begin{table}[htp]
-\begin{tabular}{||l | l||}
-  \hline \hline
-  Dunkelheit& $70 k\Omega$ \\ \hline
-  Zimmerhelligkeit & $3 k\Omega$ \\ \hline
-  Schreibtischlampe 50cm Abstand& $500 \Omega$ \\ \hline
-  Schreibtischlampe 10cm Abstand& $90 \Omega$ \\ \hline
-  Schreibtischlampe 2cm Abstand& $30 \Omega$  \\
-  \hline\hline
-\end{tabular}
-\caption{Widerstandmessung des LDR}
-\end{table}
-  
+\begin{figure}[h]
+  \begin{center}
+  \begin{minipage}[b]{0.3\textwidth}
+        \includegraphics[height=4.5cm]{skizzen/helligkeitssensor_schmatic.png}
+        \caption{Testbild}
+  \end{minipage}
+  \hspace{0.07\textwidth}
+  \begin{minipage}[b]{0.6\textwidth}
+    \begin{tabular}[h]{||l | l||}
+	  \hline \hline
+	  Dunkelheit& $70 k\Omega$ \\ \hline
+	  Zimmerhelligkeit & $3 k\Omega$ \\ \hline
+	  Schreibtischlampe 50cm Abstand& $500 \Omega$ \\ \hline
+	  Schreibtischlampe 10cm Abstand& $90 \Omega$ \\ \hline
+	  Schreibtischlampe 2cm Abstand& $30 \Omega$  \\
+	  \hline\hline
+    \end{tabular} 
+    \label{Modellversuch} 
+    \captionof{table}{Widerstandmessung des LDR}
+  \end{minipage}
+  \end{center}
+\end{figure}
 \subsection{Temperatursensor}
 Als Temperatursensor wurde der DS18S20\footnote{\url{http://www.maximintegrated.com/datasheet/index.mvp/id/2815}} von Maxim Integrated verwendet. Dieser verwendet das 1-Wire\textsuperscript{\textregistered}-Protokoll\footnote{\url{http://www.maximintegrated.com/products/1-wire/flash/overview/index.cfm}}, sodass nur ein Datenpin vonnöten ist, worüber Befehle gesendet sowie Daten empfangen werden.
 
