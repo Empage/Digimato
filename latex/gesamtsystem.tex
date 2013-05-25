@@ -26,7 +26,7 @@ Für die zeitlich kritischste Funktion, dem exakten Ticken der Uhrzeit wurde der
 
 Es wurde sich dafür entschieden, als kleinste Zeiteinheit Dezisekunden zu verwenden. Zur Anzeige der Uhrzeit ist dies allemal ausreichend, aber so kann dieser Timer zusätzlich dazu verwendet werden, die Tasterzustände abzufragen und wäre für eine etwaige Anwendung, wo Dezisekunden benötigt werden (bspw. Stoppuhr) vorbereitet.
 
-Um den Timer also 10 mal pro Sekunden einen Interrupt erzeugen zu lassen, muss der Vergleichswert folgendermaßen gesetzt werden: $CMP = \frac{Takt}{\frac{INT}{s}} = \frac{14745600 Hz}{10 \frac{1}{s}} = 1474560$. Dieser Wert kann von einem 16-Bit Timer nicht erreicht werden, da $2^16 < 1474560$. Deshalb muss auch hier ein Prescaler verwendet werden. Bei einem Prescaler von 1024 ergibt sich ein Wert von $\frac{1474560}{1024} = 1440$, welcher ideal ist, weil er einerseits innerhalb der 16-Bit Grenzen liegt und andererseits eine Ganzzahl ist, sodass genau bei jedem Interrupt eine Zehntelsekunde verstrichen ist.
+Um den Timer also 10 mal pro Sekunden einen Interrupt erzeugen zu lassen, muss der Vergleichswert folgendermaßen gesetzt werden: $CMP = \frac{Takt}{\frac{INT}{s}} = \frac{14745600 Hz}{10 \frac{1}{s}} = 1474560$. Dieser Wert kann von einem 16-Bit Timer nicht erreicht werden, da $2^{16} < 1474560$. Deshalb muss auch hier ein Prescaler verwendet werden. Bei einem Prescaler von 1024 ergibt sich ein Wert von $\frac{1474560}{1024} = 1440$, welcher ideal ist, weil er einerseits innerhalb der 16-Bit Grenzen liegt und andererseits eine Ganzzahl ist, sodass genau bei jedem Interrupt eine Zehntelsekunde verstrichen ist.
 
 Innerhalb der Timer1 Interruptroutine werden folgende Operationen ausgeführt:
 \begin{enumerate}

@@ -10,8 +10,8 @@
 
 #include "globals.h"
 
-#define LOOP_CYCLES 8 //Number of cycles that the loop takes
-#define us(num) (num/(LOOP_CYCLES*(1/(F_CPU/1000000.0))))
+//#define LOOP_CYCLES 8 //Number of cycles that the loop takes
+//#define us(num) (num/(LOOP_CYCLES*(1/(F_CPU/1000000.0))))
 
 /* Thermometer Connections (At your choice) */
 #define THERM_PORT PORTA
