@@ -1,35 +1,158 @@
-\documentclass[16pt,a4paper]{article}
-\usepackage{ngerman} % neue Rechtschreibung + Sprachumstellung
-\usepackage[utf8]{inputenc} % ASCI-8bit-Ei
-\usepackage{color}
-\usepackage[T1]{fontenc} % T1 encoding
+\documentclass[%
+	pdftex,
+	oneside,		% Einseitiger Druck.
+	12pt,			% Schriftgroesse
+	parskip=half,	% Halbe Zeile Abstand zwischen Absätzen.
+	headsepline,	% Linie nach Kopfzeile.
+	footsepline,	% Linie vor Fusszeile.
+	abstracton,	    % Abstract Überschriften
+	ngerman,		% Translator
+]{article}
+
+% Zeichencodierung
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+ 
+\newcommand{\pdftitel}{Konzeption und Entwicklung einer digitalen Funk-, LED-Uhr}
+\newcommand{\autor}{Tobias Schöneberger, Matthis Hauschild}
+\newcommand{\arbeit}{Studienarbeit}
+%falls pdftitel = titel der Arbeit
+\newcommand{\titel}{\pdftitel}
+%bei unterschiedlichen Titeln
+%\newcommand{\titel}{In der Regel haben wir einen zweizeiligen
+% Bachelorthesistitel}
+\newcommand{\kurs}{TIT10AID}
+\newcommand{\datumAbgabe}{Juni 2013}
+\newcommand{\abgabeort}{Stuttgart}
+\newcommand{\studiengang}{Angewandte Informatik}
+\newcommand{\dhbw}{Stuttgart}
+\newcommand{\betreuer}{Prof. Dr. Karl Friedrich Gebhardt}
+\newcommand{\gutachter}{Prof. Dr. Karl Friedrich Gebhardt}
+\newcommand{\zeitraum}{12 Wochen}
+\newcommand{\arbeitsart}{\arbeit}
+
+
+%Seitengroesse
+\usepackage{fullpage} 
+
+%Zeilenumbruch und mehr
+\usepackage[activate]{microtype}
+
+
+% Zeilenabstand
+\usepackage[onehalfspacing]{setspace}
+
+% Index-Erstellung
+%\usepackage{makeidx}
+
+% Lokalisierung (neue deutsche Rechtschreibung)
+\usepackage[ngerman]{babel}
+ 
+% Anführungszeichen 
+\usepackage[babel,german=quotes]{csquotes}
+%\usepackage[style=swiss]{csquotes}
+
+
+% Spezielle Tabellenform fuer Deckblatt
+\usepackage{longtable}
+\setlength{\tabcolsep}{10pt} %Abstand zwischen Spalten
+\renewcommand{\arraystretch}{1.5} %Zeilenabstand
+
+% Grafiken
 \usepackage{graphicx}
+
+%Farben
+\usepackage{color}
 \usepackage{fancyhdr}
+
 \usepackage{bibgerm}
 \usepackage{caption}
 \usepackage{longtable}
+% für textumflossene Grafiken
+\usepackage{wrapfig} 
 
-\pagestyle{fancy}
+\pagestyle{fancy} 
+
+% Fussnoten
+\usepackage[perpage, hang, multiple, stable]{footmisc}
+
+% Verschiedene Schriftarten
+%\usepackage{goudysans}
+%\usepackage{lmodern}
+\usepackage{libertine}
+%\usepackage{palatino} 
+
+% Hurenkinder und Schusterjungen verhindern
+% http://projekte.dante.de/DanteFAQ/Silbentrennung
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+
+% Quellcode
+\usepackage{listings}
+\lstloadlanguages{Java}
+\lstset{%
+	language=PHP,		 	 % Sprache des Quellcodes
+	%numbers=left,           % Zelennummern links
+	stepnumber=1,            % Jede Zeile nummerieren.
+	numbersep=5pt,           % 5pt Abstand zum Quellcode
+	numberstyle=\tiny,       % Zeichengrösse 'tiny' für die Nummern.
+	breaklines=true,         % Zeilen umbrechen wenn notwendig.
+	breakautoindent=true,    % Nach dem Zeilenumbruch Zeile einrücken.
+	postbreak=\space,        % Bei Leerzeichen umbrechen.
+	tabsize=2,               % Tabulatorgrösse 2
+	basicstyle=\ttfamily\footnotesize, % Nichtproportionale Schrift, klein für den Quellcode
+	showspaces=false,        % Leerzeichen nicht anzeigen.
+	showstringspaces=false,  % Leerzeichen auch in Strings ('') nicht anzeigen.
+	extendedchars=true,      % Alle Zeichen vom Latin1 Zeichensatz anzeigen.
+	captionpos=b,            % sets the caption-position to bottom
+	backgroundcolor=\color{ListingBackground} % Hintergrundfarbe des Quellcodes setzen.
+}
 
 \newcommand{\degree}{\ensuremath{^\circ}}
 
-\title{Konzeption und Entwicklung einer digitalen Funk-, LED-Uhr}
-\author{Tobias Schöneberger, Matthis Hauschild}
-\date{\today}
+% Titel, Autor und Datum
+\title{\titel}
+\author{\autor}
+\date{\datum}
+
+% PDF Einstellungen
+\usepackage[%
+	pdftitle={\pdftitel},
+	pdfauthor={\autor},
+	pdfsubject={\arbeit},
+	pdfcreator={pdflatex, LaTeX with KOMA-Script},
+	pdfpagemode=UseOutlines, % Beim Oeffnen Inhaltsverzeichnis anzeigen
+	pdfdisplaydoctitle=true, % Dokumenttitel statt Dateiname anzeigen.
+	pdflang=de % Sprache des Dokuments.
+]{hyperref} 
+
+
 
 \begin{document}
-\maketitle
-\newpage
+	% Deckblatt
+	\begin{spacing}{1}
+		\input{deckblatt}
+	\end{spacing}
+	\newpage
+
+	% Sperrvermerk
+	\renewcommand{\thepage}{\Roman{page}} 
+	\setcounter{page}{1}
+
+	% Erklärung
+	\input{erklaerung}
+	\newpage
 
 \tableofcontents
-\newpage
+\newpage 
  
-\input{einleitung.tex}
+\input{einleitung.tex} 
 \input{anforderungen.tex}
 \input{grundlagen.tex}
 \input{komponenten.tex}
 \input{gesamtsystem.tex}
-\input{resume.tex} 
+\input{resume.tex}
 
 % Einleitung
 % -Motivation
