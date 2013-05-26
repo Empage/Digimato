@@ -1,7 +1,77 @@
 \section{Technische Grundlagen}
 \subsection{DCF77}
-TODO
+DCF77 ist ein Zeitzeichensender in Mainhausen bei Frankfurt, der seit dem ersten Januar 1959 die Uhrzeit auf der Langwellenfrequenz von 77,5 kHz sendet. Bei Sendeanlagen, die über Ländergrenzen hinaus senden, muss das Rufzeichen in der internationalen Frequenzliste eingetragen sein und das Kennzeichen des jeweiligen Landes enthalten. Deshalb wurde DCF77 gewählt, wobei das D für Deutschland steht. Der Buchstabe C war früher ein Kennzeichen für Langwelle und das F steht für Frankfurt. Da die Sendeanlage in Mainhausen mehrere Sender hat, wurde noch die Zahl 77 als Andeutung auf die Trägerfrequenz (77,5 kHz) gewählt\footnote{\cite{dcf77}, Seite 349f.}.
 
+Das Zeitsignal wird jede Minute wiederholt und kodiert Zeit- sowie Datumsinformationen. Dabei wird jede Sekunde ein Bit übertragen. Dies geschieht durch Amplitudenmodulation. Jede Sekunde wird die Amplitude der Trägerwelle für 100 ms (logisch 0) oder 200 ms (logisch 1) auf etwa 25 \% abgesenkt. Lediglich in Sekunde 59 wird die Amplitude zur Erkennung der neuen Minute nicht abgesenkt. Tabelle \ref{tbl_dcf77kod} zeigt die Bedeutung der gesendeten Bits im DCF77-Signal\footnote{\cite{dcf77}, Seite 351ff.}.
+%
+\renewcommand{\arraystretch}{1}
+\begin{longtable}{|l|l|}
+\hline Bit & Bedeutung\\\hline\hline\endhead
+\hline\endfoot\endlastfoot
+%
+0 & \\\hline
+1 & \\\hline
+2 & \\\hline
+3 & \\\hline
+4 & \\\hline
+5 & \\\hline
+6 & \\\hline
+7 & \\\hline
+8 & \\\hline
+9 & \\\hline
+10 & \\\hline
+11 & \\\hline
+12 & \\\hline
+13 & \\\hline
+14 & \\\hline
+15 & \\\hline
+16 & \\\hline
+17 & \\\hline
+18 & \\\hline
+19 & \\\hline
+20 & \\\hline
+21 & \\\hline
+22 & \\\hline
+23 & \\\hline
+24 & \\\hline
+25 & \\\hline
+26 & \\\hline
+27 & \\\hline
+28 & \\\hline
+29 & \\\hline
+30 & \\\hline
+31 & \\\hline
+32 & \\\hline
+33 & \\\hline
+34 & \\\hline
+35 & \\\hline
+36 & \\\hline
+37 & \\\hline
+38 & \\\hline
+39 & \\\hline
+40 & \\\hline
+41 & \\\hline
+42 & \\\hline
+43 & \\\hline
+44 & \\\hline
+45 & \\\hline
+46 & \\\hline
+47 & \\\hline
+48 & \\\hline
+49 & \\\hline
+50 & \\\hline
+51 & \\\hline
+52 & \\\hline
+53 & \\\hline
+54 & \\\hline
+55 & \\\hline
+56 & \\\hline
+57 & \\\hline
+58 & \\\hline
+59 & \\\hline
+\caption{Erläuterung der Bits im DCF77-Zeitsignal}\label{tbl_dcf77kod}
+\end{longtable}
+%
 \subsection{LED Matrix}
 Unter LED Matrix versteht man die Ansteurung von LEDs in Zeilen und Spalten. Dabei werden alle Anoden zu Spalten und alle Kathoden zu Zeilen
 verbunden. \footnote{Es kann natürlich auch die Kathode für Spalten und die
