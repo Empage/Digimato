@@ -63,11 +63,13 @@
 
 %Farben
 \usepackage{color}
+\definecolor{sh_comment}{rgb}{0.12, 0.38, 0.18 } %adjusted, in Eclipse: {0.25, 0.42, 0.30 } = #3F6A4D
+\definecolor{sh_keyword}{rgb}{0.37, 0.08, 0.25}  % #5F1441
+\definecolor{sh_string}{rgb}{0.06, 0.10, 0.98} % #101AF9
 
 %\usepackage{fancyhdr}
 
 \usepackage{bibgerm}
-\usepackage{caption}
 \usepackage{longtable}
 % für textumflossene Grafiken
 \usepackage{wrapfig} 
@@ -89,27 +91,6 @@
 \widowpenalty=10000
 \displaywidowpenalty=10000
 
-% Quellcode
-\usepackage{listings}
-\lstloadlanguages{Java}
-\lstset{%
-	language=PHP,		 	 % Sprache des Quellcodes
-	%numbers=left,           % Zelennummern links
-	stepnumber=1,            % Jede Zeile nummerieren.
-	numbersep=5pt,           % 5pt Abstand zum Quellcode
-	numberstyle=\tiny,       % Zeichengrösse 'tiny' für die Nummern.
-	breaklines=true,         % Zeilen umbrechen wenn notwendig.
-	breakautoindent=true,    % Nach dem Zeilenumbruch Zeile einrücken.
-	postbreak=\space,        % Bei Leerzeichen umbrechen.
-	tabsize=2,               % Tabulatorgrösse 2
-	basicstyle=\ttfamily\footnotesize, % Nichtproportionale Schrift, klein für den Quellcode
-	showspaces=false,        % Leerzeichen nicht anzeigen.
-	showstringspaces=false,  % Leerzeichen auch in Strings ('') nicht anzeigen.
-	extendedchars=true,      % Alle Zeichen vom Latin1 Zeichensatz anzeigen.
-	captionpos=b,            % sets the caption-position to bottom
-	backgroundcolor=\color{ListingBackground} % Hintergrundfarbe des Quellcodes setzen.
-}
-
 \newcommand{\degree}{\ensuremath{^\circ}}
 
 % Titel, Autor und Datum
@@ -127,6 +108,49 @@
 	pdfdisplaydoctitle=true, % Dokumenttitel statt Dateiname anzeigen.
 	pdflang=de % Sprache des Dokuments.
 ]{hyperref} 
+
+ \usepackage{listings}
+ \usepackage{courier}
+ \lstset{
+         basicstyle=\small\ttfamily, % Standardschrift
+         numbers=left,               % Ort der Zeilennummern
+         numberstyle=\tiny,          % Stil der Zeilennummern
+         %stepnumber=2,               % Abstand zwischen den Zeilennummern
+         numbersep=5pt,              % Abstand der Nummern zum Text
+         tabsize=2,                  % Groesse von Tabs
+         lineskip=-2pt,
+         extendedchars=true,         %
+         breaklines=true,            % Zeilen werden Umgebrochen
+         keywordstyle=\color{sh_keyword}\bfseries,
+            frame=b,         
+ %        keywordstyle=[1]\textbf,    % Stil der Keywords
+ %        keywordstyle=[2]\textbf,    %
+ %        keywordstyle=[3]\textbf,    %
+ %        keywordstyle=[4]\textbf,   \sqrt{\sqrt{}} %
+         stringstyle=\color{sh_string}\ttfamily, % Farbe der String
+         commentstyle=\color{sh_comment},
+         showspaces=false,           % Leerzeichen anzeigen ?
+         showtabs=false,             % Tabs anzeigen ?
+         xleftmargin=17pt,
+         framexleftmargin=17pt,
+         framexrightmargin=5pt,
+         framexbottommargin=4pt,
+         %backgroundcolor=\color{lightgray},
+         showstringspaces=false      % Leerzeichen in Strings anzeigen ?        
+ }
+ \lstloadlanguages{% Check Dokumentation for further languages ...
+         %[Visual]Basic
+         %Pascal
+         C
+         %C++
+         %XML
+         %HTML
+         %Java
+ }
+\usepackage{caption}
+\DeclareCaptionFont{white}{\color{white}}
+\DeclareCaptionFormat{listing}{\colorbox[cmyk]{0.43, 0.35, 0.35,0.01}{\parbox{\textwidth}{\hspace{15pt}#1#2#3}}}
+\captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white, singlelinecheck=false, margin=0pt, font={bf,footnotesize}}
 
 
 

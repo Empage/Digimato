@@ -3,6 +3,7 @@
 Die zentrale Komponente der Digitaluhr ist der Mikrocontroller ATmega32. Der von Atmel hergestellte 8-bit Kontroller ist im 40-pin DIP Format verfügbar. Dies ermöglicht die einfache Verwendung auf einer Lochrasterplatine mit 2,54mm Lochabstand. Programmiert wird der ATMega entweder in C oder in AVR-Assembler, die Wahl fiel hier auf die konfortablere Sprache C.
 Viele der integrierten Komponenten wurden genutzt: Das zur Verfügung gestellte SPI-Interface \footnote{Serial Peripheral Interface Bus}zur Kommunitkation mit den Schieberegistern, der integrierte AD-Wandler zur Auswertung des Helligkeitssensors, das ISP-Interface zur Programmierung. TODO: Gibts hier noch mehr?
 \begin{table}[htp]
+  \centering
   \renewcommand{\arraystretch}{1.2}
   \begin{tabular}{||l | l||}
   \hline\hline
@@ -21,8 +22,140 @@ Viele der integrierten Komponenten wurden genutzt: Das zur Verfügung gestellte 
 \end{table}
 
 \subsection{DCF77 Empfangsmodul}\label{sec_dcf77modul}
-TODO
+Das in der Digitaluhr verwendete Modul ist das \glqq C-Control DCF-Empfängerplatine\qrqq\footnote{\url{http://www.conrad.de/ce/de/product/641138/C-Control-DCF-Empfaengerplatine}, Bestellnummer: 641138 - 62}~ von Conrad.
+%
+% \begin{figure}[h]
+%   \begin{center}
+%   \begin{minipage}[c]{0.5\textwidth}
+%         \fbox{\includegraphics[width=\textwidth]{Literatur/conrad_dcf77.pdf}}
+%         \caption{Anschlussanleitung DCF77 Modul\footnotemark}
+%   \end{minipage}
+%   \hspace{0.07\textwidth}
+%   \begin{minipage}[c]{0.4\textwidth}
+% Das Modul besitzt 4 Anschlüsse, welche im Anschlussplan links beschrieben sind. Es wird der \texttt{DCF Ausgang invertiert} für das Datensignal verwendet. Er ist an Microcontrollerpin PB2 angeschlossen. Damit die Uhrzeit auf jeden Fall richtig empfangen wird, ist einerseits die Ausrichtung Richtung Frankfurt wichtig sowie andererseits die Verwendung eines fehlertoleranten Codes zur Auswertung der Uhrzeit. Außerdem sollte darauf geachtet werden, das Modul nicht zu nah an Störquellen zu stellen. Als starke Störquelle stellten sich bei der Entwicklung Monitore heraus. In Abbildung TODO ist der Unterschied zwischen einem einwandfreien Signal und einem, durch einen Monitor in 2m Entfernung, gestörtem Signal abgebildet. Es ist zu erkennen, dass das Signal plötzlich im Mikrosekundenbereich gleichmäßig alterniert, also von dem ursprünglichen Signal nichts mehr zu erkennen ist.
+%   \end{minipage}
+%   \end{center}
+% \end{figure}
+%\addtocounter{footnote}{-1}%
+%\footnotetext{Quelle: \url{http://www.produktinfo.conrad.com/datenblaetter/625000-649999/641138-an-01-de-Anschlussplan_DCF_Empfaengerplatine.pdf}}%
+%\stepcounter{footnote}%
+%
 
+%
+\begin{wrapfigure}{r}{0.50\textwidth}
+  \vspace{-25pt}
+  \begin{center}
+    \fbox{\includegraphics[width=0.45\textwidth]{Literatur/conrad_dcf77.pdf}}
+  \end{center}
+  \vspace{-20pt}
+  \captionof{figure}{Anschlussanleitung DCF77 Modul\footnote{Quelle: \url{http://www.produktinfo.conrad.com/datenblaetter/625000-649999/641138-an-01-de-Anschlussplan_DCF_Empfaengerplatine.pdf}}}
+\end{wrapfigure}
+%
+Das Modul besitzt 4 Anschlüsse, welche im Anschlussplan links beschrieben sind. Es wird der \texttt{DCF Ausgang invertiert} für das Datensignal verwendet. Er ist an Microcontrollerpin PB2 angeschlossen. Damit die Uhrzeit auf jeden Fall richtig empfangen wird, ist einerseits die Ausrichtung Richtung Frankfurt wichtig sowie andererseits die Verwendung eines fehlertoleranten Codes zur Auswertung der Uhrzeit. Außerdem sollte darauf geachtet werden, das Modul nicht zu nah an Störquellen zu stellen. Als starke Störquelle stellten sich bei der Entwicklung Monitore heraus. In Abbildung TODO ist der Unterschied zwischen einem einwandfreien Signal und einem, durch einen Monitor in 2 m Entfernung, gestörtem Signal abgebildet. Es ist zu erkennen, dass das Signal plötzlich im Mikrosekundenbereich gleichmäßig alterniert, also von dem ursprünglichen Signal nichts mehr zu erkennen ist.
+
+Nachfolgend soll die Funktion \texttt{byte conrad\_state\_get\_dcf\_data()} erklärt werden. Diese Funktion ist für den Empfang der Daten des DCF77 Moduls verantwortlich. Sie als State Machine realisiert und wird beim Empfangen der Daten jede 10 ms aufgerufen. Dies wird gemacht, weil die Funktion sonst sehr lange laufen würde (der vollständige Empfang der Daten dauert im Best Case 60 Sekunden) und andere Funktionen ihre Arbeit nicht mehr verrichten können. Mit diesem Ansatz aber bleibt die Uhr reaktiv und kann beispielsweise weiterhin auf Tasterevents reagieren.
+%
+\begin{lstlisting}[language=C,label=dcf_state_data1,caption=Empfang des DCF77 Signals - Minutenstart erkennen]
+if (i < 155) {
+    /* DCF Signal unmoduliert (da es invertiert ist, ist es standartmaessig 1) */
+    if (DCF_VALUE != 0) {
+        i++;
+        j = 0;
+        DBG_LED_OFF();
+    /* Wenn es moduliert ist (logisch 0) */
+    } else {
+        j++;
+
+        if (j > 7) {
+            i = 0;
+            j = 0;
+            DBG_LED_ON();
+        }
+    }
+    return T2_WAIT;
+}
+\end{lstlisting}
+%
+In Listing \ref{dcf_state_data1} ist zunächst der erste Teil der Funktion zu sehen. Dabei geht es um das Erkennen des Minutenanfangs. Wie im DCF77 Grundlagenkapitel \ref{sec_dcfgrund} erläutert, wird das Signal beim übergang von der 59. auf die 60. Sekunde nicht moduliert, es muss also 2 Sekunden unmoduliert sein.
+
+Die Variable i zählt die Zentisekunden, in denen das Signal unmoduliert ist. Aus Toleranzgründen wird lediglich geschaut, ob i den Wert von 155 übersteigt, statt 200 (= 2 s). Es kann nämlich passieren, dass das Signal zufällig genau zum Messzeitpunkt leicht abfällt. Deshalb werden auch Werte von j, welches die modulierten Zentisekunden misst, von weniger als 70 ms ignoriert. Somit werden Ungenauigkeiten durch, die durch Tests ermittelten, Werte von 155 und 7 ziemlich zuverlässig vermieden.
+
+Wie zu erkennen ist, gibt es keine Schleife, sondern lediglich sequentiellen Code, der auf jeden Fall returned (siehe Zeile 17). Es gibt die folgenden Return-Codes:
+%\begin{description}
+%\item[T2\_WAIT] Resettet den Counter von Timer2, sodass genau 10 ms gewartet wird
+%\item[ERROR] Bricht den Messvorgang ab, weil ein Fehler aufgetreten ist
+%\item[SUCCESS] Alle 60 Bits wurden gemessen. Dabei wurde kein Fehler erkannt
+%\end{description}
+%
+\begin{list}{\ding{42}}
+{\setlength{\topsep}{0cm}
+\setlength{\itemsep}{0.2cm}
+\setlength{\leftmargin}{3cm}
+\setlength{\labelwidth}{3cm}
+\setlength{\labelsep}{0cm}
+\renewcommand{\makelabel}[1]{\textbf{\textsf{\normalsize #1} }}}
+\item[T2\_WAIT] Resettet den Counter von Timer2, sodass genau 10 ms gewartet wird
+\item[ERROR] Bricht den Messvorgang ab, weil ein Fehler aufgetreten ist
+\item[SUCCESS] Alle 60 Bits wurden gemessen. Dabei wurde kein Fehler erkannt
+\end{list}
+%
+%\lstinputlisting[label=samplecode,caption=A sample]{sourceCode/HelloWorld.java}
+%
+%
+In diesem Fall wird der Returncode \texttt{T2\_WAIT} verwendet, damit die Funktion nach 10 ms nochmals aufgerufen wird und die Messung fortgesetzt werden kann.
+%
+\begin{lstlisting}[language=C,label=dcf_state_data2,caption=Empfang des DCF77 Signals - Sekunde analysieren]
+if (is_start_of_sec) {
+    /* Pausiere bis zum modulierten Signal */
+    if (DCF_VALUE != 0) {
+        return T2_WAIT;
+    }
+    is_start_of_sec = false;
+}
+if (k < 95) {
+    if (DCF_VALUE != 0) {
+        unmodulated++;
+    } else {
+        if (k < 40) {
+            modulated++;
+        }
+    }
+    k++;
+    return T2_WAIT;
+}
+\end{lstlisting}
+%
+Der nächste Schritt (siehe Listing \ref{dcf_state_data2}) ist das Analysieren jeder Sekunde, also das Zählen der modulierten und nicht-modulierten Signale. Dazu wird zunächst gewartet, bis die Sekunde anfängt, also das erste modulierte Signal auftritt (Zeile 3), anschließend wird 95 \% der Sekunde analysiert. Die letzten 5 \% sind Toleranz, damit die nächste Sekunde sicher erkannt werden kann. Modulierte Signale treten nur in den ersten 200 ms einer Sekunde auf, deshalb werden sie nur am Anfang gezählt, aber aus Toleranzgründen innerhalb der ersten 400 ms (Zeile 12). Auch hier wird nach jeder Messung die Routine mit \texttt{T2\_WAIT} verlassen (Zeile 17).
+%
+\begin{lstlisting}[language=C,label=dcf_state_data3,caption=Empfang des DCF77 Signals - Sekunde analysieren]
+if (unmodulated > 50 && unmodulated < 140) {
+    /* Wenn moduliert zwischen 50 und 140 ms, liegt logisch 0 an */
+    if (modulated > 5 && modulated < 14) {
+        dcf_data[secs] = 0;
+    /* Zwischen 150 ms und 240 ms, liegt logisch 1 an */
+    } else if (modulated > 15 && modulated < 24) {
+        dcf_data[secs] = 1;
+    /* sonst ist es ungueltig */
+    } else {
+        return ERROR;
+    }
+} else {
+    return ERROR;
+}
+/* Bereite die naechste Sekunde vor */
+secs++;
+is_start_of_sec = true;
+k = 0;
+modulated = 0;
+unmodulated = 0;
+
+return SUCCESS;
+\end{lstlisting}
+%
+Als letztes werden die Daten ausgewertet, also geprüft ob logisch eine 0 oder 1 gemessen wurde. Dazu wurden Zahlen gewählt, die sich durch Tests bewährt haben (siehe Listing \ref{dcf_state_data3}). Bei fehlerhaften Daten wird \texttt{ERROR} zurückgegeben (Zeile 10 und 13) und die gesamte Messung abgebrochen. Sind die Daten gültig, wird die State Machine auf den Anfangszustand jeder Sekunde gesetzt (Zeilen 16 -- 20) und \texttt{SUCCESS} zurückgegeben und damit die Auswertung der nächsten Sekunde begonnen.
+
+Wie zu sehen ist, werden statt diskreten Werten immer Bereiche angenommen, in denen ein bestimmter Wert liegen muss. Dies ist durch die funkbedingten Ungenauigkeiten unbedingt notwendig. Es erforderte einige Tests, bis die passenden Werte gefunden wurden, um einen passablen Empfang zu erreichen, was letzten Endens jedoch gelang und zu einem korrekt funktionierendem Funkmodul für die Digitaluhr führte.
+%
 \subsection{LED Matrix}
 TODO
 LEDs: Weiter winkel um gute ausleuchtung zu erhalen
@@ -53,6 +186,7 @@ Um den Widerstandsverlauf besser abschätzen zu können wurden Messungen vorgeno
   \end{minipage}
   \end{center}
 \end{figure}
+%
 \subsection{Temperatursensor}
 Als Temperatursensor wurde der DS18S20\footnote{\url{http://www.maximintegrated.com/datasheet/index.mvp/id/2815}} von Maxim Integrated verwendet. Dieser verwendet das 1-Wire\textsuperscript{\textregistered}-Protokoll\footnote{\url{http://www.maximintegrated.com/products/1-wire/flash/overview/index.cfm}}, sodass nur ein Datenpin vonnöten ist, worüber Befehle gesendet sowie Daten empfangen werden.
 
@@ -78,28 +212,7 @@ In der weiteren Kommunikation wird nun das \texttt{SKIP ROM} Kommando benutzt, w
 \centerline{\includegraphics[width=1.2\linewidth]{skizzen/temperatur_reset.png}}
 \caption{Reset-Pulse Timing Diagramm\footnote{\cite{ds18s20}, Seite 13}}\label{fig_resettiming}
 \end{figure}
-
-\subsection{Infrarotsensor}
-%TODO to be removed
-\begin{table}[htp]
-\centering
-\renewcommand{\arraystretch}{1.2}
-\begin{tabular}{||l|l||}
-\hline \hline
-Bezeichnung&ATMEGA32 16PU 0926D\\ \hline
-Hersteller&Atmel\\ \hline
-Architektur&AVR 8-bit\\ \hline
-Geschwindigkeit&bis 16Mhz \\ \hline
-Programmspeicher&32 KiB Flash \\ \hline
-Arbeitsspeicher&2 KiB SRAM \\ \hline
-EEPROM&1 KiB \\ \hline
-AD-Wandler&8 Kanal / 10 Bit \\ \hline
-Bauform&40-pin DIP Gehäuse\\
-\hline\hline
-\end{tabular}
-\caption{Eckdaten des ATmega 32}
-\end{table}
-
+%
 \subsection{Gehäuse}
 %TODO
 %
