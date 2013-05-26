@@ -4,10 +4,10 @@
 	12pt,			% Schriftgroesse
 	parskip=half,	% Halbe Zeile Abstand zwischen Absätzen.
 	headsepline,	% Linie nach Kopfzeile.
-	footsepline,	% Linie vor Fusszeile.
+	%footsepline,	% Linie vor Fusszeile.
 	abstracton,	    % Abstract Überschriften
 	ngerman,		% Translator
-]{article}
+]{scrartcl}
 
 % Zeichencodierung
 \usepackage[utf8]{inputenc}
@@ -63,7 +63,8 @@
 
 %Farben
 \usepackage{color}
-\usepackage{fancyhdr}
+
+%\usepackage{fancyhdr}
 
 \usepackage{bibgerm}
 \usepackage{caption}
@@ -78,8 +79,8 @@
 
 % Verschiedene Schriftarten
 %\usepackage{goudysans}
-%\usepackage{lmodern}
-\usepackage{libertine}
+\usepackage{lmodern}
+%\usepackage{libertine}
 %\usepackage{palatino} 
 
 % Hurenkinder und Schusterjungen verhindern
@@ -143,16 +144,19 @@
 	% Erklärung
 	\input{erklaerung}
 	\newpage
-
-\tableofcontents
-\newpage 
- 
-\input{einleitung.tex} 
-\input{anforderungen.tex}
-\input{grundlagen.tex}
-\input{komponenten.tex}
-\input{gesamtsystem.tex}
-\input{resume.tex}
+	
+	\tableofcontents
+	\newpage 
+	
+	\renewcommand{\thepage}{\arabic{page}}
+	\setcounter{page}{1}
+	 
+	\input{einleitung.tex} 
+	\input{anforderungen.tex}
+	\input{grundlagen.tex}
+	\input{komponenten.tex}
+	\input{gesamtsystem.tex}
+	\input{resume.tex}
 
 % Einleitung
 % -Motivation
