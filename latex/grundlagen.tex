@@ -9,66 +9,52 @@ Das Zeitsignal wird jede Minute wiederholt und kodiert Zeit- sowie Datumsinforma
 \hline Bit & Bedeutung\\\hline\hline\endhead
 \hline\endfoot\endlastfoot
 %
-0 & \\\hline
-1 & \\\hline
-2 & \\\hline
-3 & \\\hline
-4 & \\\hline
-5 & \\\hline
-6 & \\\hline
-7 & \\\hline
-8 & \\\hline
-9 & \\\hline
-10 & \\\hline
-11 & \\\hline
-12 & \\\hline
-13 & \\\hline
-14 & \\\hline
-15 & \\\hline
-16 & \\\hline
-17 & \\\hline
-18 & \\\hline
-19 & \\\hline
-20 & \\\hline
-21 & \\\hline
-22 & \\\hline
-23 & \\\hline
-24 & \\\hline
-25 & \\\hline
-26 & \\\hline
-27 & \\\hline
-28 & \\\hline
-29 & \\\hline
-30 & \\\hline
-31 & \\\hline
-32 & \\\hline
-33 & \\\hline
-34 & \\\hline
-35 & \\\hline
-36 & \\\hline
-37 & \\\hline
-38 & \\\hline
-39 & \\\hline
-40 & \\\hline
-41 & \\\hline
-42 & \\\hline
-43 & \\\hline
-44 & \\\hline
-45 & \\\hline
-46 & \\\hline
-47 & \\\hline
-48 & \\\hline
-49 & \\\hline
-50 & \\\hline
-51 & \\\hline
-52 & \\\hline
-53 & \\\hline
-54 & \\\hline
-55 & \\\hline
-56 & \\\hline
-57 & \\\hline
-58 & \\\hline
-59 & \\\hline
+0 & Minutenanfang\\\hline
+1 - 14 & verschlüsselte Wetterinformationen\\\hline
+15 & Rufbit: Ankündigung, wenn von Reserveantenne gesendet wird\\\hline
+16 & A1: Wechsel von/zur Sommerzeit bei nächstem Stundenwechsel\\\hline
+17 - 18 & Zeitzonenbits: 01: MEZ, 10: MESZ\\\hline
+19 & A2: Schaltsekunde bei nächstem Stundenwechsel\\\hline
+20 & S: Startbit (immer logisch 1)\\\hline
+21 & Minutenbit, Wertigkeit 1\\\hline
+22 & Minutenbit, Wertigkeit 2\\\hline
+23 & Minutenbit, Wertigkeit 4\\\hline
+24 & Minutenbit, Wertigkeit 8\\\hline
+25 & Minutenbit, Wertigkeit 10\\\hline
+26 & Minutenbit, Wertigkeit 20\\\hline
+27 & Minutenbit, Wertigkeit 40\\\hline
+28 & Prüfbit für Minuten, Even Parity\\\hline
+29 & Stundenbit, Wertigkeit 1\\\hline
+30 & Stundenbit, Wertigkeit 2\\\hline
+31 & Stundenbit, Wertigkeit 4\\\hline
+32 & Stundenbit, Wertigkeit 8\\\hline
+33 & Stundenbit, Wertigkeit 10\\\hline
+34 & Stundenbit, Wertigkeit 20\\\hline
+35 & Prüfbit für Stunden, Even Parity\\\hline
+36 & Kalendertag, Wertigkeit 1\\\hline
+37 & Kalendertag, Wertigkeit 2\\\hline
+38 & Kalendertag, Wertigkeit 4\\\hline
+39 & Kalendertag, Wertigkeit 8\\\hline
+40 & Kalendertag, Wertigkeit 10\\\hline
+41 & Kalendertag, Wertigkeit 20\\\hline
+42 & Wochentag, Wertigkeit 1\\\hline
+43 & Wochentag, Wertigkeit 2\\\hline
+44 & Wochentag, Wertigkeit 4\\\hline
+45 & Kalendermonat, Wertigkeit 1\\\hline
+46 & Kalendermonat, Wertigkeit 2\\\hline
+47 & Kalendermonat, Wertigkeit 4\\\hline
+48 & Kalendermonat, Wertigkeit 8\\\hline
+49 & Kalendermonat, Wertigkeit 10\\\hline
+50 & Kalenderjahr, Wertigkeit 1\\\hline
+51 & Kalenderjahr, Wertigkeit 2\\\hline
+52 & Kalenderjahr, Wertigkeit 4\\\hline
+53 & Kalenderjahr, Wertigkeit 8\\\hline
+54 & Kalenderjahr, Wertigkeit 10\\\hline
+55 & Kalenderjahr, Wertigkeit 20\\\hline
+56 & Kalenderjahr, Wertigkeit 40\\\hline
+57 & Kalenderjahr, Wertigkeit 80\\\hline
+58 & Prüfbit für Kalenderjahr, Even Parity\\\hline
+59 & Markierung der neuen Minute, keine Amplitudenabsenkung\\\hline
 \caption{Erläuterung der Bits im DCF77-Zeitsignal}\label{tbl_dcf77kod}
 \end{longtable}
 %
