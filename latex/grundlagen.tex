@@ -95,7 +95,7 @@ einem bestimmten Zeitpunkt immer nur die LEDs einer Spalte. Durch das schnelle
 umschalten zwischen den Spalten und die Trägheit des menschlichen Auge entsteht
 die Illusion, dass auf der kompletten LED Matrix etwas LEDs aktiviert sind.
 Als Nachteil aus dieser Beschaltung ergibt sich die veringerte Helligkeit, da
-die LEDs bei $N$ Spalten nur noch $1/N$ der Zeit leuchten können.
+die LEDs bei $N$ Spalten nur noch $frac{1}{N}$ der Zeit leuchten können.
 
 Der Helligkeitsverlust kann durch höheren Stromfluss zum Teil kompensiert
 werden. Dass bedeutet bei $N$ Spalten werden die LEDs mit einem Pulsstrom von
@@ -104,8 +104,23 @@ zwischen den Pulsen ausreichend abkühlen. Generell kann dies bis zum ca.
 zehnfachen Nennstrom (200mA bei einer gewöhnlichen 20mA LED) durchgeführt
 werden.\footnote{http://www.mikrocontroller.net/articles/LED-Matrix}
 
-
-
-
 \subsection{Pulsweitenmodulation}\label{sec_pulsweitenmodulation}
-TODO
+Pulsewitenmudolation bezeichnet eine Modulationtechnik in der die Weite des
+Pulse bei einer gleichbleibenden Periode verändert (siehe \ref{pwm_schma}).
+Dieses Modulationstechnik erlaubt erlaube es die Leistung Geräten zu regulieren.
+Der durchschnittliche Stromfluss wird durch das Verhältniss
+$\frac{Pulsweite}{Periode}$ definiert. Gilt $Pulsweite=Periode$ so erhält das
+Gerät 100\% der Leistung, gilt $\frac{Pulsweite}{Periode}=\frac{1}{2}$ so wird das Gerät mit halber Lesitung
+versorgt.
+Die Periode wird in der Regel sehr klein gewählt, zum Beispiel $\frac{1}{100}s$
+bei LEDs, da das menschliche Auge 100 Hz flakern als konstantes Leuchten
+wahrnimmt.
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{skizzen/pwm.png}
+  \end{center}
+  \caption{Schema der Pulsweitenmodulation}
+  \label{pwm_schma}
+\end{figure}
+
+
