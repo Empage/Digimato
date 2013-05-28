@@ -1,2 +1,59 @@
 \section{Anforderungen}
-TODO
+% - Anfordungen an die Uhr
+%  - elementar
+%   - Zeitempfang
+%   - Anzeigen der Zeit
+%  - erweitert
+%   - Datumsanzeige
+%   - Wecker
+%   - Helligkeitsanpassung
+%   - geschaltet steckdose
+%   - infrarotempfang
+%   - temperatursensor
+%   - Updatefaehigkeit
+%   - Uhrzeit einstellen
+In der Konzeptionsphase der Digitaluhr wurden die in den folgenden Subkapiteln beschriebenen Anforderungen definiert.
+Da das Projekt ein rein privat initiiertes ist, sind alle Anforderungen selbst definiert. Damit sich das Projekt jedoch
+lohnt, wurden durchaus anspruchsvolle Anforderungen mit speziellem Fokus auf Erweiterbarkeit an die Uhr gestellt, weil die
+Erweiterbarkeit und Flexibilität die größten Vorteile einer Eigenkonstruktion darstellen.
+%
+\subsection{Elementarität}
+Der elementare Aufbau der Digitaluhr ist eine der wichtigsten Anforderungen. Dabei bezieht sie sich sowohl auf die Hard-,
+als auch auf die Software.
+
+Es soll darauf geachtetet werden, das möglichst alle externen Komponenten durch Stecker mit der Hauptplatine verbunden werden. 
+%(TODO Foto) 
+Dies soll dafür sorgen, dass Komponenten leicht ausgetauscht werden können, sei es aus Gründen eines Defekts oder weil sich eine 
+gleiche Komponente eines anderen Herstellers als besser erweist. Zusätzlich sorgt es dafür, dass die Hauptplatine unabhängig
+von den anderne Komponenten entnommen werden kann.
+
+Auf der Softwareseite soll darauf geachtet werden, komponentenspezifischen Code in extra Funktionen auszulagern, sowie
+Konfigurationseinstellungen in sinnvoll benamsten Konstanten festzuhalten. Damit kann in der Zukunft Funktionalität leicht und
+übersichtlich geändert oder hinzugefügt werden.
+%
+\subsection{Zeitempfang und Anzeige der Zeit}
+Selbstverständlich gehört auch die Anzeige der Zeit zu den wichtigsten Anforderungen an eine Uhr. Die Zeit soll über eine
+%TODO 7*17 erwähnen? Oder muss man dann begründen, warum?
+LED-Matrix angezeigt werden. Außerdem soll die Zeit automatisch empfangen werden können. Dafür bietet sich der 
+Zeitzeichensender DCF77 an, der die deutsche Zeit und das Datum via Funk verbreitet. Es soll zusätzlich die Möglichkeit
+bestehen, die Zeit manuell einzustellen, um die Uhr einerseits auch in einer anderen Zeitzone und
+andererseits trotz gestörtem Empfang betreiben zu können.
+
+Darüber hinaus soll die Möglichkeit bestehen, das Datum anzeigen (und einstellen) lassen zu können.
+%
+\subsection{Automatische Helligkeitsanpassung}
+Die Uhr soll die Umgebungshelligkeit detektieren und die Helligkeit ihre LEDs dynamisch anpassen können. Sie kann sich so
+durch hohe Helligkeit am Tag und Dimmen in der Nacht der Umgebung gut anpassen und sorgt damit für eine optimale Lesbarkeit.
+%
+\subsection{Temperatursensor}
+Die Digitaluhr soll in der Lage sein, die Temperatur des Raumes messen und anzeigen zu können.
+%
+\subsection{Updatefähigkeit}
+Diese Anforderung bezieht sich speziell auf die Software der Digitaluhr. Da eine einfache Erweiterbarkeit sowie Fehlerkorrektur
+gewünscht ist, soll sich die Software leicht updaten lassen. Dazu soll das Programmierinterface ohne die fertige Uhr
+aufschrauben zu müssen, verfügbar sein.
+%
+\subsection{TODO WECKER, schaltsteckdose, Infrarotsensor}
+%
+%
+%
