@@ -224,9 +224,10 @@ Schieberegisteransteuerung, 7 für die Ansteuerung der Mosfets sowie eine Leitun
 um Reihe 17 zu schalten.
 \subsubsection{Software}
 Im folgenden wird die Ansteuerung der LED Matrix beleuchtet, diese findet in der
-Methode \texttt{drawWithBrightness(void)}. Diese gibt jeweils 1 komplette Zeile aus und wird periodisch aufgerufen. Zu Anfang wird der aktuelle \texttt{cmp}
-Vergleichswert mit der global eingestellten Helligkeit \texttt{brightness}
-verglichen. Wenn \texttt{brightness} größer als dieser Wert ist bleiben die LEDs
+Methode \texttt{drawWithBrightness(void)}. Diese gibt jeweils eine komplette
+Zeile aus und wird periodisch 7200 mal pro Sekunde aufgerufen (siehe
+Kapitel \ref{led_timer}).
+Zu Anfang wird der aktuelle \texttt{cmp} Vergleichswert mit der global eingestellten Helligkeit \texttt{brightness} verglichen. Wenn \texttt{brightness} größer als dieser Wert ist bleiben die LEDs
 im Aufruf dunkel, was für die dynamische Helligkeitsanpassung von Nöten ist. 
 
 Wenn gezeichnet werden soll wird auf die Bilddaten im Array \texttt{data}

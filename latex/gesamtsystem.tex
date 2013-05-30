@@ -18,7 +18,7 @@ Der Programmablaufplan \ref{fig_pap} beschreibt die \texttt{main}-Methode sowie 
 \caption{Programmablaufplan für die main-Methode sowie die drei ISR}\label{fig_pap}
 \end{figure}
 %
-\subsubsection{Ansteuern der LEDs - Timer0}
+\subsubsection{Ansteuern der LEDs - Timer0}\label{led_timer}
 Zum Ansteuern der LEDs wurde der 8-Bit Timer0 im \glqq Interrupt by Overflow\grqq -Modus verwendet. Dies bedeutet, dass er bei jedem Überlauf, also von $2^8-1$ auf $0$, einen Interrupt erzeugt. In dem Setup wurde ein 14,7456 MHz Quarz sowie ein Prescaler von 8 verwendet. Dies sorgt dafür, dass nur in jedem 8. Taktschritt der Zähler des Timers inkrementiert wird. Daraus resultiert eine Interruptrate von $\frac{Clock}{Prescaler * Steps} = \frac{14745600 Hz}{8 * 2^8} = 7200 Hz$. Dies bedeutet, dass die Funktion \texttt{static inline void drawWithBrightness(void)} 7200 mal in der Sekunde aufgerufen wird. Diese Funktion steuert bei jedem Aufruf eine Reihe von LEDs an und inkrementiert den Reihenzähler anschließend. Es entsteht also bei 7 Aufrufen der Funktion ein gesamtes Bild und damit ist die Bildfrequenz $\frac{7200 Hz}{7} \approx 1028,57 Hz$. Dies wirkt zunächst viel, wird aber durch die Pulsweitenmodulation (siehe \ref{sec_pulsweitenmodulation}) noch deutlich herabgesetzt.
 
 \subsubsection{Ticken der Uhrzeit - Timer1}
