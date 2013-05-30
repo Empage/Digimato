@@ -24,7 +24,37 @@ Viele der integrierten Komponenten wurden genutzt: Das zur Verfügung gestellte 
 TODO
 
 \subsection{LED Matrix}
-TODO
+
+\begin{center}
+	\includegraphics[width=\textwidth]{images/LED_Matrix.png}
+	\captionof{figure}{LED Matrix Draufsicht}
+\label{led_oben}
+\end{center}
+Die LED Matrix dient der Uhr als Display. Es werden $7*17=119$ blaue
+LEDs\footnote{LED Spexx TODO} verwendet. Die LEDs haben einen Abstand von $45mm$ 
+TODO und werden durch ein Gitter aus Sperrholz voneinander getrennt, so dass
+Pixel entstehen. Durch das Multiplexen der Zeilen kann jede LED unabhänig
+gesteuert werden.
+
+Die Anoden der Reihen jeweils verbunden und mit den Schiebregistern TODO REF
+verbunden. Die Kathoden sind Zeilen verbunden und über die Mosfets vom
+Mikrocontroller geschaltet. Eine Ausnahme bildet Reihe 17, da die 2
+Schieberegister nur 16 Ausgänge bieten wurde diese direkt an den Mikrocontroller
+angeschlossen.
+\begin{center}
+	\includegraphics[width=\textwidth]{images/unterseite_drahtgitter.jpg} 
+\captionof{figure}{LED Matrix Verdrahtung, Anoden aufliegend und Kathoden
+schwebend verbunden}
+\end{center}
+\label{led_matrix_verdrahtung}
+
+\begin{center}
+	\includegraphics[width=\textwidth]{skizzen/led_matrix_schaltplan.png} 
+\captionof{figure}{LED Matrix Schaltplan}
+\end{center}
+\label{led_matrix_schaltplan}
+
+
 LEDs: Weiter winkel um gute ausleuchtung zu erhalen
 
 \subsection{Helligkeitssensor}
@@ -37,7 +67,7 @@ Um den Widerstandsverlauf besser abschätzen zu können wurden Messungen vorgeno
         \includegraphics[height=4.5cm]{skizzen/helligkeitssensor_schmatic.png}
         \caption{Testbild}
   \end{minipage}
-  \hspace{0.07\textwidth}
+  \hspace{0.07\textwidth} 
   \begin{minipage}[b]{0.6\textwidth}
     \begin{tabular}[h]{||l | l||}
 	  \hline \hline
@@ -76,7 +106,8 @@ In der weiteren Kommunikation wird nun das \texttt{SKIP ROM} Kommando benutzt, w
 \begin{figure}[htp]
 \centering
 \centerline{\includegraphics[width=1.2\linewidth]{skizzen/temperatur_reset.png}}
-\caption{Reset-Pulse Timing Diagramm\footnote{\cite{ds18s20}, Seite 13}}\label{fig_resettiming}
+\caption{Reset-Pulse Timing Diagramm\footnote{\cite{ds18s20}, Seite
+13}}\label{fig_resettiming}
 \end{figure}
 
 \subsection{Infrarotsensor}
