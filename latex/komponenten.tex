@@ -162,7 +162,7 @@ Als letztes werden die Daten ausgewertet, also geprüft ob logisch eine 0 oder 1
 Wie zu sehen ist, werden statt diskreten Werten immer Bereiche angenommen, in denen ein bestimmter Wert liegen muss. Dies ist durch die funkbedingten Ungenauigkeiten unbedingt notwendig. Es erforderte einige Tests, bis die passenden Werte gefunden wurden, um einen passablen Empfang zu erreichen, was letzten Endens jedoch gelang und zu einem korrekt funktionierendem Funkmodul für die Digitaluhr führte.
 %
 \subsection{LED Matrix}
-
+\subsubsection{Schaltung und Hardware}
 \begin{center}
 	\includegraphics[width=\textwidth]{images/LED_Matrix.png}
 	\captionof{figure}{LED Matrix Draufsicht}
@@ -187,12 +187,42 @@ schwebend verbunden}
 
 \begin{center}
 	\includegraphics[width=\textwidth]{skizzen/led_matrix_schaltplan.png} 
-\captionof{figure}{LED Matrix Schaltplan}
+\captionof{figure}{LED Matrix Schaltplan, 1: LED
+Vorwiderstände, 2: P-Kanal Mosfets \mbox{IRLZ24N}}
 \end{center}
 \label{led_matrix_schaltplan}
 
+Durch die Ansteuerung als Matrix werden nur 24 Leitung von der LED Anzeige zur
+Hauptplatine benötigt. Da der Mikrocontroller auf seinen Logikausgängen nicht
+die benötigte Leistung bereitstellen kann wird die Spannung durch die P-Kanal
+Mosfets vom Typen IRLZ24N geschalten.
 
-LEDs: Weiter winkel um gute ausleuchtung zu erhalen
+Um weitere Pins am ATmega einzusparen werden die Reihen (abgesehen von Reihe 17)
+mittels Schieberegister gesteuert. Die beiden Schieberegister vom Typen
+TPIC6B595 können dauerhaft Ströme bis zu 150mA pro Pin und 500mA Gesamtstrom gegen GND
+schalten.\footnote{vgl. \cite{6b595}, S. 1} Die Kommunikation zwischen ATmega
+und den Schieberegistern erfolgt über das SPI Interface, welches sehr einfach mit Daten gefüllt werden kann und
+diese unabhänig vom eigentlichen Programmablauf an die Schieberegister schickt.
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+  \vspace{-25pt}
+  \begin{center}
+    \includegraphics[width=0.48\textwidth]{skizzen/schieberegister_linien.png}
+  \end{center}
+  \vspace{-20pt}
+  \captionof{figure}{Füllen des Schieberegisters\footnote{\cite{6b595}, S. 5}}
+\end{wrapfigure}
+
+Das SPI Interface wird über 3 Leitungen realisiert: SER IN als Datenleitung,
+SRCK zur Taktübertragung, RCK um die Daten vom Schieberegister auf die
+Ausgänge zu legen. Das zweite Schieberegister wird parallel an RCK und SRCK
+verbunden, und der serielle Ausgang des ersten Schieberegisters SER OUT wird mit
+SER IN des zweiten Schieberegister verbunden, durch diese Schaltung erreicht man
+quasi ein 16-bittiges Schieberegister.
+Insgesamt benötigt das Display somit 11 Pins am Mikrocontroller: 3 für die
+Schieberegisteransteuerung, 7 für die Ansteuerung der Mosfets sowie eine Leitung
+um Reihe 17 zu schalten.
+\subsubsection{Software}
 
 \subsection{Helligkeitssensor}
 Ein Fotoresitor (Lichtabhängier Widerstand, kurz LDR für Light Dependend Resistor) bildet einen Teil eines Spannugteilers. Die innerhalb des Spanungsteilers anliegende Spannung wird dann vom Mikrocontroller mit Hilfe des AD-Wandlers ausgewertet.
@@ -202,7 +232,7 @@ Um den Widerstandsverlauf besser abschätzen zu können wurden Messungen vorgeno
   \begin{center}
   \begin{minipage}[b]{0.3\textwidth}
         \includegraphics[height=4.5cm]{skizzen/helligkeitssensor_schmatic.png}
-        \caption{Testbild}
+        \caption{Spannungsteiler des LDRs}
   \end{minipage}
   \hspace{0.07\textwidth} 
   \begin{minipage}[b]{0.6\textwidth}
@@ -256,8 +286,11 @@ Als problematisch stellte sich die Zielsetzung der flachen Bauart heraus. Denn u
 Außerdem muss verhindert werden, dass die offenliegende Verdrahtung der LED-Matrix zu Kurzschlüssen führt. Im Besonderen ist hier das Netzteil zu nennen, da hier ein Spannung von 230 Volt anliegt und das Netzteil von allen Komponenten mit 15 mm %TODO 
 über die höchste Bauhöhe verfügt. 
 Die Bauhöhe der Verdrahtung der LED-Matrix wurde an den kritischen Stellen von 5 -- 6 mm auf ca. 2 mm verringert. Um Kurzschlüsse innerhalb der LED-Matrix zu verhindern, wurden die Kreuzungspunkte zum Teil isoliert.
-%TODO [MH] evtl Bild davon?
-
+\begin{center}
+\includegraphics[width=0.6\textwidth]{skizzen/querschnitt.png}
+\captionof{figure}{Schematischer Querschnitt des Gehäuses}
+\label{fig_querschnitt}
+\end{center}
 Während der Entwicklung war ein einfacher Zugang von großer Bedeutung, deshalb wurde das Gehäuse in zwei Teile aufgeteilt. Die LED-Matrix bildet zusammen mit ihrer Abdeckung und drei Seitenwänden den vorderen Teil des Gehäuses. Auf der Rückwand wurde die Hauptplatine, das Netzteil und der DCF77-Empfänger platziert. An der vierten Seitenwand sind die Sensoren für Helligkeit und Temperatur, die Stromversorgung, die 6 Taster sowie der Debuganschluss (ISP) %TODO ISP als Fachwort
 befestigt (siehe Abbildung \ref{fig_anschluesse}). Diese Seitenwand wurde an der Rückwand befestigt. Dies ermöglicht ein Öffnen des Gehäuses, indem nur die Schrauben an der Rückwand entfernt werden und die 3 Steckverbinder zur LED-Matrix gelöst werden, die komplette Sensorik und die Taster aber nicht entfernt werden müssen.%
 \vspace{2em}
