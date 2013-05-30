@@ -35,7 +35,7 @@ Innerhalb der Timer1 Interruptroutine werden folgende Operationen ausgeführt:
   \item Die Zeit neu in das Array zum Zeichnen schreiben
   \item Die Zustände der Taster abfragen
 \end{enumerate}
-
+ 
 \subsubsection{Empfangen der Uhrzeit - Timer2}
 Der dritte Timer wird primär zum Empfangen der Uhrzeit verwendet, wird aber zusätzlich auch zur Tongenerierung für den Lautsprecher benutzt, wenn ein Alarm aktiv ist.
 
@@ -47,6 +47,14 @@ Bei der Alarmfunktion wird der Wert abhängig der gewünschten Tonhöhe gesetzt.
 Alle Funktionen, bei denen die strikte zeitliche Einhaltung nicht wichtig ist, sind in der Hauptschleife des Programmes, einer \texttt{while(1)}-Schleife in der \texttt{main}-Methode zu finden.
 
 Dort werden das Messen der Temperatur sowie der Helligkeit vorgenommen. Außerdem werden dort Events behandelt, die beim Drücken der Taster auftreten sollen, wie das manuelle Umstellen der Zeit oder der Helligkeit und zu guter Letzt die Verifizierung und Konvertierung der in Interruptroutine von Timer2 empfangenen Uhrzeit. Zusammenfassend also alles Funktionen, die für den Betrieb der Digitaluhr wichtig sind, bei denen es aber nicht darauf ankommt, wann genau sie aufgerufen werden, sondern nur, dass sie aufgerufen werden. 
+
+\subsection{Hardware}
+\subsubsection{Hauptplatine}
+\centering
+\includegraphics[width=\textwidth]{images/platine.png}
+\captionof{figure}{Programmablaufplan für die main-Methode sowie die drei
+ISR}\label{img_platine}
+
 %
 %
 %
