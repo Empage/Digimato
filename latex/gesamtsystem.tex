@@ -50,10 +50,36 @@ Dort werden das Messen der Temperatur sowie der Helligkeit vorgenommen. Außerde
 
 \subsection{Hardware}
 \subsubsection{Hauptplatine}
-\centering
+Das Herzstück der Uhr ist die nachfolgend abgebildete Hauptplatine. Sie enthält den Prozessor, einige wichtige Komponenten sowie die Anschlüsse für alle externen Komponenten. Unter der Abbildung sind die verwendeten Bauteile kurz beschrieben.
+
+\begin{center}
 \includegraphics[width=\textwidth]{images/platine.png}
-\captionof{figure}{Programmablaufplan für die main-Methode sowie die drei
-ISR}\label{img_platine}
+\captionof{figure}{Hauptplatine der Digitaluhr}\label{img_platine}
+\end{center}
+
+\begin{list}{\ding{42}}
+{\setlength{\topsep}{0cm}
+\setlength{\itemsep}{0.2cm}
+\setlength{\leftmargin}{3cm}
+\setlength{\labelwidth}{3cm}
+\setlength{\labelsep}{0cm}
+\renewcommand{\makelabel}[1]{\textbf{\textsf{\normalsize #1} }}}
+\item[1. Mikrocontroller ATmega32] Zentrale Steuereinheit
+\item[2. Mosfet IRLZ24N] zum Ansteuern der Kathoden der LED-Matrix
+\item[3. Schieberegister TPIC6B595] zum Ansteuern der Anoden der LED-Matrix 
+\item[4. 14,7456 MHz Quarz] als Taktgeber für den Mikrocontroller
+\item[5. Potentiometer] für die Lautstärkeeinstellung der Weckfunktion
+\item[6. Anschluss DCF77-Empfänger] für den Zeitempfang
+\item[7. interne Taster] für verschiedene Einstellungsmöglichkeiten (bspw. Helligkeit)
+\item[8. Anschluss für externe Taster] mit gleicher Belegung wie interne Taster
+\item[9. Lagesensor] zum Erkennen, wie die Uhr aufgehängt ist
+\item[10. ISP Schnittstelle] In-system programming zum Programmieren des Mikrocontrollers
+\item[11. Anschluss Temperatursensor DS18S20] 
+\item[12. Anschluss Fotowiderstand] zum Messen der Helligkeit
+\item[13. Anschluss Stromquelle] für 5 Volt Gleichspannungsquelle
+\item[14. Resettaster] für den vollständigen Reset des Mikrocontrollers
+\end{list}
+
 
 %
 %
