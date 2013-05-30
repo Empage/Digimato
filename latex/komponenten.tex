@@ -22,7 +22,13 @@ Viele der integrierten Komponenten wurden genutzt: Das zur Verfügung gestellte 
 \end{table}
 
 \subsection{DCF77 Empfangsmodul}\label{sec_dcf77modul}
-Das in der Digitaluhr verwendete Modul ist das \glqq C-Control DCF-Empfängerplatine\qrqq\footnote{\url{http://www.conrad.de/ce/de/product/641138/C-Control-DCF-Empfaengerplatine}, Bestellnummer: 641138 - 62}~ von Conrad.
+Das in der Digitaluhr verwendete Modul ist die \glqq C-Control DCF-Empfängerplatine\qrqq\footnote{\url{http://www.conrad.de/ce/de/product/641138/C-Control-DCF-Empfaengerplatine}, Bestellnummer: 641138 - 62}~ (siehe Abbildung \ref{fig_dcf77}) von Conrad.
+
+\begin{center}
+\setlength{\fboxsep}{0pt}
+\fbox{\includegraphics[width=0.75\textwidth]{images/dcf_empfaenger.jpg}}
+\captionof{figure}{C-Control-DCF-Empfängerplatine von Conrad}\label{fig_dcf77}
+\end{center}
 %
 % \begin{figure}[h]
 %   \begin{center}
@@ -41,7 +47,6 @@ Das in der Digitaluhr verwendete Modul ist das \glqq C-Control DCF-Empfängerpla
 %\stepcounter{footnote}%
 %
 
-%
 \begin{wrapfigure}{r}{0.50\textwidth}
   \vspace{-25pt}
   \begin{center}
@@ -164,13 +169,12 @@ Wie zu sehen ist, werden statt diskreten Werten immer Bereiche angenommen, in de
 \label{led_oben}
 \end{center}
 Die LED Matrix dient der Uhr als Display. Es werden $7*17=119$ blaue
-LEDs\footnote{LED Spexx TODO} verwendet. Die LEDs haben einen Abstand von $45mm$ 
-TODO und werden durch ein Gitter aus Sperrholz voneinander getrennt, so dass
-Pixel entstehen. Durch das Multiplexen der Zeilen kann jede LED unabhänig
+LEDs\footnote{LED Spexx TODO} verwendet. Die LEDs haben einen Abstand von $45 mm$ und werden durch ein Gitter aus Sperrholz voneinander getrennt, so dass
+Pixel entstehen. Durch das Multiplexen der Zeilen kann jede LED unabhängig
 gesteuert werden.
 
-Die Anoden der Reihen jeweils verbunden und mit den Schiebregistern TODO REF
-verbunden. Die Kathoden sind Zeilen verbunden und über die Mosfets vom
+Die Anoden der Reihen sind jeweils verbunden und an die Schieberegister TODO REF
+angeschlossen. Die Kathoden sind Zeilen verbunden und über die Mosfets vom
 Mikrocontroller geschaltet. Eine Ausnahme bildet Reihe 17, da die 2
 Schieberegister nur 16 Ausgänge bieten wurde diese direkt an den Mikrocontroller
 angeschlossen.
