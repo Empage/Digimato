@@ -1,7 +1,7 @@
 \section{Betrachtung der Komponenten}
 \subsection{Mikrocontroller}
-Die zentrale Komponente der Digitaluhr ist der Mikrocontroller ATmega32. Der von Atmel hergestellte 8-bit Kontroller ist im 40-pin DIP Format verfügbar. Dies ermöglicht die einfache Verwendung auf einer Lochrasterplatine mit 2,54mm Lochabstand. Programmiert wird der ATMega entweder in C oder in AVR-Assembler, die Wahl fiel hier auf die konfortablere Sprache C.
-Viele der integrierten Komponenten wurden genutzt: Das zur Verfügung gestellte SPI-Interface \footnote{Serial Peripheral Interface Bus}zur Kommunitkation mit den Schieberegistern, der integrierte AD-Wandler zur Auswertung des Helligkeitssensors, das ISP-Interface zur Programmierung. TODO: Gibts hier noch mehr?
+Die zentrale Komponente der Digitaluhr ist der Mikrocontroller ATmega32. Der von Atmel hergestellte 8-bit Kontroller ist im 40-pin DIP\footnote{Dual in-line package} Format verfügbar. Dies ermöglicht die einfache Verwendung auf einer Lochrasterplatine mit 2,54 mm Lochabstand. Programmiert wird der ATmega entweder in C oder in AVR-Assembler, die Wahl fiel hier auf die komfortablere Sprache C.
+Viele der integrierten Komponenten wurden genutzt: Der zur Verfügung gestellte SPI-Bus\footnote{Serial Peripheral Interface} zur Kommunikation mit den Schieberegistern, der integrierte A/D-Wandler zur Auswertung des Helligkeitssensors und das ISP-Interface zur Programmierung.
 \begin{table}[htp]
   \centering
   \renewcommand{\arraystretch}{1.2}
@@ -22,11 +22,11 @@ Viele der integrierten Komponenten wurden genutzt: Das zur Verfügung gestellte 
 \end{table}
 
 \subsection{DCF77 Empfangsmodul}\label{sec_dcf77modul}
-Das in der Digitaluhr verwendete Modul ist die \glqq C-Control DCF-Empfängerplatine\qrqq\footnote{\url{http://www.conrad.de/ce/de/product/641138/C-Control-DCF-Empfaengerplatine}, Bestellnummer: 641138 - 62}~ (siehe Abbildung \ref{fig_dcf77}) von Conrad.
+Das in der Digitaluhr verwendete Modul ist die \glqq C-Control DCF-Empfängerplatine\grqq\footnote{\url{http://www.conrad.de/ce/de/product/641138/C-Control-DCF-Empfaengerplatine}, Bestellnummer: 641138 - 62}~ (siehe Abbildung \ref{fig_dcf77}) von Conrad.
 
 \begin{center}
-\setlength{\fboxsep}{0pt}
-\fbox{\includegraphics[width=0.75\textwidth]{images/dcf_empfaenger.jpg}}
+%\setlength{\fboxsep}{0pt}
+\includegraphics[width=0.75\textwidth]{images/dcf_empfaenger.jpg}
 \captionof{figure}{C-Control-DCF-Empfängerplatine von Conrad}\label{fig_dcf77}
 \end{center}
 %
@@ -56,9 +56,9 @@ Das in der Digitaluhr verwendete Modul ist die \glqq C-Control DCF-Empfängerpla
   \captionof{figure}{Anschlussanleitung DCF77 Modul\footnote{Quelle: \url{http://www.produktinfo.conrad.com/datenblaetter/625000-649999/641138-an-01-de-Anschlussplan_DCF_Empfaengerplatine.pdf}}}
 \end{wrapfigure}
 %
-Das Modul besitzt 4 Anschlüsse, welche im Anschlussplan links beschrieben sind. Es wird der \texttt{DCF Ausgang invertiert} für das Datensignal verwendet. Er ist an Microcontrollerpin PB2 angeschlossen. Damit die Uhrzeit auf jeden Fall richtig empfangen wird, ist einerseits die Ausrichtung Richtung Frankfurt wichtig sowie andererseits die Verwendung eines fehlertoleranten Codes zur Auswertung der Uhrzeit. Außerdem sollte darauf geachtet werden, das Modul nicht zu nah an Störquellen zu stellen. Als starke Störquelle stellten sich bei der Entwicklung Monitore heraus. In Abbildung TODO ist der Unterschied zwischen einem einwandfreien Signal und einem, durch einen Monitor in 2 m Entfernung, gestörtem Signal abgebildet. Es ist zu erkennen, dass das Signal plötzlich im Mikrosekundenbereich gleichmäßig alterniert, also von dem ursprünglichen Signal nichts mehr zu erkennen ist.
+Das Modul besitzt vier Anschlüsse, welche im Anschlussplan rechts beschrieben sind. Es wird der \texttt{DCF Ausgang invertiert} für das Datensignal verwendet. Er ist an Mikrocontrollerpin PB2 angeschlossen. Damit die Uhrzeit auf jeden Fall richtig empfangen wird, ist einerseits die Ausrichtung auf Frankfurt wichtig, sowie andererseits die Verwendung eines fehlertoleranten Codes zur Auswertung der Uhrzeit. Außerdem sollte auf den Abstand zu Störquellen geachtet werden. Als starke Störquellen stellten sich bei der Entwicklung Monitore heraus. In Abbildung TODO ist der Unterschied zwischen einem einwandfreien Signal und einem, durch einen Monitor in 2 m Entfernung, gestörtem Signal abgebildet. Es ist zu erkennen, dass das Signal plötzlich im Mikrosekundenbereich gleichmäßig alterniert, also von dem ursprünglichen Signal nichts mehr zu erkennen ist.
 
-Nachfolgend soll die Funktion \texttt{byte conrad\_state\_get\_dcf\_data()} erklärt werden. Diese Funktion ist für den Empfang der Daten des DCF77 Moduls verantwortlich. Sie als State Machine realisiert und wird beim Empfangen der Daten jede 10 ms aufgerufen. Dies wird gemacht, weil die Funktion sonst sehr lange laufen würde (der vollständige Empfang der Daten dauert im Best Case 60 Sekunden) und andere Funktionen ihre Arbeit nicht mehr verrichten können. Mit diesem Ansatz aber bleibt die Uhr reaktiv und kann beispielsweise weiterhin auf Tasterevents reagieren.
+Nachfolgend soll die Funktion \texttt{byte conrad\_state\_get\_dcf\_data()} erklärt werden. Diese Funktion ist für den Empfang der Daten des DCF77 Moduls verantwortlich. Sie ist als State Machine realisiert und wird beim Empfangen der Daten jede 10 ms aufgerufen. Dies wird durchgeführt, weil die Funktion sonst sehr lange laufen würde (der vollständige Empfang der Daten dauert im Best Case 60 Sekunden) und andere Funktionen ihre Arbeit nicht mehr verrichten können. Mit diesem Ansatz aber bleibt die Uhr reaktiv und kann beispielsweise weiterhin auf Tasterevents reagieren.
 %
 \begin{lstlisting}[language=C,label=dcf_state_data1,caption=Empfang des DCF77 Signals - Minutenstart erkennen]
 if (i < 155) {
@@ -81,11 +81,11 @@ if (i < 155) {
 }
 \end{lstlisting}
 %
-In Listing \ref{dcf_state_data1} ist zunächst der erste Teil der Funktion zu sehen. Dabei geht es um das Erkennen des Minutenanfangs. Wie im DCF77 Grundlagenkapitel \ref{sec_dcfgrund} erläutert, wird das Signal beim übergang von der 59. auf die 60. Sekunde nicht moduliert, es muss also 2 Sekunden unmoduliert sein.
+In Listing \ref{dcf_state_data1} ist zunächst der erste Teil der Funktion zu sehen. Dabei geht es um das Erkennen des Minutenanfangs. Wie im DCF77 Grundlagenkapitel \ref{sec_dcfgrund} erläutert, wird das Signal beim Übergang von der 59. auf die 60. Sekunde nicht moduliert, es tritt also zwei Sekunden lang keine Amplitudenabsenkung auf.
 
-Die Variable i zählt die Zentisekunden, in denen das Signal unmoduliert ist. Aus Toleranzgründen wird lediglich geschaut, ob i den Wert von 155 übersteigt, statt 200 (= 2 s). Es kann nämlich passieren, dass das Signal zufällig genau zum Messzeitpunkt leicht abfällt. Deshalb werden auch Werte von j, welches die modulierten Zentisekunden misst, von weniger als 70 ms ignoriert. Somit werden Ungenauigkeiten durch, die durch Tests ermittelten, Werte von 155 und 7 ziemlich zuverlässig vermieden.
+Die Variable i zählt die Zentisekunden, in denen das Signal unmoduliert ist. Aus Toleranzgründen wird lediglich geschaut, ob i den Wert von 155 übersteigt, statt 200 (= 2 s). Es kann nämlich passieren, dass das Signal zufällig genau zum Messzeitpunkt leicht abfällt. Deshalb werden auch Werte von j, welches die modulierten Zentisekunden misst, von weniger als 70 ms ignoriert. Die durch Tests ermittelten Werte von 155 und 7 sorgen dafür, dass Ungenauigkeiten zuverlässig vermieden werden.
 
-Wie zu erkennen ist, gibt es keine Schleife, sondern lediglich sequentiellen Code, der auf jeden Fall returned (siehe Zeile 17). Es gibt die folgenden Return-Codes:
+Wie zu erkennen ist, gibt es keine Schleife, sondern lediglich sequentiellen Code, sodass die Funktion auf jeden Fall verlassen wird (siehe Zeile 17). Es gibt die folgenden Return-Codes:
 %\begin{description}
 %\item[T2\_WAIT] Resettet den Counter von Timer2, sodass genau 10 ms gewartet wird
 %\item[ERROR] Bricht den Messvorgang ab, weil ein Fehler aufgetreten ist
@@ -107,7 +107,7 @@ Wie zu erkennen ist, gibt es keine Schleife, sondern lediglich sequentiellen Cod
 %\lstinputlisting[label=samplecode,caption=A sample]{sourceCode/HelloWorld.java}
 %
 %
-In diesem Fall wird der Returncode \texttt{T2\_WAIT} verwendet, damit die Funktion nach 10 ms nochmals aufgerufen wird und die Messung fortgesetzt werden kann.
+In Fall des Beispielcodes wird der Returncode \texttt{T2\_WAIT} verwendet, damit die Funktion nach 10 ms nochmals aufgerufen wird und die Messung fortgesetzt werden kann.
 %
 \begin{lstlisting}[language=C,label=dcf_state_data2,caption=Empfang des DCF77 Signals - Sekunde analysieren]
 if (is_start_of_sec) {
@@ -130,9 +130,9 @@ if (k < 95) {
 }
 \end{lstlisting}
 %
-Der nächste Schritt (siehe Listing \ref{dcf_state_data2}) ist das Analysieren jeder Sekunde, also das Zählen der modulierten und nicht-modulierten Signale. Dazu wird zunächst gewartet, bis die Sekunde anfängt, also das erste modulierte Signal auftritt (Zeile 3), anschließend wird 95 \% der Sekunde analysiert. Die letzten 5 \% sind Toleranz, damit die nächste Sekunde sicher erkannt werden kann. Modulierte Signale treten nur in den ersten 200 ms einer Sekunde auf, deshalb werden sie nur am Anfang gezählt, aber aus Toleranzgründen innerhalb der ersten 400 ms (Zeile 12). Auch hier wird nach jeder Messung die Routine mit \texttt{T2\_WAIT} verlassen (Zeile 17).
+Der nächste Schritt (siehe Listing \ref{dcf_state_data2}) ist das Analysieren jeder Sekunde, also das Zählen der modulierten und nicht-modulierten Signale. Dazu wird zunächst gewartet, bis die Sekunde anfängt, also das erste modulierte Signal auftritt (Zeile 3), anschließend wird 95~\% der Sekunde analysiert. Die letzten 5 \% sind Toleranz, damit die nächste Sekunde sicher erkannt werden kann. Modulierte Signale treten nur in den ersten 200 ms einer Sekunde auf, deshalb werden sie nur am Anfang gezählt, aber aus Toleranzgründen innerhalb der ersten 400 ms (Zeile 12). Auch hier wird nach jeder Messung die Routine mit \texttt{T2\_WAIT} verlassen (Zeile 17).
 %
-\begin{lstlisting}[language=C,label=dcf_state_data3,caption=Empfang des DCF77 Signals - Sekunde analysieren]
+\begin{lstlisting}[language=C,label=dcf_state_data3,caption=Empfang des DCF77 Signals - Messung auswerten]
 if (unmodulated > 50 && unmodulated < 140) {
     /* Wenn moduliert zwischen 50 und 140 ms, liegt logisch 0 an */
     if (modulated > 5 && modulated < 14) {
@@ -159,7 +159,7 @@ return SUCCESS;
 %
 Als letztes werden die Daten ausgewertet, also geprüft ob logisch eine 0 oder 1 gemessen wurde. Dazu wurden Zahlen gewählt, die sich durch Tests bewährt haben (siehe Listing \ref{dcf_state_data3}). Bei fehlerhaften Daten wird \texttt{ERROR} zurückgegeben (Zeile 10 und 13) und die gesamte Messung abgebrochen. Sind die Daten gültig, wird die State Machine auf den Anfangszustand jeder Sekunde gesetzt (Zeilen 16 -- 20) und \texttt{SUCCESS} zurückgegeben und damit die Auswertung der nächsten Sekunde begonnen.
 
-Wie zu sehen ist, werden statt diskreten Werten immer Bereiche angenommen, in denen ein bestimmter Wert liegen muss. Dies ist durch die funkbedingten Ungenauigkeiten unbedingt notwendig. Es erforderte einige Tests, bis die passenden Werte gefunden wurden, um einen passablen Empfang zu erreichen, was letzten Endens jedoch gelang und zu einem korrekt funktionierendem Funkmodul für die Digitaluhr führte.
+Wie zu sehen ist, werden statt diskreten Werten immer Bereiche angenommen, in denen ein bestimmter Wert liegen muss. Dies ist durch die funkbedingten Ungenauigkeiten unbedingt notwendig. Es erforderte einige Tests, bis die passenden Werte gefunden wurden, um einen passablen Empfang zu erreichen, was letzten Endens jedoch gelang und zu einem korrekt funktionierenden Funkmodul für die Digitaluhr führte.
 %
 \subsection{LED Matrix}
 \subsubsection{Schaltung und Hardware}
@@ -168,15 +168,15 @@ Wie zu sehen ist, werden statt diskreten Werten immer Bereiche angenommen, in de
 	\captionof{figure}{LED Matrix Draufsicht}
 \label{led_oben}
 \end{center}
-Die LED Matrix dient der Uhr als Display. Es werden $7*17=119$ blaue
-LEDs\footnote{LED Spexx TODO} verwendet. Die LEDs haben einen Abstand von $45 mm$ und werden durch ein Gitter aus Sperrholz voneinander getrennt, so dass
+Die LED Matrix dient der Uhr als Display. Es werden $7*17=119$ diffuse blaue
+LEDs verwendet. Die LEDs haben einen Abstand von $45 mm$ und werden durch ein Gitter aus Sperrholz voneinander getrennt, so dass
 Pixel entstehen. Durch das Multiplexen der Zeilen kann jede LED unabhängig
 gesteuert werden.
 
-Die Anoden der Reihen sind jeweils verbunden und an die Schieberegister TODO REF
-angeschlossen. Die Kathoden sind Zeilen verbunden und über die Mosfets vom
-Mikrocontroller geschaltet. Eine Ausnahme bildet Reihe 17, da die 2
-Schieberegister nur 16 Ausgänge bieten wurde diese direkt an den Mikrocontroller
+Die Anoden der Reihen sind jeweils verbunden und an die Schieberegister
+angeschlossen. Die Kathoden sind zu Zeilen verbunden und über die Mosfets vom
+Mikrocontroller geschaltet. Eine Ausnahme bildet die Reihe 17. Da die zwei
+Schieberegister nur 16 Ausgänge besitzen, wurde diese direkt an den Mikrocontroller
 angeschlossen.
 \begin{center}
 	\includegraphics[width=\textwidth]{images/unterseite_drahtgitter.jpg} 
@@ -192,17 +192,17 @@ Vorwiderstände, 2: P-Kanal Mosfets \mbox{IRLZ24N}}
 \end{center}
 \label{led_matrix_schaltplan}
 
-Durch die Ansteuerung als Matrix werden nur 24 Leitung von der LED Anzeige zur
+Durch die Ansteuerung als Matrix werden nur 24 Leitungen von der LED Anzeige zur
 Hauptplatine benötigt. Da der Mikrocontroller auf seinen Logikausgängen nicht
-die benötigte Leistung bereitstellen kann wird die Spannung durch die P-Kanal
-Mosfets vom Typen IRLZ24N geschalten.
+die benötigte Leistung bereitstellen kann, wird die Spannung durch die P-Kanal
+Mosfets vom Typ IRLZ24N geschalten.
 
-Um weitere Pins am ATmega einzusparen werden die Reihen (abgesehen von Reihe 17)
-mittels Schieberegister gesteuert. Die beiden Schieberegister vom Typen
+Um weitere Pins am ATmega einzusparen, werden die Reihen (abgesehen von Reihe 17)
+mittels Schieberegister gesteuert. Die beiden Schieberegister vom Typ
 TPIC6B595 können dauerhaft Ströme bis zu 150mA pro Pin und 500mA Gesamtstrom gegen GND
 schalten.\footnote{vgl. \cite{6b595}, S. 1} Die Kommunikation zwischen ATmega
-und den Schieberegistern erfolgt über das SPI Interface, welches sehr einfach mit Daten gefüllt werden kann und
-diese unabhänig vom eigentlichen Programmablauf an die Schieberegister schickt.
+und den Schieberegistern erfolgt über den SPI Bus, welcher sehr einfach mit Daten gefüllt werden kann und
+diese unabhängig vom eigentlichen Programmablauf an die Schieberegister schickt.
 
 \begin{wrapfigure}{r}{0.5\textwidth}
   \vspace{-25pt}
@@ -213,33 +213,32 @@ diese unabhänig vom eigentlichen Programmablauf an die Schieberegister schickt.
   \captionof{figure}{Füllen des Schieberegisters\footnote{\cite{6b595}, S. 5}}
 \end{wrapfigure}
 
-Das SPI Interface wird über 3 Leitungen realisiert: SER IN als Datenleitung,
+Der SPI Bus wird über drei Leitungen realisiert: SER IN als Datenleitung,
 SRCK zur Taktübertragung, RCK um die Daten vom Schieberegister auf die
-Ausgänge zu legen. Das zweite Schieberegister wird parallel an RCK und SRCK
-verbunden, und der serielle Ausgang des ersten Schieberegisters SER OUT wird mit
-SER IN des zweiten Schieberegister verbunden, durch diese Schaltung erreicht man
-quasi ein 16-bittiges Schieberegister.
+Ausgänge zu legen. Das zweite Schieberegister wird parallel mit RCK und SRCK verbunden und der serielle Ausgang des ersten Schieberegisters SER OUT wird an
+SER IN des zweiten Schieberegister angeschlossen. Durch diese Schaltung erreicht man
+quasi ein 16-Bit Schieberegister.
 Insgesamt benötigt das Display somit 11 Pins am Mikrocontroller: 3 für die
 Schieberegisteransteuerung, 7 für die Ansteuerung der Mosfets sowie eine Leitung
 um Reihe 17 zu schalten.
 \subsubsection{Software}
-Im folgenden wird die Ansteuerung der LED Matrix beleuchtet, diese findet in der
-Methode \texttt{drawWithBrightness(void)}. Diese gibt jeweils eine komplette
+Im Folgenden wird die Ansteuerung der LED Matrix beleuchtet, diese findet in der
+Methode \texttt{drawWithBrightness(void)} statt. Sie gibt jeweils eine komplette
 Zeile aus und wird periodisch 7200 mal pro Sekunde aufgerufen (siehe
 Kapitel \ref{led_timer}).
-Zu Anfang wird der aktuelle \texttt{cmp} Vergleichswert mit der global eingestellten Helligkeit \texttt{brightness} verglichen. Wenn \texttt{brightness} größer als dieser Wert ist bleiben die LEDs
+Zu Anfang wird der aktuelle \texttt{cmp} Vergleichswert mit der global eingestellten Helligkeit \texttt{brightness} verglichen. Wenn \texttt{brightness} größer als dieser Wert ist, bleiben die LEDs
 im Aufruf dunkel, was für die dynamische Helligkeitsanpassung von Nöten ist. 
 
-Wenn gezeichnet werden soll wird auf die Bilddaten im Array \texttt{data}
-zugeriffen und für jedes Pixel überprüft ob dieses aktiv sein soll, die Pixel
-werden durch Schiebeoperttionen nacheinander in die \texttt{output} Varible
+Wenn gezeichnet werden soll, wird auf die Bilddaten im Array \texttt{data}
+zugegriffen und für jedes Pixel überprüft, ob dieses aktiv sein soll. Die Pixel
+werden durch Schiebeoperationen nacheinander in die \texttt{output} Variable
 geschrieben. 
 
-\begin{lstlisting}[language=C,label=dcf_state_data2,caption=Zeichenmethode zur
+\begin{lstlisting}[language=C,caption=Zeichenmethode zur
 Ansteuerung der LED Matrix: Teil 1] 
-/*Draws all the pixel with the brigtness of
-the global brightness variable*/ static inline void drawWithBrightness(void){ 
-byte output=0;
+/*Draws all the pixel with the brigtness of the global brightness variable*/ 
+static inline void drawWithBrightness(void){ 
+  byte output=0;
 	if(brightness>cmp){
 		byte i=0;
 		/* The first output Byte */
@@ -251,15 +250,15 @@ byte output=0;
 		}
 \end{lstlisting} 
 
-Der Inhalt der \texttt{output} Variable wird anschliesend in das
+Der Inhalt der \texttt{output} Variable wird anschließend in das
 \texttt{SPDR} Register geschrieben, welches den Buffer der SPI Schnittstelle
-darstellt. Im Hintergrund beginnt nun das SPI Modul des ATmega die Daten an das
-Schieberegister zu übertragen. Während dessen werden die Pixeldaten für Reihe
+darstellt. Im Hintergrund beginnt nun das SPI Modul des ATmegas die Daten an das
+Schieberegister zu übertragen. Währenddessen werden die Pixeldaten für Reihe
 9--16 verarbeitet. Anschließend wird gewartet bis die Übertragung zum
-schieberegister abgeschlossen ist und der neue \texttt{output} Wert in das
-\texttt{SPDR} register geschrieben.
+Schieberegister abgeschlossen ist und der neue \texttt{output} Wert in das
+\texttt{SPDR} Register geschrieben.
 
-\begin{lstlisting}[language=C,label=dcf_state_data2,caption=Zeichenmethode zur
+\begin{lstlisting}[language=C,caption=Zeichenmethode zur
 Ansteuerung der LED Matrix: Teil 2]
 		/* output to SPI-Register */
 		SPDR = output;
@@ -277,16 +276,16 @@ Ansteuerung der LED Matrix: Teil 2]
 		SPDR = output;
 \end{lstlisting} 
 
-Die Ausgabe von Reihe 17 unterscheidet sich deutlich da der Mikrocontrollerpin
-auf dem selben Port wie die Mosfets liegt. Auserdem muss hier GND anliegen wenn
+Die Ausgabe von Reihe 17 unterscheidet sich deutlich, da der Mikrocontrollerpin
+auf dem selben Port wie die Mosfets liegt. Außerdem muss hier GND anliegen, wenn
 die LED aktiviert sein soll. Deshalb wird \texttt{output} mit \texttt{128}
 (achtes Bit im Byte) initialisiert und wenn das Pixel aktiv ist mit \texttt{0}
 überschrieben.
 
-Im \texttt{else}-Fall wenn alle LEDs aus bleiben sollen werden Nullen in die
+Im \texttt{else}-Fall, wenn alle LEDs aus bleiben sollen, werden Nullen in die
 Schieberegister geschoben und das achte Bit von \texttt{output} mit 1
 beschrieben.
-\begin{lstlisting}[language=C,label=dcf_state_data2,caption=Zeichenmethode zur Ansteuerung der LED Matrix: Teil 3] output = 128;
+\begin{lstlisting}[language=C,caption=Zeichenmethode zur Ansteuerung der LED Matrix: Teil 3] output = 128;
 
 		/* Last Bit direct on microcontroller pin */
 		if(data[row][i]>0){
@@ -301,23 +300,21 @@ beschrieben.
 		SPDR = 0;
 		while(!(SPSR & (1<<SPIF)));
 
-		output=128; //LED 16 aus!
+		output=128; //LED 17 aus
 	}
 \end{lstlisting} 
-Zu letzt muss die RCK Leitung der Schieberegister auf Low und anschliessend auf
-High geschalten werden sowie der Mosfet der aktuellen Zeile aktiviert werden.
-Die Mosfets schalten durch wenn sie mit Low beschalten werden. Um während des
-Schaltens im Schieberegister Falkern auf der Anzeige zu verhindern werden zuerst
-alle Mosfets ausgeschalten, dann die Schieberegisterinhalte auf die
+Zuletzt muss die RCK Leitung der Schieberegister auf Low und anschliessend auf
+High geschaltet werden, sowie der Mosfet der aktuellen Zeile aktiviert werden.
+Die Mosfets schalten durch, wenn ein Low Pegel angelegt wird. Um während des
+Schaltens im Schieberegister Flackern auf der Anzeige zu verhindern, werden zuerst
+alle Mosfets ausgeschaltet, dann die Schieberegisterinhalte auf die
 Schieberegisterausgänge übernommen und anschliessend der Mosfet der Zeile
 aktiviert. 
 
-Abschliessend wird die Zeilenummer für den nächsten Aufruf der Methode nach oben
-gesetzt und wenn ein komplettes Bild gezeichnet wurde \texttt{row==7} wird der
-\texttt{cmp} Wert um 16 erhöht, dadurch existieren 16 verschiedene
-Helligkeitstufen.
+Abschließend wird die Zeilennummer für den nächsten Aufruf der Methode inkrementiert und wenn ein komplettes Bild gezeichnet wurde \texttt{row==7}, wird der
+\texttt{cmp} Wert um 16 erhöht.
 
-\begin{lstlisting}[language=C,label=dcf_state_data2,caption=Zeichenmethode zur Ansteuerung der LED Matrix: Teil 4]
+\begin{lstlisting}[language=C,caption=Zeichenmethode zur Ansteuerung der LED Matrix: Teil 4]
 
 	/* RCK auf null ziehen */
 	PORTB &= 0b11101111;
@@ -336,9 +333,9 @@ Helligkeitstufen.
 \end{lstlisting}
 
 \subsection{Helligkeitssensor}
-Ein Fotoresitor (Lichtabhängier Widerstand, kurz LDR für Light Dependend Resistor) bildet einen Teil eines Spannugteilers. Die innerhalb des Spanungsteilers anliegende Spannung wird dann vom Mikrocontroller mit Hilfe des AD-Wandlers ausgewertet.
-Der verwendete Fotoresisor besitzt nominal einen Dunkelwiderstand von $100 k\Omega$ .
-Um den Widerstandsverlauf besser abschätzen zu können wurden Messungen vorgenommen.
+Ein Fotoresistor (lichtabhängiger Widerstand, kurz LDR für Light Dependend Resistor) bildet einen Teil eines Spannungsteilers. Die innerhalb des Spannungsteilers anliegende Spannung wird dann vom Mikrocontroller mit Hilfe des A/D-Wandlers ausgewertet.
+Der verwendete Fotoresistor besitzt nominal einen Dunkelwiderstand von $100 k\Omega$ .
+Um den Widerstandsverlauf besser abschätzen zu können, wurden folgende Messungen vorgenommen.
 \begin{figure}[h]
   \begin{center}
   \begin{minipage}[b]{0.3\textwidth}
@@ -367,7 +364,7 @@ Als Temperatursensor wurde der DS18S20\footnote{\url{http://www.maximintegrated.
 
 Der 1-Wire-Bus ermöglicht die Verwendung mehrerer Geräte an der Datenleitung, wobei jedes Gerät über seine eindeutige 64-Bit ID angesprochen wird. Da bei diesem Projekt lediglich ein DS18S20 verwendet wird, kann die Ansteuerung der eindeutigen ID weggelassen werden und alle Geräte auf dem Bus angesprochen werden, da keine Kollision entstehen kann.
 
-Der Temperatursensor wird wie in Grafik \ref{fig_tempsensor} angeschlossen. Die Datenleitung wird über einen $4,7 k\Omega$ Pullup-Widerstand mit der Spannungsquelle verbunden, sowie an Pin PA6 des Microcontrollers angeschlossen.
+Der Temperatursensor wird wie in Grafik \ref{fig_tempsensor} angeschlossen. Die Datenleitung wird über einen $4,7 k\Omega$ Pullup-Widerstand mit der Spannungsquelle verbunden, sowie an Pin PA6 des Mikrocontrollers angeschlossen.
 %
 \begin{figure}[htp]
 \centering
@@ -375,12 +372,12 @@ Der Temperatursensor wird wie in Grafik \ref{fig_tempsensor} angeschlossen. Die 
 \caption{Schaltung für den 1-Wire Temperatursensor}\label{fig_tempsensor}
 \end{figure}
 %
-Für das 1-Wire-Protokoll ist ein genaues Timing unabdingbar, deshalb müssen bei jeglicher Kommunikation mit dem DS18S20 alle Interrupts ausgeschaltet werden. Da die längste Kommunikation am Stück der Reset-Pulse mit $960 \mu s$ ist, ist das Auschalten der Interrupts für die Funktionalität der Uhr nicht beeinträchtigend.
+Für das 1-Wire-Protokoll ist ein genaues Timing unabdingbar, deshalb müssen bei jeglicher Kommunikation mit dem DS18S20 alle Interrupts ausgeschaltet werden. Da die längste Kommunikation am Stück der Reset-Pulse mit $960 \mu s$ ist, ist das Ausschalten der Interrupts für die Funktionalität der Uhr nicht beeinträchtigend.
 
 Das Protokoll sieht vor, dass jede Kommunikation mit einem Reset-Pulse startet. In Abbildung \ref{fig_resettiming} 
-ist das genaue Timing des Reset-Pulses zu erkennen. Zunächst muss der Master, also hier der Microcontroller den Bus für mindestens $480 \mu s$ auf Low ziehen. Nach Freigabe des Busses sorgt der Pullup-Widerstand dafür, dass der Bus wieder auf High gesetzt wird. Anschließend zieht der Sensor den Bus nach $15 \mu s$ bis $60 \mu s$ nach der ansteigenden Flanke für $60 \mu s$ bis $240 \mu s$ auf Low. Dies signalisiert dem Master, dass ein Gerät am Bus hängt und einsatzbereit ist.\footnote{\cite{ds18s20}, Seite 13}
+ist das genaue Timing des Reset-Pulses zu erkennen. Zunächst muss der Master, also hier der Mikrocontroller den Bus für mindestens $480 \mu s$ auf Low ziehen. Nach Freigabe des Bus' sorgt der Pullup-Widerstand dafür, dass der Bus wieder auf High gesetzt wird. Anschließend zieht der Sensor den Bus nach $15 \mu s$ bis $60 \mu s$ nach der ansteigenden Flanke für $60 \mu s$ bis $240 \mu s$ auf Low. Dies signalisiert dem Master, dass ein Gerät am Bus hängt und einsatzbereit ist.\footnote{\cite{ds18s20}, Seite 13}
 
-In der weiteren Kommunikation wird nun das \texttt{SKIP ROM} Kommando benutzt, welches bedeutet, dass die 64-Bit ID weggelassen werden kann und alle Geräte (hier nur eins) angesprochen werden. Nun kann der DS18S20 mit dem \texttt{CONVERT TEMP} Kommando dazu aufgefordert werden, die Temperatur zu messen und digital zu konvertieren. Dies macht er nicht permament um Strom zu sparen. Nach einer Konvertierungszeit von mindestens $700 ms$ kann die Temperatur ausgelesen werden. Dazu muss erneut ein Reset- sowie ein Skiprom-Kommando gesendet werden, um dann mit \texttt{READ SCRATCHPAD} die eigentliche Temperatur zu erhalten.\footnote{Genaue Beschreibung der Kommandos siehe \cite{ds18s20} Seite 10ff}
+In der weiteren Kommunikation wird nun das \texttt{SKIP ROM} Kommando benutzt, welches bewirkt, dass die 64-Bit ID weggelassen werden kann und alle Geräte (hier nur eins) angesprochen werden. Nun kann der DS18S20 mit dem \texttt{CONVERT TEMP} Kommando dazu aufgefordert werden, die Temperatur zu messen und digital zu konvertieren. Dies macht er nicht permament, um Strom zu sparen. Nach einer Konvertierungszeit von mindestens $700 ms$ kann die Temperatur ausgelesen werden. Dazu muss erneut ein Reset- sowie ein Skiprom-Kommando gesendet werden, um dann mit \texttt{READ SCRATCHPAD} die eigentliche Temperatur zu erhalten.\footnote{Genaue Beschreibung der Kommandos siehe \cite{ds18s20}, Seite 10ff}
 %
 \begin{figure}[htp]
 \centering
@@ -389,18 +386,19 @@ In der weiteren Kommunikation wird nun das \texttt{SKIP ROM} Kommando benutzt, w
 \end{figure}
 %
 \subsection{Gehäuse}
-%TODO
 %
-Ziel war es ein optisch ansprechendes, sowie funktionales Gehäuse zu kreieren. 
+Ziel war es ein optisch ansprechendes, sowie funktionales Gehäuse zu kreieren.\footnote{Bilder des Gehäuses (zum Teil im Entstehungsprozess) sind in Anhang \ref{sec_gehaeusebilder} zu finden}
 
-Als problematisch stellte sich die Zielsetzung der flachen Bauart heraus. Denn um eine gleichmässige Lichtverteilung innerhalb eines Pixels zu erreichen, muss ein relativ großer Abstand zur LED gegeben sein. Durch praktisches Testen ergab sich für die verwendeten LEDs ein idealer Abstand von .%TODO eventuell wirklich probieren 
-Außerdem muss verhindert werden, dass die offenliegende Verdrahtung der LED-Matrix zu Kurzschlüssen führt. Im Besonderen ist hier das Netzteil zu nennen, da hier ein Spannung von 230 Volt anliegt und das Netzteil von allen Komponenten mit 20 mm über die höchste Bauhöhe verfügt. 
+Als problematisch stellte sich die Zielsetzung der flachen Bauart heraus. Denn um eine gleichmässige Lichtverteilung innerhalb eines Pixels zu erreichen, muss ein relativ großer Abstand zur LED gegeben sein. Durch praktisches Testen ergab sich für die verwendeten LEDs ein idealer Abstand von mindestens $33mm$.\footnote{Genauere Betrachtung der Abstände siehe Abbildung \ref{fig_querschnitt}}
+Außerdem muss verhindert werden, dass die offenliegende Verdrahtung der LED-Matrix zu Kurzschlüssen führt. Im Besonderen ist das Netzteil zu nennen, da hier eine Spannung von 230 Volt anliegt und das Netzteil von allen Komponenten mit $20 mm$ über die höchste Bauhöhe verfügt. 
 Die Bauhöhe der Verdrahtung der LED-Matrix wurde an den kritischen Stellen von 5 -- 6 mm auf ca. 2 mm verringert. Um Kurzschlüsse innerhalb der LED-Matrix zu verhindern, wurden die Kreuzungspunkte zum Teil isoliert.
+\begin{figure}
 \begin{center}
 \includegraphics[width=0.6\textwidth]{skizzen/querschnitt.png}
 \captionof{figure}{Schematischer Querschnitt des Gehäuses}
 \label{fig_querschnitt}
 \end{center}
+\end{figure}
 Während der Entwicklung war ein einfacher Zugang von großer Bedeutung, deshalb wurde das Gehäuse in zwei Teile aufgeteilt. Die LED-Matrix bildet zusammen mit ihrer Abdeckung und drei Seitenwänden den vorderen Teil des Gehäuses. Auf der Rückwand wurde die Hauptplatine, das Netzteil und der DCF77-Empfänger platziert. An der vierten Seitenwand sind die Sensoren für Helligkeit und Temperatur, die Stromversorgung, die 6 Taster sowie der Debuganschluss (ISP\footnote{In-system programming}) befestigt (siehe Abbildung \ref{fig_anschluesse}). Diese Seitenwand wurde an der Rückwand befestigt. Dies ermöglicht ein Öffnen des Gehäuses, indem nur die Schrauben an der Rückwand entfernt werden und die 3 Steckverbinder zur LED-Matrix gelöst werden, die komplette Sensorik und die Taster aber nicht entfernt werden müssen.%
 \vspace{2em}
 \centerline{\includegraphics[width=\linewidth]{images/anschluesse.png}}
@@ -414,8 +412,7 @@ Diese Lösung zeichnet sich im Gegensatz zu Holzschrauben durch minimalen Versch
 
 \subsubsection{Energieversorgung und Verbrauch}
 %TODO: Tabelle mit Alle AN/ Alle Aus/ Halb an. (eventuell mit neuen und alten Widerständen 
-Als Netzteil wurde ein CE geprüftes 5V/2A Netzteil gewählt. Das kompakte verwendete Schaltnetzteil ist ausreichend dimensioniert um den, mit einem Labornetzteil, ermittelten maximalen Bedarf von ca. 1.8A%TODO
-(alle LEDs an bei maximaler Helligkeit) bereitzustellen.
+Als Netzteil wurde ein CE geprüftes 5V/2A Netzteil gewählt. Das kompakte verwendete Schaltnetzteil ist ausreichend dimensioniert um den, mit einem Labornetzteil, ermittelten maximalen Bedarf von ca. 1.8A (alle LEDs aktiv bei maximaler Helligkeit) bereitzustellen.
  
 Als Stromkabel kommt ein zweipoliges Kabel mit Schalter zum Einsatz. Dieses wurde im Inneren des Gehäuses mit Schmelzklebestoff verklebt und in eine Lüsterklemme geführt, so dass bei eventuell auftretenden Zugkräften auf keinen Fall Kräfte auf das Netzteil wirken.
 
