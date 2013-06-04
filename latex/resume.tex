@@ -1,9 +1,53 @@
 \section{Résumé}
 \subsection{Evaluation}
-TODO
+In diesem Teil der Arbeit soll kritisch betrachtet werden in wie Weit die im
+Teil Anforderungen gesetzten Ziele ereicht wurden.
+\subsubsection{Modularität}
+Die Uhr wurde Schritt für Schritt aufgebaut und hinzugekommene Funktionen
+jeweils über Steckverbindungen mit der Hauptplatine verbunden. Sämtliche Module können
+einzel getauscht/ersetzt oder weiterentwickelt werden. Besonders geschickt war
+dies beim Austausch des DCF-Moduls, es konnte mit minimalen Änderungen von einem
+Modul von Pollin zu dem höherwertigen Konrad Modul gewechselt werden. 
+\subsubsection{Zeitempfang und Anzeige der Zeit}
+Die grundlegendste Funktion der Uhr funktioniert wie geplant. Schwieriger als
+gedacht hat sich dabei der Empfang der Uhrzeit herraus gestellt, da das
+Empfangsmodul nicht immer korrekte Daten liefert. Durch fehlertolerante
+Funktionen wird dieser Makel weitestgehend ausgeglichen und die Uhrzeit kann
+korrekt Empfangen werden. Die 1 Sekunden Ticks der Uhr können, durch die Wahl
+des Quarzes mit geeigneter Frequenz, mit hoher Genauigkeit eingehalten werden.
+Auch die Anzeige der Uhrzeit wurde mit der LED Matrix wie gefordert umgestetzt,
+als herrausragend erwies sich der geringe Stromverbrauch bei großer Helligkeit
+der LEDs. Auch ermöglichten erst die LEDs eine Uhr in dieser Größe, da z.B.
+sieben Segmentanzeigen nicht in dieser Größe verfügbar sind.
+
+\subsubsection{Automatische Helligkeitsanpassung}
+Das Zusammenspiel von Lichtsensor, Firmware und der LED Matrix mit ihren
+Helligkeitsstufen funktioniert hervorragend. Verbessert werden könnte die
+Funktion nur noch durch eine Durchschnittsfunktion über die Helligkeit und
+unterschiedliche Schwellwerte für das Aufhellen und Abdunkeln der
+Anzeige. Dadurch würde bei einer grenzwertigen Lichtstärke
+nicht immer wieder zwischen den zwei entsprechenden Helligkeitsstufen hin und
+her geschalten.
+\subsubsection{Updatefähigkeit}
+- externe ISP Schnittstelle über Stecker einer seriellen Schnittstelle 
+- 
+
+TODO: INCLUDE IMAGE OF BEAUTIFUL DIGITAL CLOCK HERE
+
 
 \subsection{Weiterentwicklungsmöglichkeiten}
-Die Grundfunktionalität der Uhr besteht nun und auch einige erweiterte Funktionen, wie beispielsweise Temperatur- und Helligkeitsmessung sind implementiert. Damit stellt das Projekt eigentlich einen abgeschlossenen Zustand dar. Dennoch gibt es natürlich Erweiterungsmöglichkeiten. Es ist vorstellbar, eine zukünftige Version mit Infrarotempfang auszustatten. So könnte man nicht nur die Zeit eingeben, die Helligkeit kontrollieren oder einen Wecker vom Bett aus bedienen, auch einfache Spiele wie das bekannte Pong wären denkbar. Eine weiteres mögliches Zusatzfeature wäre eine externe Stromversorgung einzubauen. Man könnte beispielweise bei Auslösen des Weckers die externe Stromversorgung aktivieren, sodass ein Licht oder eine Musikanlage angesteuert wird.
+Die Grundfunktionalität der Uhr besteht nun und auch einige erweiterte
+Funktionen, wie beispielsweise Temperatur- und Helligkeitsmessung sind
+implementiert. Damit stellt das Projekt eigentlich einen abgeschlossenen Zustand
+dar. Dennoch gibt es natürlich Erweiterungsmöglichkeiten. Es ist vorstellbar,
+eine zukünftige Version mit Infrarotempfang auszustatten. So könnte man nicht
+nur die Zeit eingeben, die Helligkeit kontrollieren oder einen Wecker vom Bett
+aus bedienen, auch einfache Spiele wie das bekannte Pong wären denkbar. Eine
+weiteres mögliches Zusatzfeature wäre eine externe Stromversorgung einzubauen.
+Man könnte beispielweise bei Auslösen des Weckers die externe Stromversorgung
+aktivieren, sodass ein Licht oder eine Musikanlage angesteuert wird. Der ATmega
+verfügt noch über 6 freie I/O - Pins, die für diese und weitere Erweiterungen
+zur Verfügung stehen.
 
 %Auch wenn diese Version der Uhr schon viele Funktionalität abdeckt, durch die selbstkonstruierte Bauweise sind viele Änderungen denkbar. Es wäre also durchaus der Anlass für eine zweite Version der Uhr gegeben.
 %
