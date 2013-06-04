@@ -3,6 +3,7 @@
 DCF77 ist ein Zeitzeichensender in Mainhausen bei Frankfurt, der seit dem ersten Januar 1959 die Uhrzeit auf der Langwellenfrequenz von 77,5 kHz sendet. Bei Sendeanlagen, die über Ländergrenzen hinaus senden, muss das Rufzeichen in der internationalen Frequenzliste eingetragen sein und das Kennzeichen des jeweiligen Landes enthalten. Deshalb wurde DCF77 gewählt, wobei das D für Deutschland steht. Der Buchstabe C war früher ein Kennzeichen für Langwelle und das F steht für Frankfurt. Da die Sendeanlage in Mainhausen mehrere Sender hat, wurde noch die Zahl 77 als Andeutung auf die Trägerfrequenz (77,5 kHz) gewählt\footnote{\cite{dcf77}, Seite 349f.}.
 
 Das Zeitsignal wird jede Minute wiederholt und kodiert Zeit- sowie Datumsinformationen. Dabei wird jede Sekunde ein Bit übertragen. Dies geschieht durch Amplitudenmodulation. Jede Sekunde wird die Amplitude der Trägerwelle für 100 ms (logisch 0) oder 200 ms (logisch 1) auf etwa 25 \% abgesenkt. Lediglich in Sekunde 59 wird die Amplitude zur Erkennung der neuen Minute nicht abgesenkt. Tabelle \ref{tbl_dcf77kod} zeigt die Bedeutung der gesendeten Bits im DCF77-Signal\footnote{\cite{dcf77}, Seite 351ff.}.
+\newpage
 %
 \renewcommand{\arraystretch}{1}
 \begin{longtable}{|l|l|}
@@ -60,9 +61,9 @@ Das Zeitsignal wird jede Minute wiederholt und kodiert Zeit- sowie Datumsinforma
 %
 \subsection{LED Matrix}
 Unter LED Matrix versteht man die Ansteurung von LEDs in Zeilen und Spalten. Dabei werden alle Anoden zu Spalten und alle Kathoden zu Zeilen
-verbunden. \footnote{Es kann natürlich auch die Kathode für Spalten und die
-Anode für Spalten verwendet werden.} Im Vergleich zu einer einzelansteurung
-bietet die LED MAatrix den großen Vorteil das bei einer Matrix $N$ Spalten
+verbunden.\footnote{Es kann natürlich auch die Kathode für Spalten und die
+Anode für Zeilen verwendet werden.} Im Vergleich zu einer Einzelansteuerung
+bietet die LED Matrix den großen Vorteil, dass bei einer Matrix mit $N$ Spalten
 und $M$ Zeilen nur $N+M$ statt $N*M$ Leitungen verwendet werden.
 
 \begin{wrapfigure}{r}{0.45\textwidth}
@@ -75,31 +76,31 @@ und $M$ Zeilen nur $N+M$ statt $N*M$ Leitungen verwendet werden.
 \end{wrapfigure}
 
 Die LED Matrix
-wird dann Zeilenweise oder Spatenweise im Multiplexbetrieb angesteuert. Das bedeutet nacheinander wird eine der Spalten mit GND versorgt und die anderen Spalten sind unbeschalten (keine Verbindung zu GND). Nun können in dieser Spalte durch anlegen von Spannung an den entsprechenden Zeilen LEDs angeschaltet werden. 
+wird dann zeilenweise oder spaltenweise im Multiplexbetrieb angesteuert. Das bedeutet, dass nacheinander eine der Spalten mit GND versorgt wird und die anderen Spalten unbeschalten sind (keine Verbindung zu GND). Nun können in dieser Spalte durch Anlegen von Spannung an den entsprechenden Zeilen LEDs angeschaltet werden. 
 Dieser Vorgang wird für alle Spalten durchgeführt, das bedeutet es leuchten zu
 einem bestimmten Zeitpunkt immer nur die LEDs einer Spalte. Durch das schnelle
-umschalten zwischen den Spalten und die Trägheit des menschlichen Auge entsteht
-die Illusion, dass auf der kompletten LED Matrix etwas LEDs aktiviert sind.
-Als Nachteil aus dieser Beschaltung ergibt sich die veringerte Helligkeit, da
-die LEDs bei $N$ Spalten nur noch $frac{1}{N}$ der Zeit leuchten können.
+Umschalten zwischen den Spalten und die Trägheit des menschlichen Auges entsteht
+die Illusion, dass auf der kompletten LED Matrix die LEDs aktiviert sind.
+Als Nachteil aus dieser Beschaltung ergibt sich die verringerte Helligkeit, da
+die LEDs bei $N$ Spalten nur noch $\frac{1}{N}$ der Zeit leuchten.
 
 Der Helligkeitsverlust kann durch höheren Stromfluss zum Teil kompensiert
-werden. Dass bedeutet bei $N$ Spalten werden die LEDs mit einem Pulsstrom von
+werden. Das bedeutet bei $N$ Spalten werden die LEDs mit einem Pulsstrom von
 $N*Nennstrom$ betrieben. Durch die Dunkelphasen kann das aktive Substrat
 zwischen den Pulsen ausreichend abkühlen. Generell kann dies bis zum ca.
-zehnfachen Nennstrom (200mA bei einer gewöhnlichen 20mA LED) durchgeführt
+zehnfachen Nennstrom (200 mA bei einer gewöhnlichen 20 mA LED) durchgeführt
 werden.\footnote{http://www.mikrocontroller.net/articles/LED-Matrix}
 
 \subsection{Pulsweitenmodulation}\label{sec_pulsweitenmodulation}
-Pulsewitenmudolation bezeichnet eine Modulationtechnik in der die Weite des
-Pulse bei einer gleichbleibenden Periode verändert (siehe \ref{pwm_schma}).
-Dieses Modulationstechnik erlaubt erlaube es die Leistung Geräten zu regulieren.
+Pulsweitenmodulation bezeichnet eine Modulationstechnik in der die Weite des
+Pulses bei einer gleichbleibenden Periode verändert wird (siehe \ref{pwm_schma}).
+Diese Modulationstechnik erlaubt es, die Leistung von Geräten zu regulieren.
 Der durchschnittliche Stromfluss wird durch das Verhältniss
 $\frac{Pulsweite}{Periode}$ definiert. Gilt $Pulsweite=Periode$ so erhält das
-Gerät 100\% der Leistung, gilt $\frac{Pulsweite}{Periode}=\frac{1}{2}$ so wird das Gerät mit halber Lesitung
+Gerät 100\% der Leistung, gilt $\frac{Pulsweite}{Periode}=\frac{1}{2}$ so wird das Gerät mit halber Leistung
 versorgt.
 Die Periode wird in der Regel sehr klein gewählt, zum Beispiel $\frac{1}{100}s$
-bei LEDs, da das menschliche Auge 100 Hz flakern als konstantes Leuchten
+bei LEDs, da das menschliche Auge 100 Hz blinken als konstantes Leuchten
 wahrnimmt.
 \begin{figure}[h]
   \begin{center}
