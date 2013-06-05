@@ -188,14 +188,14 @@ schwebend verbunden}
 \begin{center}
 	\includegraphics[width=\textwidth]{skizzen/led_matrix_schaltplan.png} 
 \captionof{figure}{LED Matrix Schaltplan, 1: LED
-Vorwiderstände, 2: P-Kanal Mosfets \mbox{IRLZ24N}}
+Vorwiderstände, 2: P-Kanal Mosfets \mbox{IRF5305}}
 \end{center}
 \label{led_matrix_schaltplan}
 
 Durch die Ansteuerung als Matrix werden nur 24 Leitungen von der LED Anzeige zur
 Hauptplatine benötigt. Da der Mikrocontroller auf seinen Logikausgängen nicht
 die benötigte Leistung bereitstellen kann, wird die Spannung durch die P-Kanal
-Mosfets vom Typ IRLZ24N geschalten.
+Mosfets vom Typ IRF5305 geschalten.
 
 Um weitere Pins am ATmega einzusparen, werden die Reihen (abgesehen von Reihe 17)
 mittels Schieberegister gesteuert. Die beiden Schieberegister vom Typ
