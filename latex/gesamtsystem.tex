@@ -80,14 +80,19 @@ Das Herzstück der Uhr ist die nachfolgend abgebildete Hauptplatine. Sie enthäl
 \item[14. Resettaster] für den vollständigen Reset des Mikrocontrollers
 \end{list}
 
-%\begin{figure}[htp]
-\vfill
 \begin{center}
 \includegraphics[width=.75\textwidth]{skizzen/AVR_Pinbelegung.png}
-\caption{Pinbelegung des ATmega32}\label{fig_belegung}
+\captionof{figure}{Pinbelegung des ATmega32}\label{fig_belegung}
 \end{center}
 %\end{figure}
 
+\subsubsection{Energieversorgung und Verbrauch}
+%TODO: Tabelle mit Alle AN/ Alle Aus/ Halb an. (eventuell mit neuen und alten Widerständen 
+Als Netzteil wurde ein CE geprüftes 5V/2A Netzteil gewählt. Das kompakte verwendete Schaltnetzteil ist ausreichend dimensioniert um den, mit einem Labornetzteil, ermittelten maximalen Bedarf von ca. 1.8A (alle LEDs aktiv bei maximaler Helligkeit) bereitzustellen.
+ 
+Als Stromkabel kommt ein zweipoliges Kabel mit Schalter zum Einsatz. Dieses wurde im Inneren des Gehäuses mit Schmelzklebestoff verklebt und in eine Lüsterklemme geführt, so dass bei eventuell auftretenden Zugkräften auf keinen Fall Kräfte auf das Netzteil wirken.
+
+Mittels des Temperatursensors wurde außerdem in einem Testlauf sichergestellt, dass die Temperatur im Inneren der Uhr 50\degree C (bei einer Raumtemperatur von 22\degree C) nicht überschreitet.
 %
 %
 %
