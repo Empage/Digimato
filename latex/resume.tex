@@ -1,25 +1,25 @@
 \section{Résumé}
 \subsection{Evaluation}
-In diesem Teil der Arbeit soll kritisch betrachtet werden in wie Weit die im
-Teil Anforderungen gesetzten Ziele ereicht wurden.
+In diesem Teil der Arbeit soll kritisch betrachtet werden, in wie Weit die im
+Teil Anforderungen gesetzten Ziele erreicht wurden.
 \subsubsection{Modularität}
 Die Uhr wurde Schritt für Schritt aufgebaut und hinzugekommene Funktionen
 jeweils über Steckverbindungen mit der Hauptplatine verbunden. Sämtliche Module können
-einzel getauscht/ersetzt oder weiterentwickelt werden. Besonders geschickt war
-dies beim Austausch des DCF-Moduls, es konnte mit minimalen Änderungen von einem
-Modul von Pollin zu dem höherwertigen Konrad Modul gewechselt werden. 
+einzeln getauscht, ersetzt oder weiterentwickelt werden. Besonders geschickt war
+dies beim Austausch des DCF-Moduls. Es konnte mit minimalen Änderungen von einem
+Modul von Pollin zu dem höherwertigen Conrad Modul gewechselt werden. 
 \subsubsection{Zeitempfang und Anzeige der Zeit}
-Die grundlegendste Funktion der Uhr funktioniert wie geplant. Schwieriger als
-gedacht hat sich dabei der Empfang der Uhrzeit herraus gestellt, da das
+Die grundlegendste Funktion, die Anzeige der Zeit, funktioniert wie geplant. Schwieriger als
+gedacht hat sich der Empfang der Uhrzeit herausgestellt, da das
 Empfangsmodul nicht immer korrekte Daten liefert. Durch fehlertolerante
 Funktionen wird dieser Makel weitestgehend ausgeglichen und die Uhrzeit kann
-korrekt Empfangen werden. Die 1 Sekunden Ticks der Uhr können, durch die Wahl
+korrekt empfangen werden. Die 1-Sekunden-Ticks der Uhr können, durch die Wahl
 des Quarzes mit geeigneter Frequenz, mit hoher Genauigkeit eingehalten werden.
-Auch die Anzeige der Uhrzeit wurde mit der LED Matrix wie gefordert umgestetzt,
-als herrausragend erwies sich der geringe Stromverbrauch bei großer Helligkeit
-der LEDs. Auch ermöglichten erst die LEDs eine Uhr in dieser Größe, da z.B.
-sieben Segmentanzeigen nicht in dieser Größe verfügbar sind.
-
+Auch die Anzeige der Uhrzeit wurde mit der LED Matrix wie gefordert umgesetzt.
+Als herausragend erwies sich der geringe Stromverbrauch von durchschnittlich 3,5 Watt bei großer Helligkeit
+der LEDs. Auch ermöglichten erst die LEDs eine Uhr in dieser Größe, da beispielsweise
+7-Segmentanzeigen nicht in dieser Größe verfügbar sind.
+%
 \subsubsection{Automatische Helligkeitsanpassung}
 Das Zusammenspiel von Lichtsensor, Firmware und der LED Matrix mit ihren
 Helligkeitsstufen funktioniert hervorragend. Verbessert werden könnte die
@@ -27,14 +27,11 @@ Funktion nur noch durch eine Durchschnittsfunktion über die Helligkeit und
 unterschiedliche Schwellwerte für das Aufhellen und Abdunkeln der
 Anzeige. Dadurch würde bei einer grenzwertigen Lichtstärke
 nicht immer wieder zwischen den zwei entsprechenden Helligkeitsstufen hin und
-her geschalten.
+her geschalten, was momentan zu leichtem Flackern führen kann.
+%
 \subsubsection{Updatefähigkeit}
-- externe ISP Schnittstelle über Stecker einer seriellen Schnittstelle 
-- 
-
-TODO: INCLUDE IMAGE OF BEAUTIFUL DIGITAL CLOCK HERE
-
-
+Die einfache Updatefähigkeit der Firmware wurde durch eine Programmierschnittstelle an der Seite der Uhr sichergestellt. So kann, ohne die Uhr aufschrauben zu müssen, jederzeit die Software korrigiert, erweitert und verbessert werden. Es könnten beispielsweise die softwareseitige Erweiterung der Helligkeitsfunktion, die im vorhergehenden Kapitel beschrieben wurde, ohne großen Aufwand implementiert werden.
+%
 \subsection{Weiterentwicklungsmöglichkeiten}
 Die Grundfunktionalität der Uhr besteht nun und auch einige erweiterte
 Funktionen, wie beispielsweise Temperatur- und Helligkeitsmessung sind
@@ -46,12 +43,11 @@ aus bedienen, auch einfache Spiele wie das bekannte Pong wären denkbar. %Eine
 % weiteres mögliches Zusatzfeature wäre eine externe Stromversorgung einzubauen.
 % Man könnte beispielweise bei Auslösen des Weckers die externe Stromversorgung
 % aktivieren, sodass ein Licht oder eine Musikanlage angesteuert wird.
-Der ATmega
-verfügt noch über 6 freie I/O - Pins, die für diese und weitere Erweiterungen
+Der ATmega verfügt noch über 6 freie I/O-Pins, die für diese und weitere Erweiterungen
 zur Verfügung stehen.
 
 %Auch wenn diese Version der Uhr schon viele Funktionalität abdeckt, durch die selbstkonstruierte Bauweise sind viele Änderungen denkbar. Es wäre also durchaus der Anlass für eine zweite Version der Uhr gegeben.
 %
 \subsection{Fazit}
-Diese Version der Uhr deckt viele Funktionalität ab. Wie aber im Kapitel Weiterentwicklungsmöglichkeiten erläutert wird, gibt es dennoch Raum für Erweiterungen, sodass eine zweite Version der Uhr durchaus denkbar wäre.
+Der Funktionsumfang dieser Version der Uhr geht deutlich über die Grundfunktionalitäten einer Digitaluhr hinaus. Wie aber im vorherigen Kapitel Weiterentwicklungsmöglichkeiten erläutert wird, gibt es dennoch Raum für Erweiterungen, sodass eine zweite Version der Uhr durchaus denkbar wäre.
 % Kosten
