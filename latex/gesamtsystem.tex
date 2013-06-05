@@ -59,12 +59,12 @@ Das Herzstück der Uhr ist die nachfolgend abgebildete Hauptplatine. Sie enthäl
 
 \begin{list}{\ding{42}}
 {\setlength{\topsep}{0cm}
-\setlength{\itemsep}{0.2cm}
+\setlength{\itemsep}{0cm}
 \setlength{\leftmargin}{3cm}
 \setlength{\labelwidth}{3cm}
 \setlength{\labelsep}{0cm}
 \renewcommand{\makelabel}[1]{\textbf{\textsf{\normalsize #1} }}}
-\item[1. Mikrocontroller ATmega32] Zentrale Steuereinheit
+\item[1. Mikrocontroller ATmega32] Zentrale Steuereinheit\footnote{Pinbelegung des ATmega32 siehe Abbildung \ref{fig_belegung}}
 \item[2. Mosfet IRLZ24N] zum Ansteuern der Kathoden der LED-Matrix
 \item[3. Schieberegister TPIC6B595] zum Ansteuern der Anoden der LED-Matrix 
 \item[4. 14,7456 MHz Quarz] als Taktgeber für den Mikrocontroller
@@ -80,6 +80,13 @@ Das Herzstück der Uhr ist die nachfolgend abgebildete Hauptplatine. Sie enthäl
 \item[14. Resettaster] für den vollständigen Reset des Mikrocontrollers
 \end{list}
 
+%\begin{figure}[htp]
+\vfill
+\begin{center}
+\includegraphics[width=.75\textwidth]{skizzen/AVR_Pinbelegung.png}
+\caption{Pinbelegung des ATmega32}\label{fig_belegung}
+\end{center}
+%\end{figure}
 
 %
 %
