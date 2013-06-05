@@ -22,7 +22,7 @@ Viele der integrierten Komponenten wurden genutzt: Der zur Verfügung gestellte 
 \end{table}
 
 \subsection{DCF77 Empfangsmodul}\label{sec_dcf77modul}
-Das in der Digitaluhr verwendete Modul ist die \glqq C-Control DCF-Empfängerplatine\grqq\footnote{\url{http://www.conrad.de/ce/de/product/641138/C-Control-DCF-Empfaengerplatine}, Bestellnummer: 641138 - 62}~ (siehe Abbildung \ref{fig_dcf77}) von Conrad.
+Das in der Digitaluhr verwendete Modul ist die \glqq C-Control DCF-Empfängerplatine\grqq\footnote{www.conrad.de, Bestellnummer: 641138 - 62}~ (siehe Abbildung \ref{fig_dcf77}) von Conrad.
 
 \begin{center}
 %\setlength{\fboxsep}{0pt}
@@ -360,7 +360,10 @@ Um den Widerstandsverlauf besser abschätzen zu können, wurden folgende Messung
 \end{figure}
 %
 \subsection{Temperatursensor}
-Als Temperatursensor wurde der DS18S20\footnote{\url{http://www.maximintegrated.com/datasheet/index.mvp/id/2815}} von Maxim Integrated verwendet. Dieser verwendet das 1-Wire\textsuperscript{\textregistered}-Protokoll\footnote{\url{http://www.maximintegrated.com/products/1-wire/flash/overview/index.cfm}}, sodass nur ein Datenpin vonnöten ist, worüber Befehle gesendet sowie Daten empfangen werden.
+Als Temperatursensor wurde der DS18S20\footnote{Datenblatt: \cite{ds18s20}} von
+Maxim Integrated verwendet. Dieser verwendet das
+1-Wire\textsuperscript{\textregistered}-Protokoll\footnote{vgl. \cite{1wire}},
+sodass nur ein Datenpin vonnöten ist, worüber Befehle gesendet sowie Daten empfangen werden.
 
 Der 1-Wire-Bus ermöglicht die Verwendung mehrerer Geräte an der Datenleitung, wobei jedes Gerät über seine eindeutige 64-Bit ID angesprochen wird. Da bei diesem Projekt lediglich ein DS18S20 verwendet wird, kann die Ansteuerung der eindeutigen ID weggelassen werden und alle Geräte auf dem Bus angesprochen werden, da keine Kollision entstehen kann.
 
@@ -382,39 +385,53 @@ In der weiteren Kommunikation wird nun das \texttt{SKIP ROM} Kommando benutzt, w
 \begin{figure}[htp]
 \centering
 \centerline{\includegraphics[width=\linewidth]{skizzen/temperatur_reset.png}}
-\caption{Reset-Pulse Timing Diagramm\footnote{\cite{ds18s20}, Seite 13}}\label{fig_resettiming}
+\caption{Reset-Pulse Timing Diagramm\footnote{\cite{ds18s20}, Seite
+13}}\label{fig_resettiming}
 \end{figure}
 %
 \subsection{Gehäuse}
-%
-Ziel war es ein optisch ansprechendes, sowie funktionales Gehäuse zu kreieren.\footnote{Bilder des Gehäuses (zum Teil im Entstehungsprozess) sind in Anhang \ref{sec_gehaeusebilder} zu finden}
-
-Als problematisch stellte sich die Zielsetzung der flachen Bauart heraus. Denn um eine gleichmässige Lichtverteilung innerhalb eines Pixels zu erreichen, muss ein relativ großer Abstand zur LED gegeben sein. Durch praktisches Testen ergab sich für die verwendeten LEDs ein idealer Abstand von mindestens $33mm$.\footnote{Genauere Betrachtung der Abstände siehe Abbildung \ref{fig_querschnitt}}
-Außerdem muss verhindert werden, dass die offenliegende Verdrahtung der LED-Matrix zu Kurzschlüssen führt. Im Besonderen ist das Netzteil zu nennen, da hier eine Spannung von 230 Volt anliegt und das Netzteil von allen Komponenten mit $20 mm$ über die höchste Bauhöhe verfügt. 
-Die Bauhöhe der Verdrahtung der LED-Matrix wurde an den kritischen Stellen von 5 -- 6 mm auf ca. 2 mm verringert. Um Kurzschlüsse innerhalb der LED-Matrix zu verhindern, wurden die Kreuzungspunkte zum Teil isoliert.
-\begin{figure}
+\begin{figure}[htp]
 \begin{center}
 \includegraphics[width=0.6\textwidth]{skizzen/querschnitt.png}
 \captionof{figure}{Schematischer Querschnitt des Gehäuses}
 \label{fig_querschnitt}
 \end{center}
 \end{figure}
-Während der Entwicklung war ein einfacher Zugang von großer Bedeutung, deshalb wurde das Gehäuse in zwei Teile aufgeteilt. Die LED-Matrix bildet zusammen mit ihrer Abdeckung und drei Seitenwänden den vorderen Teil des Gehäuses. Auf der Rückwand wurde die Hauptplatine, das Netzteil und der DCF77-Empfänger platziert. An der vierten Seitenwand sind die Sensoren für Helligkeit und Temperatur, die Stromversorgung, die 6 Taster sowie der Debuganschluss (ISP\footnote{In-system programming}) befestigt (siehe Abbildung \ref{fig_anschluesse}). Diese Seitenwand wurde an der Rückwand befestigt. Dies ermöglicht ein Öffnen des Gehäuses, indem nur die Schrauben an der Rückwand entfernt werden und die 3 Steckverbinder zur LED-Matrix gelöst werden, die komplette Sensorik und die Taster aber nicht entfernt werden müssen.%
-\vspace{2em}
-\centerline{\includegraphics[width=\linewidth]{images/anschluesse.png}}
-\captionof{figure}{Taster, Sensoren und ISP-Schnittstelle der Digitaluhr}\label{fig_anschluesse}
-\vspace{.5em}
-%TODO Fotos von dem ganzen Kram
+%
+Es sollte für die Uhr ein minimalitisches, ansprechendes Gehäuse erstellt
+werden.
+Dabei nimmt die LED Matrix die komplette Vorderseite und die Bedienelemente
+wurden seitlich angebracht.\footnote{Bilder des Gehäuses (zum Teil im Entstehungsprozess) sind in Anhang \ref{sec_gehaeusebilder} zu finden}
 
-Als Schrauben kamen Metallschrauben mit M5 %TODO 
-Gewinde zum Einsatz. Die Muttern wurden in einem Holzblock befestigt, der anschließend mit der Rückwand verleimt wurde.%TODO: Abbildung? 
-Diese Lösung zeichnet sich im Gegensatz zu Holzschrauben durch minimalen Verschleis aus und kann oft geöffnet und wieder verschlossen werden ohne Auszufransen.
+Als problematisch stellte sich die Zielsetzung der flachen Bauart heraus. Denn um eine gleichmässige Lichtverteilung innerhalb eines Pixels zu erreichen, muss ein relativ großer Abstand zur LED gegeben sein. Durch praktisches Testen ergab sich für die verwendeten LEDs ein idealer Abstand von mindestens $33mm$.\footnote{Genauere Betrachtung der Abstände siehe Abbildung \ref{fig_querschnitt}}
+Außerdem muss verhindert werden, dass die offenliegende Verdrahtung der LED-Matrix zu Kurzschlüssen führt. Im Besonderen ist das Netzteil zu nennen, da hier eine Spannung von 230 Volt anliegt und das Netzteil von allen Komponenten mit $20 mm$ über die höchste Bauhöhe verfügt. 
+Die Bauhöhe der Verdrahtung der LED-Matrix wurde an den kritischen Stellen von 5 -- 6 mm auf ca. 2 mm verringert. Um Kurzschlüsse innerhalb der LED-Matrix zu verhindern, wurden die Kreuzungspunkte zum Teil isoliert.
 
-\subsubsection{Energieversorgung und Verbrauch}
-%TODO: Tabelle mit Alle AN/ Alle Aus/ Halb an. (eventuell mit neuen und alten Widerständen 
-Als Netzteil wurde ein CE geprüftes 5V/2A Netzteil gewählt. Das kompakte verwendete Schaltnetzteil ist ausreichend dimensioniert um den, mit einem Labornetzteil, ermittelten maximalen Bedarf von ca. 1.8A (alle LEDs aktiv bei maximaler Helligkeit) bereitzustellen.
- 
-Als Stromkabel kommt ein zweipoliges Kabel mit Schalter zum Einsatz. Dieses wurde im Inneren des Gehäuses mit Schmelzklebestoff verklebt und in eine Lüsterklemme geführt, so dass bei eventuell auftretenden Zugkräften auf keinen Fall Kräfte auf das Netzteil wirken.
+Während der Entwicklung war ein einfacher Zugang von großer Bedeutung, deshalb
+wurde das Gehäuse in zwei Teile aufgeteilt (siehe \ref{fig_gehaeuse7}). Die
+LED-Matrix bildet zusammen mit ihrer Abdeckung und drei Seitenwänden den vorderen Teil des Gehäuses. Auf der Rückwand wurde die Hauptplatine, das Netzteil und der DCF77-Empfänger platziert. 
+\begin{center}\includegraphics[width=\linewidth]{images/anschluesse.png}
+\captionof{figure}{Taster, Sensoren und ISP-Schnittstelle der
+Digitaluhr}\label{fig_anschluesse}\end{center}
 
-Mittels des Temperatursensors wurde außerdem in einem Testlauf sichergestellt, dass die Temperatur im Inneren der Uhr 50\degree C (bei einer Raumtemperatur von 22\degree C) nicht überschreitet.
-%eof
+An der vierten Seitenwand sind die Sensoren für Helligkeit und Temperatur, die
+Stromversorgung, die 6 Taster sowie der Debuganschluss (ISP\footnote{In-system
+programming}) befestigt (siehe Abbildung \ref{fig_anschluesse}).
+\begin{wrapfigure}[13]{r}{0.4\textwidth}
+\begin{center}
+\includegraphics[width=0.3\textwidth]{skizzen/mutter_klotz.png}
+\captionof{figure}{Befestigung Rückwand}
+\label{mutterklotz}
+\end{center}
+\end{wrapfigure}
+ Diese
+Seitenwand wurde an der Rückwand befestigt. Dies ermöglicht ein Öffnen des
+Gehäuses, indem nur die Schrauben an der Rückwand entfernt werden und die 3
+Steckverbinder zur LED-Matrix gelöst werden, die komplette Sensorik und die
+Taster aber nicht entfernt werden müssen.
+Als Schrauben kamen Metallschrauben mit M5 
+Gewinde zum Einsatz. Die Muttern wurden in einem Holzblock befestigt, der anschließend mit der Rückwand verleimt wurde.
+Diese Lösung zeichnet sich im Gegensatz zu Holzschrauben durch minimalen
+Verschleis aus und kann oft geöffnet und wieder verschlossen werden ohne
+Auszufransen(siehe \ref{mutterklotz}).
+
