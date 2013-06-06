@@ -1,8 +1,8 @@
 \section{Technische Grundlagen}
 \subsection{DCF77}\label{sec_dcfgrund}
-DCF77 ist ein Zeitzeichensender in Mainhausen bei Frankfurt, der seit dem ersten Januar 1959 die Uhrzeit auf der Langwellenfrequenz von 77,5 kHz sendet. Bei Sendeanlagen, die über Ländergrenzen hinaus senden, muss das Rufzeichen in der internationalen Frequenzliste eingetragen sein und das Kennzeichen des jeweiligen Landes enthalten. Deshalb wurde DCF77 gewählt, wobei das D für Deutschland steht. Der Buchstabe C war früher ein Kennzeichen für Langwelle und das F steht für Frankfurt. Da die Sendeanlage in Mainhausen mehrere Sender hat, wurde noch die Zahl 77 als Andeutung auf die Trägerfrequenz (77,5 kHz) gewählt\footnote{\cite{dcf77}, Seite 349f.}.
+DCF77 ist ein Zeitzeichensender in Mainhausen bei Frankfurt, der seit dem ersten Januar 1959 die Uhrzeit auf der Langwellenfrequenz von 77,5 kHz sendet. Bei Sendeanlagen, die über Ländergrenzen hinaus senden, muss das Rufzeichen in der internationalen Frequenzliste eingetragen sein und das Kennzeichen des jeweiligen Landes enthalten. Deshalb wurde DCF77 gewählt, wobei das D für Deutschland steht. Der Buchstabe C war früher ein Kennzeichen für Langwelle und das F steht für Frankfurt. Da die Sendeanlage in Mainhausen mehrere Sender hat, wurde noch die Zahl 77 als Andeutung auf die Trägerfrequenz (77,5 kHz) gewählt\footnote{vgl. \cite{dcf77}, Seite 349f.}.
 
-Das Zeitsignal wird jede Minute wiederholt und kodiert Zeit- sowie Datumsinformationen. Dabei wird jede Sekunde ein Bit übertragen. Dies geschieht durch Amplitudenmodulation. Jede Sekunde wird die Amplitude der Trägerwelle für 100 ms (logisch 0) oder 200 ms (logisch 1) auf etwa 25 \% abgesenkt. Lediglich in Sekunde 59 wird die Amplitude zur Erkennung der neuen Minute nicht abgesenkt. Tabelle \ref{tbl_dcf77kod} zeigt die Bedeutung der gesendeten Bits im DCF77-Signal\footnote{\cite{dcf77}, Seite 351ff.}.
+Das Zeitsignal wird jede Minute wiederholt und kodiert Zeit- sowie Datumsinformationen. Dabei wird jede Sekunde ein Bit übertragen. Dies geschieht durch Amplitudenmodulation. Jede Sekunde wird die Amplitude der Trägerwelle für 100 ms (logisch 0) oder 200 ms (logisch 1) auf etwa 25 \% abgesenkt. Lediglich in Sekunde 59 wird die Amplitude zur Erkennung der neuen Minute nicht abgesenkt. Tabelle \ref{tbl_dcf77kod} zeigt die Bedeutung der gesendeten Bits im DCF77-Signal\footnote{vgl. \cite{dcf77}, Seite 351ff.}.
 \newpage
 %
 \renewcommand{\arraystretch}{1}
@@ -56,8 +56,9 @@ Das Zeitsignal wird jede Minute wiederholt und kodiert Zeit- sowie Datumsinforma
 57 & Kalenderjahr, Wertigkeit 80\\\hline
 58 & Prüfbit für Kalenderjahr, Even Parity\\\hline
 59 & Markierung der neuen Minute, keine Amplitudenabsenkung\\\hline
-\caption{Erläuterung der Bits im DCF77-Zeitsignal\footnote{\cite{dcf77}, Seite 352f.}}\label{tbl_dcf77kod}
+\caption{Erläuterung der Bits im DCF77-Zeitsignal\footnotemark}\label{tbl_dcf77kod}
 \end{longtable}
+\footnotetext{vgl. \cite{dcf77}, Seite 352f.}
 %
 \subsection{LED Matrix}
 Unter LED Matrix versteht man die Ansteurung von LEDs in Zeilen und Spalten. Dabei werden alle Anoden zu Spalten und alle Kathoden zu Zeilen

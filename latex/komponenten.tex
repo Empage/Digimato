@@ -32,22 +32,6 @@ Das in der Digitaluhr verwendete Modul ist die \glqq C-Control DCF-Empfängerpla
 \captionof{figure}{C-Control-DCF-Empfängerplatine von Conrad}\label{fig_dcf77}
 \end{center}
 %
-% \begin{figure}[h]
-%   \begin{center}
-%   \begin{minipage}[c]{0.5\textwidth}
-%         \fbox{\includegraphics[width=\textwidth]{Literatur/conrad_dcf77.pdf}}
-%         \caption{Anschlussanleitung DCF77 Modul\footnotemark}
-%   \end{minipage}
-%   \hspace{0.07\textwidth}
-%   \begin{minipage}[c]{0.4\textwidth}
-% Das Modul besitzt 4 Anschlüsse, welche im Anschlussplan links beschrieben sind. Es wird der \texttt{DCF Ausgang invertiert} für das Datensignal verwendet. Er ist an Microcontrollerpin PB2 angeschlossen. Damit die Uhrzeit auf jeden Fall richtig empfangen wird, ist einerseits die Ausrichtung Richtung Frankfurt wichtig sowie andererseits die Verwendung eines fehlertoleranten Codes zur Auswertung der Uhrzeit. Außerdem sollte darauf geachtet werden, das Modul nicht zu nah an Störquellen zu stellen. Als starke Störquelle stellten sich bei der Entwicklung Monitore heraus. In Abbildung TODO ist der Unterschied zwischen einem einwandfreien Signal und einem, durch einen Monitor in 2m Entfernung, gestörtem Signal abgebildet. Es ist zu erkennen, dass das Signal plötzlich im Mikrosekundenbereich gleichmäßig alterniert, also von dem ursprünglichen Signal nichts mehr zu erkennen ist.
-%   \end{minipage}
-%   \end{center}
-% \end{figure}
-%\addtocounter{footnote}{-1}%
-%\footnotetext{Quelle: \url{http://www.produktinfo.conrad.com/datenblaetter/625000-649999/641138-an-01-de-Anschlussplan_DCF_Empfaengerplatine.pdf}}%
-%\stepcounter{footnote}%
-%
 
 \begin{wrapfigure}{r}{0.50\textwidth}
   \vspace{-25pt}
@@ -55,8 +39,9 @@ Das in der Digitaluhr verwendete Modul ist die \glqq C-Control DCF-Empfängerpla
     \fbox{\includegraphics[width=0.45\textwidth]{Literatur/conrad_dcf77.pdf}}
   \end{center}
   \vspace{-20pt}
-  \captionof{figure}{Anschlussanleitung DCF77 Modul\footnote{Quelle: \url{http://www.produktinfo.conrad.com/datenblaetter/625000-649999/641138-an-01-de-Anschlussplan_DCF_Empfaengerplatine.pdf}}}
+  \captionof{figure}{Anschlussanleitung DCF77 Modul\footnotemark}
 \end{wrapfigure}
+\footnotetext{Quelle: \url{http://www.produktinfo.conrad.com/datenblaetter/625000-649999/641138-an-01-de-Anschlussplan_DCF_Empfaengerplatine.pdf}}
 %
 Das Modul besitzt vier Anschlüsse, welche im Anschlussplan rechts beschrieben sind. Es wird der \texttt{DCF Ausgang invertiert} für das Datensignal verwendet. Er ist an Mikrocontrollerpin PB2 angeschlossen. Damit die Uhrzeit auf jeden Fall richtig empfangen wird, ist einerseits die Ausrichtung auf Frankfurt wichtig, sowie andererseits die Verwendung eines fehlertoleranten Codes zur Auswertung der Uhrzeit. Außerdem sollte auf den Abstand zu Störquellen geachtet werden. Als starke Störquellen stellten sich bei der Entwicklung Monitore heraus. In Abbildung TODO ist der Unterschied zwischen einem einwandfreien Signal und einem, durch einen Monitor in 2 m Entfernung, gestörtem Signal abgebildet. Es ist zu erkennen, dass das Signal plötzlich im Mikrosekundenbereich gleichmäßig alterniert, also von dem ursprünglichen Signal nichts mehr zu erkennen ist.
 
@@ -212,7 +197,7 @@ diese unabhängig vom eigentlichen Programmablauf an die Schieberegister schickt
     \includegraphics[width=0.48\textwidth]{skizzen/schieberegister_linien.png}
   \end{center}
   \vspace{-20pt}
-  \captionof{figure}{Füllen des Schieberegisters\footnote{\cite{6b595}, S. 5}}
+  \captionof{figure}{Füllen des Schieberegisters\footnotemark}
 \end{wrapfigure}
 
 Der SPI Bus wird über drei Leitungen realisiert: SER IN als Datenleitung,
@@ -220,6 +205,8 @@ SRCK zur Taktübertragung, RCK um die Daten vom Schieberegister auf die
 Ausgänge zu legen. Das zweite Schieberegister wird parallel mit RCK und SRCK verbunden und der serielle Ausgang des ersten Schieberegisters SER OUT wird an
 SER IN des zweiten Schieberegister angeschlossen. Durch diese Schaltung erreicht man
 quasi ein 16-Bit Schieberegister.
+% erst hier, damit sie auf der richtigen Seite angezeigt wird
+\footnotetext{\cite{6b595}, S. 5}
 Insgesamt benötigt das Display somit 11 Pins am Mikrocontroller: 3 für die
 Schieberegisteransteuerung, 7 für die Ansteuerung der Mosfets sowie eine Leitung
 um Reihe 17 zu schalten.
@@ -380,16 +367,16 @@ Der Temperatursensor wird wie in Grafik \ref{fig_tempsensor} angeschlossen. Die 
 Für das 1-Wire-Protokoll ist ein genaues Timing unabdingbar, deshalb müssen bei jeglicher Kommunikation mit dem DS18S20 alle Interrupts ausgeschaltet werden. Da die längste Kommunikation am Stück der Reset-Pulse mit $960 \mu s$ ist, ist das Ausschalten der Interrupts für die Funktionalität der Uhr nicht beeinträchtigend.
 
 Das Protokoll sieht vor, dass jede Kommunikation mit einem Reset-Pulse startet. In Abbildung \ref{fig_resettiming} 
-ist das genaue Timing des Reset-Pulses zu erkennen. Zunächst muss der Master, also hier der Mikrocontroller den Bus für mindestens $480 \mu s$ auf Low ziehen. Nach Freigabe des Bus' sorgt der Pullup-Widerstand dafür, dass der Bus wieder auf High gesetzt wird. Anschließend zieht der Sensor den Bus nach $15 \mu s$ bis $60 \mu s$ nach der ansteigenden Flanke für $60 \mu s$ bis $240 \mu s$ auf Low. Dies signalisiert dem Master, dass ein Gerät am Bus hängt und einsatzbereit ist.\footnote{\cite{ds18s20}, Seite 13}
+ist das genaue Timing des Reset-Pulses zu erkennen. Zunächst muss der Master, also hier der Mikrocontroller den Bus für mindestens $480 \mu s$ auf Low ziehen. Nach Freigabe des Bus' sorgt der Pullup-Widerstand dafür, dass der Bus wieder auf High gesetzt wird. Anschließend zieht der Sensor den Bus nach $15 \mu s$ bis $60 \mu s$ nach der ansteigenden Flanke für $60 \mu s$ bis $240 \mu s$ auf Low. Dies signalisiert dem Master, dass ein Gerät am Bus hängt und einsatzbereit ist.\footnote{vgl. \cite{ds18s20}, Seite 13}
 
 In der weiteren Kommunikation wird nun das \texttt{SKIP ROM} Kommando benutzt, welches bewirkt, dass die 64-Bit ID weggelassen werden kann und alle Geräte (hier nur eins) angesprochen werden. Nun kann der DS18S20 mit dem \texttt{CONVERT TEMP} Kommando dazu aufgefordert werden, die Temperatur zu messen und digital zu konvertieren. Dies macht er nicht permament, um Strom zu sparen. Nach einer Konvertierungszeit von mindestens $700 ms$ kann die Temperatur ausgelesen werden. Dazu muss erneut ein Reset- sowie ein Skiprom-Kommando gesendet werden, um dann mit \texttt{READ SCRATCHPAD} die eigentliche Temperatur zu erhalten.\footnote{Genaue Beschreibung der Kommandos siehe \cite{ds18s20}, Seite 10ff}
 %
 \begin{figure}[htp]
 \centering
 \centerline{\includegraphics[width=\linewidth]{skizzen/temperatur_reset.png}}
-\caption{Reset-Pulse Timing Diagramm\footnote{\cite{ds18s20}, Seite
-13}}\label{fig_resettiming}
+\caption{Reset-Pulse Timing Diagramm\footnotemark}\label{fig_resettiming}
 \end{figure}
+\footnotetext{\cite{ds18s20}, Seite 13}
 %
 \subsection{Gehäuse}
 \begin{figure}[htp]
