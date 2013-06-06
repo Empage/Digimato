@@ -59,13 +59,13 @@ Das Herzstück der Uhr ist die nachfolgend abgebildete Hauptplatine. Sie enthäl
 
 \begin{list}{\ding{42}}
 {\setlength{\topsep}{0cm}
-\setlength{\itemsep}{0.2cm}
+\setlength{\itemsep}{0cm}
 \setlength{\leftmargin}{3cm}
 \setlength{\labelwidth}{3cm}
 \setlength{\labelsep}{0cm}
 \renewcommand{\makelabel}[1]{\textbf{\textsf{\normalsize #1} }}}
-\item[1. Mikrocontroller ATmega32] Zentrale Steuereinheit
-\item[2. Mosfet IRLZ24N] zum Ansteuern der Kathoden der LED-Matrix
+\item[1. Mikrocontroller ATmega32] Zentrale Steuereinheit\footnote{Pinbelegung des ATmega32 siehe Abbildung \ref{fig_belegung}}
+\item[2. Mosfet IRF5305] zum Ansteuern der Kathoden der LED-Matrix
 \item[3. Schieberegister TPIC6B595] zum Ansteuern der Anoden der LED-Matrix 
 \item[4. 14,7456 MHz Quarz] als Taktgeber für den Mikrocontroller
 \item[5. Potentiometer] für die Lautstärkeeinstellung der Weckfunktion
@@ -80,7 +80,19 @@ Das Herzstück der Uhr ist die nachfolgend abgebildete Hauptplatine. Sie enthäl
 \item[14. Resettaster] für den vollständigen Reset des Mikrocontrollers
 \end{list}
 
+\begin{center}
+\includegraphics[width=.75\textwidth]{skizzen/AVR_Pinbelegung.png}
+\captionof{figure}{Pinbelegung des ATmega32}\label{fig_belegung}
+\end{center}
+%\end{figure}
 
+\subsubsection{Energieversorgung und Verbrauch}
+%TODO: Tabelle mit Alle AN/ Alle Aus/ Halb an. (eventuell mit neuen und alten Widerständen 
+Als Netzteil wurde ein CE geprüftes 5V/2A Netzteil gewählt. Das kompakte verwendete Schaltnetzteil ist ausreichend dimensioniert um den, mit einem Labornetzteil, ermittelten maximalen Bedarf von ca. 1.8A (alle LEDs aktiv bei maximaler Helligkeit) bereitzustellen.
+ 
+Als Stromkabel kommt ein zweipoliges Kabel mit Schalter zum Einsatz. Dieses wurde im Inneren des Gehäuses mit Schmelzklebestoff verklebt und in eine Lüsterklemme geführt, so dass bei eventuell auftretenden Zugkräften auf keinen Fall Kräfte auf das Netzteil wirken.
+
+Mittels des Temperatursensors wurde außerdem in einem Testlauf sichergestellt, dass die Temperatur im Inneren der Uhr 50\degree C (bei einer Raumtemperatur von 22\degree C) nicht überschreitet.
 %
 %
 %

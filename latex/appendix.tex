@@ -9,25 +9,39 @@
 %
 \newpage
 \centerline{\includegraphics[width=\linewidth]{images/gehaeuse3.jpg}}
-\captionof{figure}{Was geht ab}\label{fig_gehaeuse3}
+\captionof{figure}{Befestigung der Platine an der Rückwand}\label{fig_gehaeuse3}
 \vfill
 \centerline{\includegraphics[width=\linewidth]{images/gehaeuse4.jpg}}
-\captionof{figure}{Was geht ab}\label{fig_gehaeuse4}
+\captionof{figure}{Befestigung der Platine an der Rückwand --- Nahaufnahme}\label{fig_gehaeuse4}
 %
 \newpage
 \centerline{\includegraphics[width=\linewidth]{images/gehaeuse5.jpg}}
-\captionof{figure}{Was geht ab}\label{fig_gehaeuse5}
+\captionof{figure}{Seitenwand mit Tastern, Sensoren sowie Programmierschnittstelle}\label{fig_gehaeuse5}
 \vfill
 \centerline{\includegraphics[width=\linewidth]{images/gehaeuse6.jpg}}
-\captionof{figure}{Was geht ab}\label{fig_gehaeuse6}
+\captionof{figure}{Verkabelung von Platine mit LED Matrix}\label{fig_gehaeuse6}
 %
 \newpage
 \centerline{\includegraphics[width=\linewidth]{images/gehaeuse7.jpg}}
-\captionof{figure}{Was geht ab}\label{fig_gehaeuse7}
+\captionof{figure}{Knapper Abstand zwischen Platine und Drähten der LED Matrix}\label{fig_gehaeuse7}
 \vfill
 \centerline{\includegraphics[width=\linewidth]{images/gehaeuse8.jpg}}
-\captionof{figure}{Was geht ab}\label{fig_gehaeuse8}
+\captionof{figure}{Uhr im zusammengebauten Zustand mit angeschlossenem Programmiergerät}\label{fig_gehaeuse8}
 %
 \newpage
+\centerline{\includegraphics[width=\linewidth]{images/gehaeuse9.jpg}}
+\captionof{figure}{Anzeige der Uhrzeit, aufgenommen
+Nachts, bei maximal reduzierter Helligkeit}\label{fig_gehaeuse9}
+\vfill
+
+\newpage
 \section{Quellcode}
-TODO
+\lstinputlisting[language=C,caption=main.c - Hauptfunktionen der Uhr]{sourcecode/main.c}
+\lstinputlisting[language=C,caption=main.h - Prototypen der öffentlichen Funktionen aus main.c]{sourcecode/main.h}
+\lstinputlisting[language=C,caption=conrad\_dcf.c - Funktionen für den Zeitempfang des DCF77 Moduls]{sourcecode/conrad_dcf.c}
+\lstinputlisting[language=C,caption=conrad\_dcf.h - Prototypen der öffentlichen Funktionen aus conrad\_dcf.c]{sourcecode/conrad_dcf.h}
+\lstinputlisting[language=C,caption=globals.c - Globale Variableninitialisierungen]{sourcecode/globals.c}
+\lstinputlisting[language=C,caption=globals.h - Globale Variablen- und Konstantendefinition]{sourcecode/globals.h}
+\lstinputlisting[language=C,caption=thermometer.c - Funktionen zum Messen der Umgebungstemperatur]{sourcecode/thermometer.c}
+\lstinputlisting[language=C,caption=thermometer.h - Prototypen der öffentlichen Funktionen aus thermometer.c]{sourcecode/thermometer.h}
+\lstinputlisting[language=C,caption={fontMonoSpace.h - Ein Array, welches die verwendete Schriftart enthält}]{sourcecode/fontMonoSpace.h}

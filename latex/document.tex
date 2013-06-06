@@ -52,7 +52,6 @@
 \usepackage[babel,german=quotes]{csquotes}
 %\usepackage[style=swiss]{csquotes}
 
-
 % Spezielle Tabellenform fuer Deckblatt
 \usepackage{longtable}
 \setlength{\tabcolsep}{10pt} %Abstand zwischen Spalten
@@ -104,6 +103,7 @@
 	pdfcreator={pdflatex, LaTeX with KOMA-Script},
 	pdfpagemode=UseOutlines, % Beim Oeffnen Inhaltsverzeichnis anzeigen
 	pdfdisplaydoctitle=true, % Dokumenttitel statt Dateiname anzeigen.
+	pdfborder={0 0 0},
 	pdflang=de % Sprache des Dokuments.
 ]{hyperref} 
 
@@ -149,7 +149,6 @@
 \DeclareCaptionFont{white}{\color{white}}
 \DeclareCaptionFormat{listing}{\colorbox[cmyk]{0.43, 0.35, 0.35,0.01}{\parbox{\textwidth}{\hspace{15pt}#1#2#3}}}
 \captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white, singlelinecheck=false, margin=0pt, font={bf,footnotesize}}
-
 
 \begin{document}
 	\renewcommand{\figurename}{Abb.}
