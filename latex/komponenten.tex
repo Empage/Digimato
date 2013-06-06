@@ -2,10 +2,10 @@
 \subsection{Mikrocontroller}
 Die zentrale Komponente der Digitaluhr ist der Mikrocontroller ATmega32. Der von Atmel hergestellte 8-bit Kontroller ist im 40-pin DIP\footnote{Dual in-line package} Format verfügbar. Dies ermöglicht die einfache Verwendung auf einer Lochrasterplatine mit 2,54 mm Lochabstand. Programmiert wird der ATmega entweder in C oder in AVR-Assembler, die Wahl fiel hier auf die komfortablere Sprache C.
 Viele der integrierten Komponenten wurden genutzt: Der zur Verfügung gestellte SPI-Bus\footnote{Serial Peripheral Interface} zur Kommunikation mit den Schieberegistern, der integrierte A/D-Wandler zur Auswertung des Helligkeitssensors und das ISP-Interface zur Programmierung.
-\begin{table}[htp]
-  \centering
-  \renewcommand{\arraystretch}{1.2}
-  \begin{tabular}{||l | l||}
+
+\begin{center}
+ \renewcommand{\arraystretch}{1.2}
+ \begin{tabular}{||l | l||}
   \hline\hline
   Bezeichnung&ATMEGA32 16PU 0926D\\\hline
   Hersteller&Atmel\\\hline
@@ -18,8 +18,10 @@ Viele der integrierten Komponenten wurden genutzt: Der zur Verfügung gestellte 
   Bauform&40-pin DIP Gehäuse \\
   \hline\hline    
 \end{tabular}
-\caption{Eckdaten des ATmega 32}
-\end{table}
+\captionof{table}{Eckdaten des ATmega 32 (siehe \cite{atmega32})}
+\end{center}
+
+
 
 \subsection{DCF77 Empfangsmodul}\label{sec_dcf77modul}
 Das in der Digitaluhr verwendete Modul ist die \glqq C-Control DCF-Empfängerplatine\grqq\footnote{\url{http://www.conrad.de/ce/de/product/641138/C-Control-DCF-Empfaengerplatine}, Bestellnummer: 641138 - 62}~ (siehe Abbildung \ref{fig_dcf77}) von Conrad.
@@ -401,7 +403,7 @@ Die Bauhöhe der Verdrahtung der LED-Matrix wurde an den kritischen Stellen von 
 \end{figure}
 Während der Entwicklung war ein einfacher Zugang von großer Bedeutung, deshalb wurde das Gehäuse in zwei Teile aufgeteilt. Die LED-Matrix bildet zusammen mit ihrer Abdeckung und drei Seitenwänden den vorderen Teil des Gehäuses. Auf der Rückwand wurde die Hauptplatine, das Netzteil und der DCF77-Empfänger platziert. An der vierten Seitenwand sind die Sensoren für Helligkeit und Temperatur, die Stromversorgung, die 6 Taster sowie der Debuganschluss (ISP\footnote{In-system programming}) befestigt (siehe Abbildung \ref{fig_anschluesse}). Diese Seitenwand wurde an der Rückwand befestigt. Dies ermöglicht ein Öffnen des Gehäuses, indem nur die Schrauben an der Rückwand entfernt werden und die 3 Steckverbinder zur LED-Matrix gelöst werden, die komplette Sensorik und die Taster aber nicht entfernt werden müssen.%
 \vspace{2em}
-\centerline{\includegraphics[width=\linewidth]{images/anschluesse.png}}
+\centerline{\includegraphics[width=\linewidth]{images/anschluesse.png}} 
 \captionof{figure}{Taster, Sensoren und ISP-Schnittstelle der Digitaluhr}\label{fig_anschluesse}
 \vspace{.5em}
 %TODO Fotos von dem ganzen Kram
