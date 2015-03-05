@@ -260,7 +260,7 @@ static void initADC() {
 	ADCSRA=0b11000100;
 }
 
-/*Draws all the pixel with the brigtness of the global brightness variable*/
+/* Draws all the pixel with the brightness of the global brightness variable */
 static inline void drawWithBrightness(void){
 	byte output=0;
 
@@ -308,11 +308,12 @@ static inline void drawWithBrightness(void){
 
 	/* RCK auf null ziehen */
 	PORTB &= 0b11101111;
-	/* Alle Mosfets aus, PD7 unbelegt */
+	/* Gates aller (p-Kanal) Mosfets auf 1, daher hängt Ausgang in der Luft */
+	/* PD7 ist LED16, die ist aus bei high */
 	PORTD = 0xFF;//
 	/* RCK auf high */
 	PORTB |= 0b00010000;
-	/* Mosfet wieder an */
+	/* Den Mosfet der aktuellen Reihe wieder an (also auf 0 runterziehen) */
 	PORTD = states[row++] + output;
 	if(row == 7){
 		row = 0;
