@@ -6,6 +6,8 @@
 #include "conrad_dcf.h"
 #include "fontMonoSpace.h"
 
+#define MATTHIS 1
+
 static void initPorts();
 static void initTimer0();
 static void initTimer1();
@@ -46,8 +48,19 @@ int main(void) {
 	clearAll();
 	/* Set global interupts enabled*/
 	sei();
-	running_letters("On!",100);
 
+//	while (1) {
+//		for(byte i = 0; i<7;i++){
+//			for (byte j = 0; j<17; j++) {
+//				data[i][j]=255;
+//			}
+//		}
+//	}
+
+	running_letters("On!",100);
+#if MATTHIS == 1
+	running_letters("Matthis stinkt!",200);
+#endif
 //	char datestring[200];
 //	snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
 
@@ -260,6 +273,70 @@ static void initADC() {
 	ADCSRA=0b11000100;
 }
 
+#if MATTHIS == 1
+/* Draws all the pixel with the brightness of the global brightness variable */
+static inline void drawWithBrightness(void){
+	byte output=0;
+
+	if(brightness>cmp){
+		byte i;
+		/* The first output Byte */
+		for(i=16;i>8;i--){
+			output = output<<1;
+			if(data[row][i]>0){
+				output++;
+			}
+		}
+		/* output to SPI-Register */
+		SPDR = output;
+		output = 0;
+		/* Second output Byte */
+		for(;i>0;i--){
+			output = output<<1;
+			if(data[row][i]>0){
+				output++;
+			}
+		}
+		/* Wait for SPI transmission complete*/
+		while(!(SPSR & (1<<SPIF)));
+		/* output to SPI-Register */
+		SPDR = output;
+
+		output = 128;
+
+		/* Last Bit direct on microcontroller pin */
+		if(data[row][i]>0){
+			output=0;
+		}
+		while(!(SPSR & (1<<SPIF)));
+	}else{
+		/* output to SPI-Register */
+		SPDR = 0;
+		/* Wait for SPI transmission complete*/
+		while(!(SPSR & (1<<SPIF)));
+		SPDR = 0;
+		while(!(SPSR & (1<<SPIF)));
+
+		output=128; //LED 16 aus!
+	}
+
+	/* RCK auf null ziehen */
+	PORTB &= 0b11101111;
+	/* Gates aller (p-Kanal) Mosfets auf 1, daher hängt Ausgang in der Luft */
+	/* PD7 ist LED16, die ist aus bei high */
+	PORTD = 0xFF;//
+	/* RCK auf high */
+	PORTB |= 0b00010000;
+	/* Den Mosfet der aktuellen Reihe wieder an (also auf 0 runterziehen) */
+	PORTD = states[row++] + output;
+	if(row == 7){
+		row = 0;
+		/* Increment cmp-variable */
+		cmp+=16;
+	}
+}
+
+#else
 /* Draws all the pixel with the brightness of the global brightness variable */
 static inline void drawWithBrightness(void){
 	byte output=0;
@@ -321,6 +398,8 @@ static inline void drawWithBrightness(void){
 		cmp+=16;
 	}
 }
+#endif
+
 
 /* Displays Laufschrift */
 void running_letters_simple(char* str) {

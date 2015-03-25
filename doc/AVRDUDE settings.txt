@@ -1,0 +1,28 @@
+In den Ecplise Settings unter AVRDude:
+
+AVRDude command line preview:
+avrdude -pm32 -cponyser -F -V -Pcom1 -Uflash:w:Digimato.hex:a
+
+Programmer Hardware:
+design ponypro serial, reset=!txd sck=rts mosi=dtr miso=cts
+
+Flash/EEPROM:
+Flash from build
+EEPROM do not upload
+
+Fuses:
+do not set fuse bytes
+
+Lockbits:
+do not set lockbits
+
+Advanced:
+Disable automatic verify check
+Disable device signature check
+
+Other:
+Other options: -Pcom1
+
+Settings Target Hardware:
+MCU Type: ATmega32
+MCU CLock Frequency: 14745600
