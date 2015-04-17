@@ -16,6 +16,9 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
+/* 1 if code for Matthis clock, 0 if code for Tobis clock */
+#define MATTHIS 1
+
 /* general defines */
 #define byte uint8_t
 #define boolean byte
@@ -30,7 +33,13 @@
 #define clearAll() memset(data, 0, 7*17)
 
 /* Enthält den zurzeit gültigen DCF-Wert */
-#define DCF_VALUE (PINB & 0b00000100)
+#if MATTHIS
+	/* DCF is on pin PC7 */
+	#define DCF_VALUE (PINC & 0b10000000)
+#else
+	/* DCF is on pin PB2 */
+	#define DCF_VALUE (PINB & 0b00000100)
+#endif
 
 /* rote Debug LED */
 #define DBG_LED_ON()  (PORTB |= 0b00000010)
