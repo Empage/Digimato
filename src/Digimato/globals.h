@@ -29,10 +29,9 @@
 #define ERROR 1
 #define SUCCESS 0
 
-/* Nullt das gesamte data-Array */
+/* zeroing the whole data array which holds the data to display */
 #define clearAll() memset(data, 0, 7*17)
 
-/* Enthält den zurzeit gültigen DCF-Wert */
 #if MATTHIS
 	/* DCF is on pin PC7 */
 	#define DCF_VALUE (PINC & 0b10000000)
@@ -41,12 +40,12 @@
 	#define DCF_VALUE (PINB & 0b00000100)
 #endif
 
-/* rote Debug LED */
+/* red debug LED */
 #define DBG_LED_ON()  (PORTB |= 0b00000010)
 #define DBG_LED_OFF() (PORTB &= 0b11111101)
 #define DBG_LED_TOGGLE() (PORTB ^= 0b00000010)
 
-/* Defines für die 6 Taster */
+/* Defines for the 6 buttons */
 enum {
 	BUT_BLACK_1 = 0,
 	BUT_BLACK_2,
@@ -60,7 +59,7 @@ enum {
 #define BUT_ON 2
 #define pressed(x) ((PINA & (1 << x)) == 0)
 
-/* Timer0 (Zeichenroutine) defines */
+/* Timer0 (LED drawing routine) defines */
 #define T0_PRESCALER (1<<CS01) /* Prescaler 8 */
 #define T0_ACTIVATE() TCCR0 |= T0_PRESCALER
 #define T0_DEACTIVATE() TCCR0 &= ~T0_PRESCALER
@@ -71,7 +70,7 @@ enum {
 #define T1_ENABLE_INTR() TIMSK |= (1<<OCIE1A)
 #define T1_DISABLE_INTR() TIMSK &= ~(1<<OCIE1A)
 
-/* Timer2 (Lautsprecher & DCF) defines */
+/* Timer2 (speaker & DCF) defines */
 #define T2_ENABLE_INTR() TIMSK |= (1<<OCIE2)
 #define T2_DISABLE_INTR() TIMSK &= ~(1<<OCIE2)
 #define SPEAKER_TOGGLE() (PORTC ^= (1 << PC0))

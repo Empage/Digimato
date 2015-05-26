@@ -22,10 +22,7 @@ static void tick(void);
 static void getButtonStates(void);
 static void handleButtons(void);
 static void playAlarm(void);
-
-/* TODO Software
- * - bei Helligkeit nen Mittelwert nehmen oder so um leichtes Schwanken zu vermeiden
- */
+static void displayTemperature(void);
 
 int main(void) {
 	initPorts();
@@ -40,13 +37,6 @@ int main(void) {
 	/* Set global interupts enabled*/
 	sei();
 
-//	while (1) {
-//		for(byte i = 0; i<7;i++){
-//			for (byte j = 0; j<17; j++) {
-//				data[i][j]=255;
-//			}
-//		}
-//	}
 	DBG_LED_ON();
 	running_letters("On!",100);
 
@@ -58,10 +48,10 @@ int main(void) {
 	while (1) {
 		if (showTemperature) {
 			therm_initiate_temperature_read();
-			//TODO evtl. umändern um reaktiver auf Buttons zu sein
-			_delay_ms(1000);
+			_delay_ms(750);
 			therm_get_temperature((char*)temperature);
-			running_letters((char*)temperature, 100);
+			//running_letters((char*)temperature, 100);
+			displayTemperature();
 			showTemperature = false;
 		}
 
@@ -72,8 +62,22 @@ int main(void) {
 			/* wait for the conversion to finish */
 			while (ADCSRA & (1<<ADSC))
 				;
-			brightness = 255 - ADCH;
+			byte brightnessMeasurement = ADCH;
+			/* with daylight, the value is ~ 100 => full brightness if lower */
+			if (brightnessMeasurement <= 100) {
+				brightness = 255;
+			} else {
+				brightness = 255 - brightnessMeasurement + 100;
+			}
 			getBrightness = false;
+
+//			//ADCH value check
+//			T0_DISABLE_INTR();
+//			clearAll();
+//			place_mono_char_checked(0, '0' + brightnessMeasurement / 100);
+//			place_mono_char_checked(6, '0' + (brightnessMeasurement % 100) / 10);
+//			place_mono_char_checked(12, '0' + (brightnessMeasurement % 10));
+//			T0_ENABLE_INTR();
 		}
 
 		/* test for pressed buttons */
@@ -252,7 +256,7 @@ ISR (TIMER2_COMP_vect) {
 	}
 }
 
-/* Initialize seriell peripheral interface */
+/* Initialize serial peripheral interface for sending led data to the shift registers*/
 static void initSPI() {
 	/* Enable SPI, Master, set clock rate fck/4, LSB first */
 	SPCR = (1<<SPE)|(1<<MSTR); // Clock / 128: |(1<<SPR0)|(1<<SPR1)
@@ -269,13 +273,13 @@ static void initADC() {
 	ADMUX=0b00100111;
 	/*
 	 * 1   -->  ADC enabled
-	 * 0   -->  Startbit on (ADSC)
+	 * 1   -->  Startbit on (ADSC)
 	 * 0   -->  Freerunning off (automatic restart)
 	 * 0   -->  Interupt flag
 	 * 0   -->  Interupt off
-	 * 100 -->  Prescale 16 (125kHz at 20MHz clock)
+	 * 111 -->  Prescale 128 (115.2 kHz at 14.7456 MHz clock)
 	 */
-	ADCSRA=0b11000100;
+	ADCSRA=0b11000111;
 }
 
 #if MATTHIS
@@ -471,8 +475,8 @@ static void place_mono_char_checked(int16_t pos,byte zeichen){
 static void horizontal_time(void) {
 	byte tens = hour / 10;
 	/* save value of both dots for blinking (cause clearAll would erase them) */
-	byte p1 = data[2][8];
-	byte p2 = data[4][8];
+//	byte p1 = data[2][8];
+//	byte p2 = data[4][8];
 
 	clearAll();
 	if (tens) {
@@ -483,13 +487,14 @@ static void horizontal_time(void) {
 	horizontal_num(14, min % 10);
 
 	/* whilst searching for the start of a minute in dcf, let the dots blink */
-	if (search_time) {
-		data[2][8] = p1 ^ 255;
-		data[4][8] = p2 ^ 255;
-	} else {
+//	if (search_time) {
+//		data[2][8] = p1 ^ 255;
+//		data[4][8] = p2 ^ 255;
+//	} else {
+	// currently never let them blink
 		data[2][8] = 255;
 		data[4][8] = 255;
-	}
+//	}
 }
 
 static void horizontal_num(byte pos, byte number) {
@@ -555,7 +560,7 @@ static void tick(void) {
 			conrad_init_time_measure();
 		}
 		/* measure and display temperature once every minute */
-		showTemperature = true;
+		//showTemperature = true;
 	}
 }
 
@@ -588,6 +593,17 @@ static void handleButtons(void) {
 
 	if (buttonState[BUT_BLACK_1] == BUT_ON) {
 		buttonState[BUT_BLACK_1] = BUT_OFF;
+		buttonsLocked = 3; /* deciseconds */
+		if (autoBrightness == false) {
+			brightness += 16;
+		} else {
+			/* measure and display temperature */
+			/* button assignment not ideal, but works for now */
+			showTemperature = true;
+		}
+	}
+	if (buttonState[BUT_BLACK_2] == BUT_ON) {
+		buttonState[BUT_BLACK_2] = BUT_OFF;
 		if (autoBrightness == false) {
 			buttonsLocked = 15; /* deciseconds */
 			autoBrightness = true;
@@ -598,18 +614,11 @@ static void handleButtons(void) {
 			running_letters("AB OFF", 100);
 		}
 	}
-	if (buttonState[BUT_BLACK_2] == BUT_ON) {
-		buttonState[BUT_BLACK_2] = BUT_OFF;
-		buttonsLocked = 3; /* deciseconds */
-		if (autoBrightness == false) {
-			brightness += 16;
-		}
-	}
 	if (buttonState[BUT_RED_1] == BUT_ON) {
 		buttonState[BUT_RED_1] = BUT_OFF;
 		buttonsLocked = 10; /* deciseconds */
 		sec = 0;
-		if(++min == 60){
+		if(++min >= 60){
 			min = 0;
 		}
 	}
@@ -625,7 +634,7 @@ static void handleButtons(void) {
 		buttonState[BUT_BLUE_1] = BUT_OFF;
 		buttonsLocked = 10; /* deciseconds */
 		sec = 0;
-		if(++hour == 24){
+		if(++hour >= 24){
 			hour = 0;
 		}
 	}
@@ -689,6 +698,41 @@ inline void playAlarm() {
 	default:
 		return;
 	}
+}
+
+/* displays the temperature on the led matrix (only below 100°) */
+static void displayTemperature(void) {
+	/* do not write time during temperature display */
+	setTime = false;
+
+	/* do not draw whilst writing into the data array */
+	T0_DISABLE_INTR();
+
+	/* clear the data array */
+	clearAll();
+
+	if (temperature[0] == '+') {
+		/* draw a plus sign */
+		data[3][0] = 255;
+		data[3][1] = 255;
+		data[3][2] = 255;
+		data[2][1] = 255;
+		data[4][1] = 255;
+	} else {
+		/* draw a minus sign */
+		data[3][0] = 255;
+		data[3][1] = 255;
+		data[3][2] = 255;
+	}
+	horizontal_num(4, temperature[1] - '0');
+	horizontal_num(8, temperature[2] - '0');
+	/* the dot */
+	data[6][12] = 255;
+	horizontal_num(14, temperature[4] - '0');
+
+	T0_ENABLE_INTR();
+	_delay_ms(3000);
+	setTime = true;
 }
 
 ///* places a character from ASCII 32-127 */

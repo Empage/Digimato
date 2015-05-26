@@ -2,3 +2,10 @@ p-Kanal leitet bei 0. Er zieht dann den Ausgang auf 1.
 n-Kanal leitet bei 1. Er zieht dann den Ausgang auf 0.
 
 p-Kanel: Gate an ATmega, Source an 5V, Drain zur LED
+
+
+Helligkeitswerte ADCH:
+238 bei abendlicher Zimmerhelligkeit
+250 beim Zuhalten
+171 bei 30cm Handytaschenlampe
+85 bei direkter Handytaschenlampe
