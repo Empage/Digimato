@@ -87,6 +87,7 @@ typedef enum {
  */
 extern byte brightness;
 extern boolean autoBrightness;
+extern boolean showBrightness;
 extern boolean alarmOn;
 extern volatile byte alarmSecs;
 extern byte alarmStep;

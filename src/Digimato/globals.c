@@ -7,38 +7,40 @@
 
 #include "globals.h"
 
-/* bestimmt wie hell (alle) LEDs sein sollen (255: max, 0: aus) in 16er Schritten */
+/* determines the brightness of all LEDS: 255 is max, 0 is off, stepsize is 16 */
 byte brightness = 255;
-/* bestimmt, ob der Helligkeitswert gemessen werden soll oder von Hand eingestellt */
+/* determines whether to measure the brightness value or to hand tune it */
 boolean autoBrightness = true;
+/* determines whether time or brightness value is shown */
+boolean showBrightness = false;
 
-/* Alarm gerade zu hören */
+/* is the alarm currently on? */
 boolean alarmOn = false;
-/* bestimmt die Dauer eines Tons (atm in Sekunden) */
+/* determine the duration of one tone of the alarm */
 volatile byte alarmSecs = 0;
-/* bestimmt, bei welchem Ton die Routine playAlarm ist */
+/* determines which tone playAlarm() currently plays */
 byte alarmStep = 0;
 
-/* bestimmt, ob ISR von Timer1 die Zeit auch ins data-Array schreiben soll */
+/* determines whether ISR1 should write the time into the data array */
 volatile boolean setTime = true;
 
-/* wenn true: Temperatur messen und anzeigen (atm 1mal die Minute) */
+/* if true: measure temperature and display it */
 volatile boolean showTemperature = false;
-/* wenn true: Helligkeit messen und umsetzen (atm 1mal die Sekunde) */
+/* if true: measure brightness and set variable 'brightness' accordingly */
 volatile boolean getBrightness = false;
-/* bestimmt, ob Timer 2 Alarm oder DCF machen soll */
+/* purpose of timer2 can be DCF or alarm */
 volatile t2_purpose_t t2_purpose = DCF;
-/* true, wenn die Zeit gerade gemessen wurde und übernommen werden kann */
+/* true if time was measured and parity check was successfull */
 volatile boolean got_time = false;
-/* true, wenn gerade Minutenanfang gesucht wird */
+/* true if DCF searches for the start of a new minute */
 volatile boolean search_time = false;
 
-/* Vergleichswert für die Soft-PWM */
+/* compare value for the PWM */
 volatile byte cmp = 0;
 
-/* Zum Taster entprellen, merken, ob er vorherige "Runde" schon gedrückt war */
+/* To debounce the buttons: remember the state of the button from last decisec */
 volatile byte buttonState[6];
-/* Eine Tastersperre, dass nicht zu schnell hintereinander gedrückt wird */
+/* button locking: determines how many decisecs need to pass before another button event can be triggered */
 volatile byte buttonsLocked = 0;
 /*
  * To interrupt lengthy functions (like running_letters)
@@ -46,7 +48,7 @@ volatile byte buttonsLocked = 0;
  */
 volatile boolean interrupt = false;
 
-/* Um den richtigen Wochentag im Datumsstring anzeigen zu können */
+/* to display the weekday */
 char* weekdays[] = {
 	"",
 	"Montag",
@@ -58,9 +60,9 @@ char* weekdays[] = {
 	"Sonntag"
 };
 
-/* Bestimmt, welche Reihe gerade gezeichnet werden soll */
+/* determines currently drawn row */
 byte row = 0;
-/* Hilfskonstrukt, um die richtige Reihe anzusteuern */
+/* helper array to access the correct row */
 byte states[] = {
 	0b01111110,
 	0b01111101,
@@ -71,25 +73,25 @@ byte states[] = {
 	0b00111111
 };
 
-/* Bestimmt, welche LEDs leuchten sollen */
+/* pictures the LED matrix */
 volatile byte data[7][17];
 
-/*Time Variables */
+/* time variables */
 volatile byte hour=10;
 volatile byte min=15;
 volatile byte sec=1;
 volatile byte decisec=0;
 
-/* Date variables */
+/* date variables */
 byte day_of_week = 1;
 byte day = 12;
 byte month = 5;
 byte year = 91;
 
-/* Temperature-String der Form "YYY.X C" */
+/* temperature string of the form "YYY.X C" */
 volatile char temperature[9] = "undef";
 
-/* Definiert, wie die Zahlen in den time-Funktionen (horizontal, vertical) gezeichnet werden sollen */
+/* defines the shape of the numbers used to display the time */
 byte numbers[] = {
 	/* 0: */
 	0x0E,0x0A,0x0A,0x0A,0x0A,0x0A,0x0E,

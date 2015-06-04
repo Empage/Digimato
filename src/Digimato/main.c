@@ -78,13 +78,14 @@ int main(void) {
 			}
 			getBrightness = false;
 
-//			//ADCH value check
-//			T0_DISABLE_INTR();
-//			clearAll();
-//			place_mono_char_checked(0, '0' + brightnessMeasurement / 100);
-//			place_mono_char_checked(6, '0' + (brightnessMeasurement % 100) / 10);
-//			place_mono_char_checked(12, '0' + (brightnessMeasurement % 10));
-//			T0_ENABLE_INTR();
+			if (showBrightness) {
+				T0_DISABLE_INTR();
+				clearAll();
+				place_mono_char_checked(0, '0' + brightnessMeasurement / 100);
+				place_mono_char_checked(6, '0' + (brightnessMeasurement % 100) / 10);
+				place_mono_char_checked(12, '0' + (brightnessMeasurement % 10));
+				T0_ENABLE_INTR();
+			}
 		}
 
 		/* test for pressed buttons */
@@ -617,19 +618,30 @@ static void handleButtons(void) {
 	}
 	if (buttonState[BUT_BLACK_2] == BUT_ON) {
 		buttonState[BUT_BLACK_2] = BUT_OFF;
-		if (autoBrightness == false) {
-			buttonsLocked = 15; /* deciseconds */
-			autoBrightness = true;
-			running_letters("AB ON", 100);
+		/* currently use this button to switch from time view to brightness view
+		 * in order to find a good autobrightness function */
+		if (showBrightness == false) {
+			buttonsLocked = 5; /* deciseconds */
+			showBrightness = true;
+			setTime = false;
 		} else {
-			buttonsLocked = 10; /* deciseconds */
-			autoBrightness = false;
-			running_letters("AB OFF", 100);
+			buttonsLocked = 5; /* deciseconds */
+			showBrightness = false;
+			setTime = true;
 		}
+//		if (autoBrightness == false) {
+//			buttonsLocked = 15; /* deciseconds */
+//			autoBrightness = true;
+//			running_letters("AB ON", 100);
+//		} else {
+//			buttonsLocked = 10; /* deciseconds */
+//			autoBrightness = false;
+//			running_letters("AB OFF", 100);
+//		}
 	}
 	if (buttonState[BUT_RED_1] == BUT_ON) {
 		buttonState[BUT_RED_1] = BUT_OFF;
-		buttonsLocked = 10; /* deciseconds */
+		buttonsLocked = 5; /* deciseconds */
 		sec = 0;
 		if(++min >= 60){
 			min = 0;
@@ -637,7 +649,7 @@ static void handleButtons(void) {
 	}
 	if (buttonState[BUT_RED_2] == BUT_ON) {
 		buttonState[BUT_RED_2] = BUT_OFF;
-		buttonsLocked = 10; /* deciseconds */
+		buttonsLocked = 5; /* deciseconds */
 		sec = 0;
 		if (min-- == 0) {
 			min = 59;
@@ -645,7 +657,7 @@ static void handleButtons(void) {
 	}
 	if (buttonState[BUT_BLUE_1] == BUT_ON) {
 		buttonState[BUT_BLUE_1] = BUT_OFF;
-		buttonsLocked = 10; /* deciseconds */
+		buttonsLocked = 5; /* deciseconds */
 		sec = 0;
 		if(++hour >= 24){
 			hour = 0;
@@ -653,7 +665,7 @@ static void handleButtons(void) {
 	}
 	if (buttonState[BUT_BLUE_2] == BUT_ON) {
 		buttonState[BUT_BLUE_2] = BUT_OFF;
-		buttonsLocked = 10; /* deciseconds */
+		buttonsLocked = 5; /* deciseconds */
 		sec = 0;
 		if (hour-- == 0) {
 			hour = 23;
