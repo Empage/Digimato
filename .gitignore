@@ -1,6 +1,7 @@
 .cproject
 .project
 Debug
+Release
 .settings
 latex/document.synctex.gz
 latex/document.pdf

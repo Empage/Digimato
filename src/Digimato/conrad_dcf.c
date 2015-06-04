@@ -4,6 +4,7 @@
  *  Created on: Nov 26, 2012
  *      Author: matthis
  */
+#ifdef USE_DCF
 
 #include "conrad_dcf.h"
 #include "main.h"
@@ -293,3 +294,5 @@ void conrad_calculate_date() {
 			dcf_data[56] * 40 +
 			dcf_data[57] * 80;
 }
+
+#endif

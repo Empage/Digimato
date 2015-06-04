@@ -3,7 +3,9 @@
 
 #include "main.h"
 #include "thermometer.h"
-#include "conrad_dcf.h"
+#ifdef USE_DCF
+	#include "conrad_dcf.h"
+#endif
 #include "fontMonoSpace.h"
 
 static void initPorts();
@@ -16,12 +18,15 @@ static void drawWithBrightness(void);
 static void place_mono_char_checked(int16_t pos,uint8_t zeichen);
 static void horizontal_time(void);
 static void horizontal_num(byte pos, byte number);
-static void vertical_time(void);
-static void vertical_num(uint8_t posx, uint8_t posy, uint8_t number);
+//static void vertical_time(void);
+//static void vertical_num(uint8_t posx, uint8_t posy, uint8_t number);
 static void tick(void);
 static void getButtonStates(void);
 static void handleButtons(void);
+#ifndef MATTHIS
+/* Tobis clock has a speaker built-in */
 static void playAlarm(void);
+#endif
 static void displayTemperature(void);
 
 int main(void) {
@@ -43,7 +48,9 @@ int main(void) {
 //	char datestring[200];
 //	snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
 
+#ifdef USE_DCF
 	conrad_init_time_measure();
+#endif
 
 	while (1) {
 		if (showTemperature) {
@@ -83,14 +90,7 @@ int main(void) {
 		/* test for pressed buttons */
 		handleButtons();
 
-		//TODO alarm
-//		if (alarmOn) {
-//			TIMSK |= OCIE2;
-//			playAlarm();
-//		} else {
-//			TIMSK &= ~OCIE2;
-//		}
-
+#ifdef USE_DCF
 		/* if time got received, check it and take it*/
 		if (got_time) {
 			if (conrad_check_parity() == SUCCESS) {
@@ -101,6 +101,7 @@ int main(void) {
 				conrad_init_time_measure();
 			}
 		}
+#endif
 	}
 
 	return 0;
@@ -231,6 +232,7 @@ void initTimer2() {
 	TCNT2 = 0;
 }
 
+#ifdef USE_DCF
 /* ISR for timer2; used for alarm or dcf measurement */
 ISR (TIMER2_COMP_vect) {
 	byte ret;
@@ -255,6 +257,7 @@ ISR (TIMER2_COMP_vect) {
 		}
 	}
 }
+#endif
 
 /* Initialize serial peripheral interface for sending led data to the shift registers*/
 static void initSPI() {
@@ -282,7 +285,7 @@ static void initADC() {
 	ADCSRA=0b11000111;
 }
 
-#if MATTHIS
+#ifdef MATTHIS
 /* Draws all the pixel with the brightness of the global brightness variable */
 static inline void drawWithBrightness(void){
 	byte output=0;
@@ -474,9 +477,12 @@ static void place_mono_char_checked(int16_t pos,byte zeichen){
 
 static void horizontal_time(void) {
 	byte tens = hour / 10;
+
+#ifdef USE_DCF
 	/* save value of both dots for blinking (cause clearAll would erase them) */
-//	byte p1 = data[2][8];
-//	byte p2 = data[4][8];
+	byte p1 = data[2][8];
+	byte p2 = data[4][8];
+#endif
 
 	clearAll();
 	if (tens) {
@@ -486,15 +492,20 @@ static void horizontal_time(void) {
 	horizontal_num(10, min / 10);
 	horizontal_num(14, min % 10);
 
+#ifdef USE_DCF
 	/* whilst searching for the start of a minute in dcf, let the dots blink */
-//	if (search_time) {
-//		data[2][8] = p1 ^ 255;
-//		data[4][8] = p2 ^ 255;
-//	} else {
-	// currently never let them blink
+	if (search_time) {
+		data[2][8] = p1 ^ 255;
+		data[4][8] = p2 ^ 255;
+	} else {
 		data[2][8] = 255;
 		data[4][8] = 255;
-//	}
+	}
+#else
+	/* always display dots */
+	data[2][8] = 255;
+	data[4][8] = 255;
+#endif
 }
 
 static void horizontal_num(byte pos, byte number) {
@@ -515,37 +526,37 @@ static void horizontal_num(byte pos, byte number) {
 	}
 }
 
-static void vertical_time(void) {
-	clearAll();
-	vertical_num(0,  0, hour / 10);
-	vertical_num(4,  0, hour % 10);
-	vertical_num(0,  6,  min / 10);
-	vertical_num(4,  6,  min % 10);
-	vertical_num(0, 12,  sec / 10);
-	vertical_num(4, 12,  sec % 10);
-}
-
-static void vertical_num(byte posx, byte posy, byte number){
-	byte help=0;
-	for(byte k = 0; k<5;k++){
-		if(k==2){help++;}
-		if(k==4){help++;}
-		byte bitdata = numbers[number*7+help];  //gets 1 line(k) of the number from memory
-		if(bitdata&0b00001000)					//when dot is set as "1" the Pixel is set high
-			data[6-posx][posy+k]=255;
-		else
-			data[6-posx][posy+k]=0;
-		if(bitdata&0b00000100)
-			data[6-(posx+1)][posy+k]=255;
-		else
-			data[6-(posx+1)][posy+k]=0;
-		if(bitdata&0b00000010)
-			data[6-(posx+2)][posy+k]=255;
-		else
-			data[6-(posx+2)][posy+k]=0;
-		help++;
-	}
-}
+//static void vertical_time(void) {
+//	clearAll();
+//	vertical_num(0,  0, hour / 10);
+//	vertical_num(4,  0, hour % 10);
+//	vertical_num(0,  6,  min / 10);
+//	vertical_num(4,  6,  min % 10);
+//	vertical_num(0, 12,  sec / 10);
+//	vertical_num(4, 12,  sec % 10);
+//}
+//
+//static void vertical_num(byte posx, byte posy, byte number){
+//	byte help=0;
+//	for(byte k = 0; k<5;k++){
+//		if(k==2){help++;}
+//		if(k==4){help++;}
+//		byte bitdata = numbers[number*7+help];  //gets 1 line(k) of the number from memory
+//		if(bitdata&0b00001000)					//when dot is set as "1" the Pixel is set high
+//			data[6-posx][posy+k]=255;
+//		else
+//			data[6-posx][posy+k]=0;
+//		if(bitdata&0b00000100)
+//			data[6-(posx+1)][posy+k]=255;
+//		else
+//			data[6-(posx+1)][posy+k]=0;
+//		if(bitdata&0b00000010)
+//			data[6-(posx+2)][posy+k]=255;
+//		else
+//			data[6-(posx+2)][posy+k]=0;
+//		help++;
+//	}
+//}
 
 static void tick(void) {
 	if (++sec >= 60) {
@@ -556,8 +567,10 @@ static void tick(void) {
 				//TODO Datumserhöhung
 				hour = 0;
 			}
+#ifdef USE_DCF
 			/* measure time once every hour */
 			conrad_init_time_measure();
+#endif
 		}
 		/* measure and display temperature once every minute */
 		//showTemperature = true;
@@ -648,6 +661,7 @@ static void handleButtons(void) {
 	}
 }
 
+#ifndef MATTHIS
 inline void playAlarm() {
 	if (alarmSecs) {
 		return;
@@ -699,6 +713,7 @@ inline void playAlarm() {
 		return;
 	}
 }
+#endif
 
 /* displays the temperature on the led matrix (only below 100°) */
 static void displayTemperature(void) {

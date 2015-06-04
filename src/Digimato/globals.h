@@ -16,8 +16,10 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
-/* 1 if code for Matthis clock, 0 if code for Tobis clock */
-#define MATTHIS 1
+/* if code for Matthis clock, else code is for Tobis clock */
+#define MATTHIS
+/* if DCF time measurement should be compiled in */
+//#define USE_DCF
 
 /* general defines */
 #define byte uint8_t
@@ -32,7 +34,7 @@
 /* zeroing the whole data array which holds the data to display */
 #define clearAll() memset(data, 0, 7*17)
 
-#if MATTHIS
+#ifdef MATTHIS
 	/* DCF is on pin PC7 */
 	#define DCF_VALUE (PINC & 0b10000000)
 #else
