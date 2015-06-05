@@ -8,9 +8,6 @@
 #ifndef GLOBALS_H_
 #define GLOBALS_H_
 
-/* Um Compiler ruhig zu stellen, weil wir keine Constante direkt benutzen */
-#define __DELAY_BACKWARD_COMPATIBLE__
-
 #include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>

@@ -565,7 +565,6 @@ static void tick(void) {
 		if (++min >= 60) {
 			min = 0;
 			if (++hour >= 24) {
-				//TODO Datumserhöhung
 				hour = 0;
 			}
 #ifdef USE_DCF
@@ -578,27 +577,31 @@ static void tick(void) {
 	}
 }
 
-//TODO es muss wohl gar nicht zwei Zyklen lang sein, Entprellung ist ja 'fjeden schneller als 100 ms
 static inline void getButtonStates(void) {
 	if (buttonsLocked) {
 		buttonsLocked--;
 		return;
 	}
 	for (byte button = BUT_BLACK_1; button <= BUT_BLUE_2; button++) {
+		/* new way: buttons only need to be pressed one cycle,
+		 * 'buttonsLocked' prevents multiple triggering due to bouncing */
 		if (pressed(button)) {
-			/* Button has to be pressed two clyces for debouncing */
-			if (buttonState[button] != BUT_OFF) {
-				buttonState[button] = BUT_ON;
-				interrupt = true;
-			} else {
-				buttonState[button] = BUT_PENDING;
-			}
-		} else {
-			/* if only pressed one clycle, deactivate it */
-			if (buttonState[button] == BUT_PENDING) {
-				buttonState[button] = BUT_OFF;
-			}
+			buttonState[button] = BUT_ON;
 		}
+//		if (pressed(button)) {
+//			/* Button has to be pressed two clyces for debouncing */
+//			if (buttonState[button] != BUT_OFF) {
+//				buttonState[button] = BUT_ON;
+//				interrupt = true;
+//			} else {
+//				buttonState[button] = BUT_PENDING;
+//			}
+//		} else {
+//			/* if only pressed one clycle, deactivate it */
+//			if (buttonState[button] == BUT_PENDING) {
+//				buttonState[button] = BUT_OFF;
+//			}
+//		}
 	}
 }
 
@@ -607,7 +610,7 @@ static void handleButtons(void) {
 
 	if (buttonState[BUT_BLACK_1] == BUT_ON) {
 		buttonState[BUT_BLACK_1] = BUT_OFF;
-		buttonsLocked = 3; /* deciseconds */
+		buttonsLocked = 5; /* deciseconds */
 		if (autoBrightness == false) {
 			brightness += 16;
 		} else {
