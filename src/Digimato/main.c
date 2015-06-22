@@ -674,6 +674,17 @@ static void handleButtons(void) {
 			hour = 23;
 		}
 	}
+	/* update time after pressing a button, because 4 out of 6 buttons
+	 * alter the time, but only do it in 'setTime' mode */
+	if (setTime) {
+		/*
+		 * deactivate timer 0 interrupt to prevent flickering
+		 * then refresh time in the data array and reactivate t0 ints
+		 */
+		T0_DISABLE_INTR();
+		horizontal_time();
+		T0_ENABLE_INTR();
+	}
 }
 
 #ifndef MATTHIS
