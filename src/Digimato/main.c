@@ -45,12 +45,6 @@ int main(void) {
 	DBG_LED_ON();
 	running_letters("On!",100);
 
-//	char datestring[200];
-//	snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
-
-#ifdef USE_DCF
-	conrad_init_time_measure();
-#endif
 
 	while (1) {
 		if (showTemperature) {
@@ -70,12 +64,24 @@ int main(void) {
 			while (ADCSRA & (1<<ADSC))
 				;
 			byte brightnessMeasurement = ADCH;
-			/* with daylight, the value is ~ 100 => full brightness if lower */
-			if (brightnessMeasurement <= 100) {
-				brightness = 255;
+
+#ifdef MATTHIS
+			/* for Matthis photoresistor: */
+			if (brightnessMeasurement > 250) {
+				/* happens only in the night -> use lowest PWM */
+				brightness = 15;
+			} else if (brightnessMeasurement > 240) {
+				/* happens in the evening and morning -> use moderate PWM */
+				brightness = 143;
 			} else {
-				brightness = 255 - brightnessMeasurement + 100;
+				/* use full brightness */
+				brightness = 255;
 			}
+#else
+			/* for Tobis photoresistor: */
+			brightness = 255 - brightnessMeasurement;
+#endif
+
 			getBrightness = false;
 
 			if (showBrightness) {
@@ -248,6 +254,10 @@ ISR (TIMER2_COMP_vect) {
 			/* reset counter to wait exactly 10 ms */
 			TCNT2 = 0;
 		} else if (ret == SUCCESS) {
+			/* time was received, LED PWM can be activated again */
+			setTime = true;
+			T0_ENABLE_INTR();
+
 			got_time = true;
 			T2_DISABLE_INTR();
 			t2_purpose = ALARM;
@@ -291,7 +301,7 @@ static void initADC() {
 static inline void drawWithBrightness(void){
 	byte output=0;
 
-	if(brightness>cmp){
+	if (brightness > cmp) {
 		byte i;
 		/* The first output Byte */
 		for(i=16;i>8;i--){
@@ -310,7 +320,7 @@ static inline void drawWithBrightness(void){
 				output++;
 			}
 		}
-		/* Wait for SPI transmission complete*/
+		/* Wait for SPI transmission complete */
 		while(!(SPSR & (1<<SPIF)));
 		/* output to SPI-Register */
 		SPDR = output;
@@ -322,15 +332,15 @@ static inline void drawWithBrightness(void){
 			output=0;
 		}
 		while(!(SPSR & (1<<SPIF)));
-	}else{
-		/* output to SPI-Register */
+	} else {
+		/* turn off all LEDs */
 		SPDR = 0;
-		/* Wait for SPI transmission complete*/
+		/* Wait for SPI transmission complete */
 		while(!(SPSR & (1<<SPIF)));
 		SPDR = 0;
 		while(!(SPSR & (1<<SPIF)));
 
-		output=128; //LED 16 off!
+		output = 128; // LED column 16 off!
 	}
 
 	/* RCK on 0 */
@@ -479,12 +489,6 @@ static void place_mono_char_checked(int16_t pos,byte zeichen){
 static void horizontal_time(void) {
 	byte tens = hour / 10;
 
-#ifdef USE_DCF
-	/* save value of both dots for blinking (cause clearAll would erase them) */
-	byte p1 = data[2][8];
-	byte p2 = data[4][8];
-#endif
-
 	clearAll();
 	if (tens) {
 		horizontal_num(0, tens);
@@ -493,20 +497,9 @@ static void horizontal_time(void) {
 	horizontal_num(10, min / 10);
 	horizontal_num(14, min % 10);
 
-#ifdef USE_DCF
-	/* whilst searching for the start of a minute in dcf, let the dots blink */
-	if (search_time) {
-		data[2][8] = p1 ^ 255;
-		data[4][8] = p2 ^ 255;
-	} else {
-		data[2][8] = 255;
-		data[4][8] = 255;
-	}
-#else
 	/* always display dots */
 	data[2][8] = 255;
 	data[4][8] = 255;
-#endif
 }
 
 static void horizontal_num(byte pos, byte number) {
@@ -568,12 +561,14 @@ static void tick(void) {
 				hour = 0;
 			}
 #ifdef USE_DCF
-			/* measure time once every hour */
-			conrad_init_time_measure();
+			/* the DCF receiver does not work with the LED matrix due to the strong pulses
+			 * of the PWM, therefore sync time once every night and do not display anything
+			 * during the sync progress */
+			if (hour == 4) {
+				conrad_init_time_measure();
+			}
 #endif
 		}
-		/* measure and display temperature once every minute */
-		//showTemperature = true;
 	}
 }
 
@@ -621,17 +616,20 @@ static void handleButtons(void) {
 	}
 	if (buttonState[BUT_BLACK_2] == BUT_ON) {
 		buttonState[BUT_BLACK_2] = BUT_OFF;
-		/* currently use this button to switch from time view to brightness view
-		 * in order to find a good autobrightness function */
-		if (showBrightness == false) {
-			buttonsLocked = 5; /* deciseconds */
-			showBrightness = true;
-			setTime = false;
-		} else {
-			buttonsLocked = 5; /* deciseconds */
-			showBrightness = false;
-			setTime = true;
-		}
+//		/* use this button to switch from time view to brightness view
+//		 * in order to find a good autobrightness function */
+//		if (showBrightness == false) {
+//			buttonsLocked = 5; /* deciseconds */
+//			showBrightness = true;
+//			setTime = false;
+//		} else {
+//			buttonsLocked = 5; /* deciseconds */
+//			showBrightness = false;
+//			setTime = true;
+//		}
+
+//		/* other usage: use this button to switch from auto brightness measurement
+//		via photoresistor to manual brightness selection */
 //		if (autoBrightness == false) {
 //			buttonsLocked = 15; /* deciseconds */
 //			autoBrightness = true;
@@ -641,6 +639,12 @@ static void handleButtons(void) {
 //			autoBrightness = false;
 //			running_letters("AB OFF", 100);
 //		}
+
+		/* yet another usage: use the button to display a date string measured by
+		 * the DCF receiver */
+		buttonsLocked = 15; /* deciseconds */
+		char datestring[200];
+		snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
 	}
 	if (buttonState[BUT_RED_1] == BUT_ON) {
 		buttonState[BUT_RED_1] = BUT_OFF;

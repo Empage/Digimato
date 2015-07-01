@@ -16,7 +16,7 @@
 /* if code for Matthis clock, else code is for Tobis clock */
 #define MATTHIS
 /* if DCF time measurement should be compiled in */
-//#define USE_DCF
+#define USE_DCF
 
 /* general defines */
 #define byte uint8_t

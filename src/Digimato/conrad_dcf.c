@@ -4,17 +4,23 @@
  *  Created on: Nov 26, 2012
  *      Author: matthis
  */
-#ifdef USE_DCF
 
 #include "conrad_dcf.h"
 #include "main.h"
 
-/* globale Variablen nur für die conrad Funktionen */
+#ifdef USE_DCF
+
+/* global variables only for the conrad module */
 byte i, j, k, secs, unmodulated, modulated;
 byte dcf_data[60];
 boolean is_start_of_sec;
 
 void conrad_init_time_measure() {
+	/* because the DCF receiver interferes with the LED PWM, the LED matrix is
+	 * disabled during time measurement. It is reactivated in Timer2 ISR */
+	setTime = false;
+	T0_DISABLE_INTR();
+
 	conrad_state_init_dcf();
 	t2_purpose = DCF;
 	T2_ENABLE_INTR();
@@ -45,7 +51,7 @@ byte conrad_state_get_dcf_data() {
 		if (DCF_VALUE != 0) {
 			i++;
 			j = 0;
-			DBG_LED_OFF();
+//			DBG_LED_OFF();
 		/* Wenn es moduliert ist (logisch 0) */
 		} else {
 			j++;
@@ -56,7 +62,7 @@ byte conrad_state_get_dcf_data() {
 			if (j > 7) {
 				i = 0;
 				j = 0;
-				DBG_LED_ON();
+//				DBG_LED_ON();
 			}
 		}
 		/*
