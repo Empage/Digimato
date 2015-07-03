@@ -83,7 +83,7 @@ volatile byte sec=1;
 volatile byte decisec=0;
 
 /* date variables */
-byte day_of_week = 1;
+byte day_of_week = 7;
 byte day = 12;
 byte month = 5;
 byte year = 91;

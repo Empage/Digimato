@@ -45,7 +45,6 @@ int main(void) {
 	DBG_LED_ON();
 	running_letters("On!",100);
 
-
 	while (1) {
 		if (showTemperature) {
 			therm_initiate_temperature_read();
@@ -566,6 +565,13 @@ static void tick(void) {
 			 * during the sync progress */
 			if (hour == 4) {
 				conrad_init_time_measure();
+			} else if (hour == 5 && t2_purpose == DCF) {
+				/* Time was not received but still abort DCF measurement at 5 o' clock
+				 * and show 'old' time again */
+				setTime = true;
+				T0_ENABLE_INTR();
+				T2_DISABLE_INTR();
+				t2_purpose = ALARM;
 			}
 #endif
 		}
@@ -645,6 +651,7 @@ static void handleButtons(void) {
 		buttonsLocked = 15; /* deciseconds */
 		char datestring[200];
 		snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
+		running_letters_simple(datestring);
 	}
 	if (buttonState[BUT_RED_1] == BUT_ON) {
 		buttonState[BUT_RED_1] = BUT_OFF;
