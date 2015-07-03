@@ -4,7 +4,7 @@
  *  Created on: Nov 26, 2012
  *      Author: matthis
  */
-#ifdef USE_DCF
+
 
 #ifndef CONRAD_DCF_H_
 #define CONRAD_DCF_H_
@@ -21,4 +21,4 @@ void conrad_calculate_date();
 
 #endif /* CONRAD_DCF_H_ */
 
-#endif
+

@@ -42,7 +42,6 @@ int main(void) {
 	/* Set global interupts enabled*/
 	sei();
 
-	DBG_LED_ON();
 	running_letters("On!",100);
 
 	while (1) {
@@ -93,8 +92,11 @@ int main(void) {
 			}
 		}
 
-		/* test for pressed buttons */
-		handleButtons();
+		/* handle button events if at least one button was pressed */
+		if (pendingButtonEvent) {
+			pendingButtonEvent = false;
+			handleButtons();
+		}
 
 #ifdef USE_DCF
 		/* if time got received, check it and take it*/
@@ -104,6 +106,12 @@ int main(void) {
 				conrad_calculate_date();
 				got_time = false;
 			} else {
+				setTime = false;
+				T0_DISABLE_INTR();
+				clearAll();
+				/* draw the empty data array in order to really shut down all LEDs */
+				drawWithBrightness();
+
 				conrad_init_time_measure();
 			}
 		}
@@ -432,10 +440,6 @@ void running_letters(char* str, byte time) {
 	/* do not write time during running letters */
 	setTime = false;
 	for (int16_t i = 16; i >= (-6) * (int16_t)strlen(str); i--) {
-		/* check for an interruption (not a real interrupt) */
-		if (interrupt) {
-			handleButtons();
-		}
 		/* do not draw whilst writing into the data array */
 		T0_DISABLE_INTR();
 		clearAll();
@@ -564,6 +568,12 @@ static void tick(void) {
 			 * of the PWM, therefore sync time once every night and do not display anything
 			 * during the sync progress */
 			if (hour == 4) {
+				setTime = false;
+				T0_DISABLE_INTR();
+				clearAll();
+				/* draw the empty data array in order to really shut down all LEDs */
+				drawWithBrightness();
+
 				conrad_init_time_measure();
 			} else if (hour == 5 && t2_purpose == DCF) {
 				/* Time was not received but still abort DCF measurement at 5 o' clock
@@ -588,6 +598,7 @@ static inline void getButtonStates(void) {
 		 * 'buttonsLocked' prevents multiple triggering due to bouncing */
 		if (pressed(button)) {
 			buttonState[button] = BUT_ON;
+			pendingButtonEvent = true;
 		}
 //		if (pressed(button)) {
 //			/* Button has to be pressed two clyces for debouncing */
@@ -607,8 +618,6 @@ static inline void getButtonStates(void) {
 }
 
 static void handleButtons(void) {
-	interrupt = false;
-
 	if (buttonState[BUT_BLACK_1] == BUT_ON) {
 		buttonState[BUT_BLACK_1] = BUT_OFF;
 		buttonsLocked = 5; /* deciseconds */
@@ -650,8 +659,8 @@ static void handleButtons(void) {
 		 * the DCF receiver */
 		buttonsLocked = 15; /* deciseconds */
 		char datestring[200];
-		snprintf(datestring, 199, "%s,der%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
-		running_letters_simple(datestring);
+		snprintf(datestring, 199, "%s,%02d.%02d.%02d", weekdays[day_of_week], day, month, year);
+		running_letters(datestring, 100);
 	}
 	if (buttonState[BUT_RED_1] == BUT_ON) {
 		buttonState[BUT_RED_1] = BUT_OFF;

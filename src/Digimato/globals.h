@@ -97,7 +97,7 @@ extern volatile boolean search_time;
 extern volatile byte cmp;
 extern volatile byte buttonState[6];
 extern volatile byte buttonsLocked;
-extern volatile boolean interrupt;
+extern volatile boolean pendingButtonEvent;
 extern char* weekdays[];
 extern byte row;
 extern byte states[];

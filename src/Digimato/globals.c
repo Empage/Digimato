@@ -42,11 +42,8 @@ volatile byte cmp = 0;
 volatile byte buttonState[6];
 /* button locking: determines how many decisecs need to pass before another button event can be triggered */
 volatile byte buttonsLocked = 0;
-/*
- * To interrupt lengthy functions (like running_letters)
- * Currently used for button events
- */
-volatile boolean interrupt = false;
+/* flag to signal if any button event occured */
+volatile boolean pendingButtonEvent = false;
 
 /* to display the weekday */
 char* weekdays[] = {

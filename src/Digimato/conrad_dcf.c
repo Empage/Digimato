@@ -16,11 +16,6 @@ byte dcf_data[60];
 boolean is_start_of_sec;
 
 void conrad_init_time_measure() {
-	/* because the DCF receiver interferes with the LED PWM, the LED matrix is
-	 * disabled during time measurement. It is reactivated in Timer2 ISR */
-	setTime = false;
-	T0_DISABLE_INTR();
-
 	conrad_state_init_dcf();
 	t2_purpose = DCF;
 	T2_ENABLE_INTR();
@@ -139,76 +134,76 @@ byte conrad_state_get_dcf_data() {
 	return SUCCESS;
 }
 
-byte conrad_get_dcf_data(byte* dcf_data) {
-	byte i = 0;
-	byte j = 0;
-	byte secs;
-	byte unmodulated;
-	byte modulated;
-	// Globale Interrupts verbieten fuer genauere Messung (die natuerlich immernoch ungenau ist ;))
-	cli();
-	// Minutenstart erkennen
-	while (i < 155) {
-		// DCF Signal unmoduliert
-		if (DCF_VALUE != 0) {
-			i++;
-			j = 0;
-			DBG_LED_OFF();
-		// DCF Signal moduliert
-		} else {
-			j++;
-			// Fehlertoleranz, wenn ein Signal kleiner 90 ms erkannt wird
-			if (j > 8) {
-				i = 0;
-				j = 0;
-				DBG_LED_ON();
-			}
-		}
-		_delay_ms(10);
-	}
-	// Minutenanfang erkannt
-	// Funkdaten auslesen
-	for (secs = 0; secs < 60; secs++) {
-		unmodulated = 0;
-		modulated = 0;
-		// Pausiere bis zum modulierten Signal
-		while (DCF_VALUE != 0) ;
-		// Gehe 90% der Sekunde durch (Rest ist Toleranz) und zaehle modulierte und unmodulierte Signale
-		for (j = 0; j < 90; j++) {
-			if (DCF_VALUE != 0) {
-				unmodulated++;
-			} else {
-				if (j < 40) {
-					modulated++;
-				}
-			}
-			_delay_ms(10);
-		}
-		// Wenn mindestens 600 ms unmoduliert waren, deute Signal als g�ltig, sonst ung�ltig und abbrechen
-		if (unmodulated > 60 && unmodulated < 130) {
-			DBG_LED_OFF();
-			// Wenn moduliertes zwischen 60 und 130 ms liegt, liegt logisch 0 an
-			if (modulated > 6 && modulated < 13) {
-				dcf_data[secs] = 0;
-			// Wenn moduliertes zwischen 160 und 230 ms liegt, liegt logisch 1 an
-			} else if (modulated > 16 && modulated < 23) {
-				dcf_data[secs] = 1;
-			}
-		} else {
-			goto error;
-		}
-	}
-
-	// Globale Interrupts wieder anschalten
-	sei();
-	return 0;
-
-error:
-	// Globale Interrupts wieder anschalten und mit Fehlerfall returnen
-	sei();
-	clearAll();
-	return 1;
-}
+//byte conrad_get_dcf_data(byte* dcf_data) {
+//	byte i = 0;
+//	byte j = 0;
+//	byte secs;
+//	byte unmodulated;
+//	byte modulated;
+//	// Globale Interrupts verbieten fuer genauere Messung (die natuerlich immernoch ungenau ist ;))
+//	cli();
+//	// Minutenstart erkennen
+//	while (i < 155) {
+//		// DCF Signal unmoduliert
+//		if (DCF_VALUE != 0) {
+//			i++;
+//			j = 0;
+////			DBG_LED_OFF();
+//		// DCF Signal moduliert
+//		} else {
+//			j++;
+//			// Fehlertoleranz, wenn ein Signal kleiner 90 ms erkannt wird
+//			if (j > 8) {
+//				i = 0;
+//				j = 0;
+////				DBG_LED_ON();
+//			}
+//		}
+//		_delay_ms(10);
+//	}
+//	// Minutenanfang erkannt
+//	// Funkdaten auslesen
+//	for (secs = 0; secs < 60; secs++) {
+//		unmodulated = 0;
+//		modulated = 0;
+//		// Pausiere bis zum modulierten Signal
+//		while (DCF_VALUE != 0) ;
+//		// Gehe 90% der Sekunde durch (Rest ist Toleranz) und zaehle modulierte und unmodulierte Signale
+//		for (j = 0; j < 90; j++) {
+//			if (DCF_VALUE != 0) {
+//				unmodulated++;
+//			} else {
+//				if (j < 40) {
+//					modulated++;
+//				}
+//			}
+//			_delay_ms(10);
+//		}
+//		// Wenn mindestens 600 ms unmoduliert waren, deute Signal als g�ltig, sonst ung�ltig und abbrechen
+//		if (unmodulated > 60 && unmodulated < 130) {
+////			DBG_LED_OFF();
+//			// Wenn moduliertes zwischen 60 und 130 ms liegt, liegt logisch 0 an
+//			if (modulated > 6 && modulated < 13) {
+//				dcf_data[secs] = 0;
+//			// Wenn moduliertes zwischen 160 und 230 ms liegt, liegt logisch 1 an
+//			} else if (modulated > 16 && modulated < 23) {
+//				dcf_data[secs] = 1;
+//			}
+//		} else {
+//			goto error;
+//		}
+//	}
+//
+//	// Globale Interrupts wieder anschalten
+//	sei();
+//	return 0;
+//
+//error:
+//	// Globale Interrupts wieder anschalten und mit Fehlerfall returnen
+//	sei();
+//	clearAll();
+//	return 1;
+//}
 
 byte conrad_check_parity() {
 	byte i;
