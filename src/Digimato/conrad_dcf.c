@@ -19,7 +19,6 @@ void conrad_init_time_measure() {
 	conrad_state_init_dcf();
 	t2_purpose = DCF;
 	T2_ENABLE_INTR();
-	search_time = true;
 	got_time = false;
 }
 
@@ -31,100 +30,74 @@ void conrad_state_init_dcf() {
 	unmodulated = 0;
 	modulated = 0;
 	memset(dcf_data, 0, 60);
-	/* true, wenn eine neue Sekunde beginnt, damit auf moduliertes Signal nur dann gewartet wird */
 	is_start_of_sec = true;
 }
 
 byte conrad_state_get_dcf_data() {
-	/*
-	 * Minutenstart erkennen
-	 * Wenn es 2 Sekunden keine Modulation gibt, beginnt Minute
-	 * eigentlich i >= 200; 155 aus Toleranz.
-	 */
-	if (i < 155) {
-		/* DCF Signal unmoduliert (da es invertiert ist, ist es standartmaessig 1) */
-		if (DCF_VALUE != 0) {
+	/* Wait for start of a minute,
+	 * which is when there is no modulation for 1800 or 1900 ms
+	 * depending of the parity bit 58 */
+	if (i < 175) {
+		if (DCF_100) {
 			i++;
-			j = 0;
-//			DBG_LED_OFF();
-		/* Wenn es moduliert ist (logisch 0) */
 		} else {
 			j++;
-			/*
-			 * Wenn mehr als 70 ms moduliert ist, erkenne es als moduliert an (eig 100 oder 200 ms)
-			 * damit beginnt die Minute hier noch nicht, also von vorne messen
-			 */
-			if (j > 7) {
+
+			/* if there is more than one false positive, start again */
+			if (j >= 2) {
 				i = 0;
 				j = 0;
-//				DBG_LED_ON();
 			}
 		}
-		/*
-		 * returne fehlerfrei.
-		 * Durch T2 wird diese Routine nach 10 ms wieder aufgerufen.
-		 * Entspricht also quasi _delay_ms(10)
-		 */
+		/* now wait for 10 ms realized with timer2 */
 		return T2_WAIT;
 	}
-	/*
-	 * Wenn wir hier sind, wurde Minutenanfang erkannt.
-	 * Jetzt die Daten in jeder Sekunde auslesen.
-	 * entweder 100ms (logisch 0) oder 200ms (logisch 1) moduliert.
-	 */
-	search_time = false;
+	/* If we reached this, we recognized the start of a minute.
+	 * Now read the bit of every second:
+	 * MODULATED 100 ms: bit is 0
+	 * MODULATED 200 ms: bit is 1 */
 	while (secs < 60) {
 		if (is_start_of_sec) {
-			/* Pausiere bis zum modulierten Signal */
-			if (DCF_VALUE != 0) {
+			/* Wait till we have a low amplitude */
+			if (DCF_100) {
 				return T2_WAIT;
 			}
 			is_start_of_sec = false;
 		}
-		/*
-		 * Gehe 95 % der Sekunde durch
-		 * (Rest ist Zeittoleranz, damit nächstes modulierte Signal nicht verpasst wird)
-		 * Zähle dabei modulierte und unmodulierte Messungen
-		 */
-		if (k < 95) {
-			if (DCF_VALUE != 0) {
+
+		/* sample the DCF value every 10 ms for this second */
+		if (k < 99) {
+			if (DCF_100) {
 				unmodulated++;
 			} else {
-				/*
-				 * moduliertes Signal tritt nur am Anfang der Sekunde auf in den ersten 200 ms.
-				 * 400 für Toleranz (300 war nicht genug, kA warum)
-				 */
-				if (k < 40) {
+				/* only in the first 200ms, the signal can be modulated (i.e DCF_25) */
+				if (k < 20) {
 					modulated++;
 				}
 			}
 			k++;
-			/*
-			 * returne fehlerfrei.
-			 * Durch T2 wird diese Routine nach 10 ms wieder aufgerufen.
-			 * Entspricht also quasi _delay_ms(10)
-			 */
+
+			/* now wait for 10 ms realized with timer2 */
 			return T2_WAIT;
 		}
-		/*
-		 * Werte vergangene Sekunde aus:
-		 * mindestens 500 ms und kleiner 1,4 s unmoduliert: Signal gültig, sonst ungültig und abbrechen
-		 */
-		if (unmodulated > 50 && unmodulated < 140) {
-			/* Wenn moduliert zwischen 50 und 140 ms, liegt logisch 0 an */
-			if (modulated > 5 && modulated < 14) {
+		/* Check whether the bit is 0 or 1 for this second. Use some tolerance.
+		 * Values for unmodulated: 80 - 90 => 800 or 900 ms of the second */
+		if (unmodulated > 77 && unmodulated < 93) {
+			/* the bit is 0 if the signal is 25 % for 100 ms, i.e modulated = 10 */
+			if (modulated > 7 && modulated < 13) {
 				dcf_data[secs] = 0;
-			/* Zwischen 150 ms und 240 ms, liegt logisch 1 an */
-			} else if (modulated > 15 && modulated < 24) {
+			/* the bit is 1 if the signal is 25 % for 200 ms, i.e. modulated = 20 */
+			} else if (modulated > 17 && modulated < 23) {
 				dcf_data[secs] = 1;
-			/* sonst ist es ungültig */
+			/* otherwise it is invalid */
 			} else {
 				return ERROR;
 			}
+		/* otherwise it is invalid */
 		} else {
 			return ERROR;
 		}
-		/* Bereite die nächste Sekunde vor */
+		/* prepare for the next second */
 		secs++;
 		is_start_of_sec = true;
 		k = 0;

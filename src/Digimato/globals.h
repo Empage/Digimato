@@ -38,6 +38,9 @@
 	/* DCF is on pin PB2 */
 	#define DCF_VALUE (PINB & 0b00000100)
 #endif
+/* The DCF signal either has 100 % or 25 % amplitude */
+#define DCF_100 (DCF_VALUE != 0)
+#define DCF_25 (DCF_VALUE == 0)
 
 /* red debug LED */
 #define DBG_LED_ON()  (PORTB |= 0b00000010)
@@ -93,7 +96,6 @@ extern volatile boolean showTemperature;
 extern volatile boolean getBrightness;
 extern volatile t2_purpose_t t2_purpose;
 extern volatile boolean got_time;
-extern volatile boolean search_time;
 extern volatile byte cmp;
 extern volatile byte buttonState[6];
 extern volatile byte buttonsLocked;

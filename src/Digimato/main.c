@@ -271,7 +271,6 @@ ISR (TIMER2_COMP_vect) {
 		} else {
 			/* if sth did go wrong, reset and start again */
 			conrad_state_init_dcf();
-			search_time = true;
 		}
 	}
 }

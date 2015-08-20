@@ -32,8 +32,6 @@ volatile boolean getBrightness = false;
 volatile t2_purpose_t t2_purpose = DCF;
 /* true if time was measured and parity check was successfull */
 volatile boolean got_time = false;
-/* true if DCF searches for the start of a new minute */
-volatile boolean search_time = false;
 
 /* compare value for the PWM */
 volatile byte cmp = 0;
